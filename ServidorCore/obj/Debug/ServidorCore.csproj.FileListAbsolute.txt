@@ -1,0 +1,15 @@
+D:\TN\proyectos propios\ServidorTransaccional\ServidorCore\obj\Debug\ServidorCore.csprojResolveAssemblyReference.cache
+D:\TN\proyectos propios\ServidorTransaccional\ServidorCore\bin\Debug\ServidorCore.dll
+D:\TN\proyectos propios\ServidorTransaccional\ServidorCore\bin\Debug\ServidorCore.pdb
+D:\TN\proyectos propios\ServidorTransaccional\ServidorCore\obj\Debug\ServidorCore.dll
+D:\TN\proyectos propios\ServidorTransaccional\ServidorCore\obj\Debug\ServidorCore.pdb
+D:\TN\proyectos propios\ServidorTransaccional V 2.0.0.0\ServidorCore\obj\Debug\ServidorCore.csprojResolveAssemblyReference.cache
+D:\TN\proyectos propios\ServidorTransaccional V 2.0.0.0\ServidorCore\obj\Debug\ServidorCore.dll
+D:\TN\proyectos propios\ServidorTransaccional V 2.0.0.0\ServidorCore\obj\Debug\ServidorCore.pdb
+D:\TN\proyectos propios\ServidorTransaccional V 2.0.0.0\ServidorCore\bin\Debug\ServidorCore.dll
+D:\TN\proyectos propios\ServidorTransaccional V 2.0.0.0\ServidorCore\bin\Debug\ServidorCore.pdb
+D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\bin\Debug\ServidorCore.dll
+D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\bin\Debug\ServidorCore.pdb
+D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.dll
+D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.pdb
+D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.csprojResolveAssemblyReference.cache
