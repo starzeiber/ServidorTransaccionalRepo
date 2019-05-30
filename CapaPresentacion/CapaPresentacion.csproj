@@ -45,18 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="estadoSocketDeTrabajoCliente.cs" />
-    <Compile Include="frmPrincipal.cs">
+    <Compile Include="EstadoSocketDelUsuarioDerivado.cs" />
+    <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmPrincipal.Designer.cs">
-      <DependentUpon>frmPrincipal.cs</DependentUpon>
+    <Compile Include="frmMain.Designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="infoYSocketDeTrabajoCliente.cs" />
+    <Compile Include="InfoSocketDelUsuarioDerivado.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="frmPrincipal.resx">
-      <DependentUpon>frmPrincipal.cs</DependentUpon>
+    <EmbeddedResource Include="frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -81,9 +81,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CapaAccesoDatos\CapaAccesoDatos.csproj">
+    <ProjectReference Include="..\CapaAccesoDatos\CapaDatos.csproj">
       <Project>{a85cd9b1-a21c-4276-bc2a-f54be260b32b}</Project>
-      <Name>CapaAccesoDatos</Name>
+      <Name>CapaDatos</Name>
     </ProjectReference>
     <ProjectReference Include="..\CapaNegocio\CapaNegocio.csproj">
       <Project>{d33c1279-9c24-4836-923f-9a2e55954a9d}</Project>

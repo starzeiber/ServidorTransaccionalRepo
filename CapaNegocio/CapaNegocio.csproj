@@ -40,21 +40,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clases\mensaje200.cs" />
-    <Compile Include="mensaje210.cs" />
-    <Compile Include="operacionesBD.cs" />
-    <Compile Include="operacionesGenerales.cs" />
+    <Compile Include="Clases\Mensajeria\MensajePxSolicitud.cs" />
+    <Compile Include="Clases\Mensajeria\MensajePXRespuesta.cs" />
+    <Compile Include="Clases\OperacionesBD.cs" />
+    <Compile Include="Clases\Mensajeria\MensajeTpvRespuesta.cs" />
+    <Compile Include="Clases\Mensajeria\MensajeTpvSolicitud.cs" />
+    <Compile Include="EnviarRecibirSocketProveedor.cs" />
+    <Compile Include="InfoProveedor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Clases\Validaciones.cs" />
+    <Compile Include="Operaciones.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CapaAccesoDatos\CapaAccesoDatos.csproj">
+    <ProjectReference Include="..\CapaAccesoDatos\CapaDatos.csproj">
       <Project>{a85cd9b1-a21c-4276-bc2a-f54be260b32b}</Project>
-      <Name>CapaAccesoDatos</Name>
+      <Name>CapaDatos</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServidorCore\ServidorCore.csproj">
       <Project>{1684ca50-c181-4396-b92c-9a6098798dcd}</Project>
       <Name>ServidorCore</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

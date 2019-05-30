@@ -7,17 +7,18 @@ using System.Threading.Tasks;
 namespace ServidorCore
 {
     /// <summary>
-    /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente
+    /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación 
+    /// al cliente o para seguimiento de la transacción
     /// </summary>
-    public class estadoSocketDeTrabajo
+    public class EstadoSocketDelUsuarioBase
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        public estadoSocketDeTrabajo() { }
+        public EstadoSocketDelUsuarioBase() { }
 
         // Referencia al proceso principal donde se encuentra el socket principal que disparó el flujo
-        public object procesoPrincipal { get; set; }
+        public object referenciaProcesoPrincipal { get; set; }
 
         /// <summary>
         /// Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
@@ -50,6 +51,7 @@ namespace ServidorCore
         /// </summary>
         public virtual void OnConexion()
         {
+            
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace ServidorCore
         /// </summary>
         /// <param name="args"></param>
         public virtual void OnAceptacion(object args)
-        {
+        {            
         }
 
         /// <summary>
@@ -73,5 +75,12 @@ namespace ServidorCore
         public virtual void OnEnviado()
         {
         }
+
+        /// <summary>
+        /// Objeto de ayuda en caso de requerirse obtener información del cliente o su flujo en la transacción
+        /// y mostrar dicha información en el front del formulario o consola. IMPORTANTE: se requiere un cast del lado
+        /// del estadodelsocket donde se sobre escriben los métodos de esta clase al formulario donde se pintará la información
+        /// </summary>
+        public object formulario { get; set; }
     }
 }

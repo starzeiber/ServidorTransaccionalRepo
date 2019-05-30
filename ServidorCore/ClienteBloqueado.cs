@@ -10,7 +10,7 @@ namespace ServidorCore
     /// <summary>
     /// Clase que contiene las propiedades y métodos para poder agregar a la lista de clientes bloqueados
     /// </summary>
-    public class clientesBloqueados
+    public class ClienteBloqueado
     {
         /// <summary>
         /// IP del cliente a bloquear
@@ -20,7 +20,7 @@ namespace ServidorCore
         /// <summary>
         /// Constructor
         /// </summary>
-        public clientesBloqueados()
+        public ClienteBloqueado()
         {
             this.ipBloqueado = null;
             this.razonDelBloqueo = "";
@@ -36,7 +36,7 @@ namespace ServidorCore
         /// <param name="reason">La razón del bloqueo</param>
         /// <param name="seconds">tiempo en segundos que durará el bloqueo</param>
         /// <param name="active">Variable para indicar que se activa o desactiva el bloqueo</param>
-        public clientesBloqueados(IPAddress ip, string reason, double seconds, bool active)
+        public ClienteBloqueado(IPAddress ip, string reason, double seconds, bool active)
         {
             this.ipBloqueado = ip;
             this.razonDelBloqueo = reason;

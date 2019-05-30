@@ -24,3 +24,20 @@ D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaPresentacion\bin\Deb
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaPresentacion\bin\Debug\CapaNegocio.dll
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaPresentacion\bin\Debug\CapaAccesoDatos.pdb
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaPresentacion\bin\Debug\CapaNegocio.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.csprojAssemblyReference.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.frmMain.resources
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.Properties.Resources.resources
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.csproj.GenerateResource.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.csproj.CoreCompileInputs.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.exe
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaPresentacion.exe.config
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaPresentacion.exe
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaPresentacion.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaAccesoDatos.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaNegocio.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\ServidorCore.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaAccesoDatos.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\CapaNegocio.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\bin\Debug\ServidorCore.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaPresentacion\obj\Debug\CapaPresentacion.csproj.CopyComplete

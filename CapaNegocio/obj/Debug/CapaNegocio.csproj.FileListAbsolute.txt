@@ -7,3 +7,14 @@ D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaNegocio\bin\Debug\Ca
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaNegocio\bin\Debug\CapaAccesoDatos.pdb
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaNegocio\bin\Debug\ServidorCore.dll
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaNegocio\bin\Debug\ServidorCore.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\CapaNegocio.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\CapaNegocio.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\CapaAccesoDatos.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\ServidorCore.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\CapaAccesoDatos.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\ServidorCore.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.csprojAssemblyReference.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.csproj.CoreCompileInputs.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.csproj.CopyComplete
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.pdb

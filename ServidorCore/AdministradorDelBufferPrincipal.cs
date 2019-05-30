@@ -12,7 +12,7 @@ namespace ServidorCore
     /// necesario en cada envío y recepción de información para después, volver a agregarlo.
     /// Así siempre se tiene un buffer justo a cada operación y reusable
     /// </summary>
-    class administradorBuffer
+    class AdministradorDelBufferPrincipal
     {
         /// <summary>        
         /// Matriz de bytes utilizada como buffer en la operación
@@ -44,7 +44,7 @@ namespace ServidorCore
         /// </summary>
         /// <param name="totalBytesAdministrar">Número total de bytes que tendrá la pila del buffer</param>
         /// <param name="tamanoBuffer">Tamaño del buffer para la operación</param>
-        internal administradorBuffer(Int32 totalBytesAdministrar, Int32 tamanoBuffer)
+        internal AdministradorDelBufferPrincipal(Int32 totalBytesAdministrar, Int32 tamanoBuffer)
         {
             this.numeroBytesAdministrados = totalBytesAdministrar;
             this.indiceBuffer = 0;
@@ -54,10 +54,10 @@ namespace ServidorCore
 
         /// <summary>
         /// Remueve el buffer de un objeto SocketAsyncEventArg. Al liberarlo
-        /// lo regresar a la pila de bufferes disponibles para volver a usarlo
+        /// lo regresa a la pila de bufferes disponibles para volver a usarlo
         /// </summary>
         /// <param name="args">SocketAsyncEventArgs donde está el buffer que se quiere remover</param>
-        internal void liberarBuffer(SocketAsyncEventArgs args)
+        internal void LiberarBuffer(SocketAsyncEventArgs args)
         {
             this.indiceDisponible.Push(args.Offset);
             args.SetBuffer(null, 0, 0);
@@ -66,7 +66,7 @@ namespace ServidorCore
         /// <summary>
         ///  Asigna el espacio de buffer usado por la pila de buffer
         /// </summary>
-        internal void inicializarBuffer()
+        internal void InicializarBuffer()
         {            
             // Se crea un enorme buffer y se divide después para cada objeto SocketAsyncEventArg
             this.buffer = new Byte[this.numeroBytesAdministrados];
@@ -77,7 +77,7 @@ namespace ServidorCore
         /// </summary>
         /// <param name="args">SocketAsyncEventArgs donde el buffer se asignará</param>
         /// <returns>True si el buffer fue correctamente asignado</returns>
-        internal Boolean asignarBuffer(SocketAsyncEventArgs args)
+        internal Boolean AsignarBuffer(SocketAsyncEventArgs args)
         {
             // si el indice de la pila es mayor a cero quiere decir que tenemos disponible espacio en
             // la pila para asignar buffer al objeto

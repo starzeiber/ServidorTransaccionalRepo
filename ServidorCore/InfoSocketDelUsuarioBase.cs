@@ -12,10 +12,11 @@ namespace ServidorCore
     public enum NextOperationModes { Normal, WaitForData, Idle };
 
     /// <summary>
-    /// Clase contiene toda la información relevante de un cliente así como un socket
+    /// Clase base que tendrá que ser heredada para los objetos de estado de los usuarios. 
+    /// Contiene toda la información relevante de un cliente así como un socket 
     /// que será el de trabajo para el envío y recepción de mensajes
     /// </summary>
-    public class infoYSocketDeTrabajo
+    public class InfoSocketDelUsuarioBase
     {
         /// <summary>
         /// Identificador único para un cliente
@@ -25,7 +26,7 @@ namespace ServidorCore
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        public object parentSocketServer;
+        public object referenciaSocketPrincipal;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
@@ -70,7 +71,7 @@ namespace ServidorCore
         public string parseLastError;
 
         /// <summary>
-        /// como unicamente debo y puedo mandar un paquete a la vez, si existen mucho se debe tener una cola de envío
+        /// como unicamente debo y puedo mandar un paquete a la vez, si existen muchos se debe tener una cola de envío
         /// </summary>
         public Queue<string> colaEnvio;
 
@@ -86,9 +87,9 @@ namespace ServidorCore
 
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
-        /// el flujo cuando el fin de un envío ocurre
+        /// el flujo cuando el fin de un envío ocurre y así enviar el otro paquete
         /// </summary>
-        internal EventWaitHandle waitSend;
+        internal EventWaitHandle esperandoAEnviar;
 
         /// <summary>
         /// Ip del cliente
@@ -148,11 +149,11 @@ namespace ServidorCore
         /// <summary>
         /// Constructor
         /// </summary>
-        public infoYSocketDeTrabajo()
+        public InfoSocketDelUsuarioBase()
         {
             // waitSend = new AutoResetEvent(true);
-            waitSend = new ManualResetEvent(true);
-            inicializarInfoYSocketDeTrabajoCliente();
+            esperandoAEnviar = new ManualResetEvent(true);
+            InicializarInfoSocketDelUsuarioBase();
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace ServidorCore
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void procesamientoTramaGeneral(string mensajeCliente)
+        public virtual void ProcesamientoTramaGeneral(string mensajeCliente)
         {
         }
 
@@ -169,7 +170,7 @@ namespace ServidorCore
         /// en la lista de ip bloqueadas por alguna anomalía con un tiempo especifico
         /// </summary>
         /// <param name="cliente">Objeto sobre la clase clientesBloqueados</param>
-        public virtual void agregarClienteListaNegados(clientesBloqueados cliente)
+        public virtual void AgregarClienteListaNegados(ClienteBloqueado cliente)
         {
         }
 
@@ -178,18 +179,18 @@ namespace ServidorCore
         /// se asignó un socket de trabajo
         /// </summary>
         /// <param name="principal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo</param>
-        public void SetParentSocketServer(object principal)
+        public void MarcarSocketPrincipal(object principal)
         {
-            this.parentSocketServer = principal;
+            this.referenciaSocketPrincipal = principal;
         }
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
-        /// todas las variables del info y socket de trabajo
+        /// todas las variables de info y socket de trabajo
         /// </summary>
-        public virtual void inicializarInfoYSocketDeTrabajoCliente()
+        public virtual void InicializarInfoSocketDelUsuarioBase()
         {            
-            parentSocketServer = null;
+            referenciaSocketPrincipal = null;
             estadoDeParseo = 0;
             parseCurrentInputCmd = "";
             mensajeRecibidoAux = "";
@@ -204,7 +205,7 @@ namespace ServidorCore
             puertoCliente = 0;
             colaEnvio = new Queue<string>();
             isSending = false;
-            waitSend.Set();
+            esperandoAEnviar.Set();
             user_Guid = Guid.NewGuid();
             ipCliente = "";
             fechaHoraConexionCliente = DateTime.Now;

@@ -3,3 +3,9 @@ D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\bin\Debu
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.dll
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.pdb
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.csprojResolveAssemblyReference.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaAccesoDatos\bin\Debug\CapaAccesoDatos.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaAccesoDatos\bin\Debug\CapaAccesoDatos.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.csprojAssemblyReference.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.csproj.CoreCompileInputs.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.pdb

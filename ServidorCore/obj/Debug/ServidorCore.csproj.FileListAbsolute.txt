@@ -13,3 +13,9 @@ D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\bin\Debug\S
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.dll
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.pdb
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.csprojResolveAssemblyReference.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csprojAssemblyReference.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
+D:\TN\Desarrollos\Proyectos\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb

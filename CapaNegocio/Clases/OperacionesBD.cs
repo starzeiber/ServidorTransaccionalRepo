@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ServidorCore;
 
-namespace CapaPresentacion
+namespace CapaNegocio
 {
-    class estadoSocketDeTrabajoCliente: estadoSocketDeTrabajo
+    public class OperacionesBD
     {
     }
 }
