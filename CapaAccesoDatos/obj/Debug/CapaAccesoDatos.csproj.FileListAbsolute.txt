@@ -1,5 +1,0 @@
-D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\bin\Debug\CapaAccesoDatos.dll
-D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\bin\Debug\CapaAccesoDatos.pdb
-D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.dll
-D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.pdb
-D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\CapaAccesoDatos\obj\Debug\CapaAccesoDatos.csprojResolveAssemblyReference.cache

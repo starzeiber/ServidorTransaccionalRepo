@@ -34,8 +34,7 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 
 //Autor     Fecha       Versión     Descripción
-//@UMB      25/05/17    2.0.0.0     Ya con el core listo, se crea la capa de presentación ensamblada a él
-//@UMB      25/05/17    2.1.0.0     Se modifica el parseo de la trama para poder interpretar un mensaje ISO8583
+//@UMB      26/02/21    1.0.0.0     Se Inicia el proyecto integrando las capas necesarias
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

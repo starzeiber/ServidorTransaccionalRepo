@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServidorCore</RootNamespace>
     <AssemblyName>ServidorCore</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,14 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="administradorBuffer.cs" />
-    <Compile Include="administradorEstadosDeSockets.cs" />
-    <Compile Include="cLogErrores.cs" />
-    <Compile Include="servidorTransaccionalMain.cs" />
-    <Compile Include="clientesBloqueados.cs" />
-    <Compile Include="estadoSocketDeTrabajo.cs" />
+    <Compile Include="AdminBuffer.cs" />
+    <Compile Include="AdminEstadosDeCliente.cs" />
+    <Compile Include="ServidorTransaccional.cs" />
+    <Compile Include="ClienteBloqueo.cs" />
+    <Compile Include="EstadoDelServidorBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="infoYSocketDeTrabajo.cs" />
+    <Compile Include="EstadoDelClienteBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Guia.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

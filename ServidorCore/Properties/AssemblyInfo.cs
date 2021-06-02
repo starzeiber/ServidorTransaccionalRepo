@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 
 //Autor     Fecha       Versión     Descripción
-//@UMB      23/05/17    1.0.0.0     Creación del proyecto documentado en su totalidad y listo para utilizarse como core
+//@UMB      02/06/21    1.0.0.0     Creación del proyecto documentado en su totalidad, el core está funcionando aunque falta el log
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D33C1279-9C24-4836-923F-9A2E55954A9D}</ProjectGuid>
+    <ProjectGuid>{AE06B939-4ABE-4787-A015-C18FA4FE4D5A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CapaNegocio</RootNamespace>
     <AssemblyName>CapaNegocio</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,21 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clases\mensaje200.cs" />
-    <Compile Include="mensaje210.cs" />
-    <Compile Include="operacionesBD.cs" />
-    <Compile Include="operacionesGenerales.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CapaAccesoDatos\CapaAccesoDatos.csproj">
-      <Project>{a85cd9b1-a21c-4276-bc2a-f54be260b32b}</Project>
-      <Name>CapaAccesoDatos</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServidorCore\ServidorCore.csproj">
-      <Project>{1684ca50-c181-4396-b92c-9a6098798dcd}</Project>
-      <Name>ServidorCore</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
