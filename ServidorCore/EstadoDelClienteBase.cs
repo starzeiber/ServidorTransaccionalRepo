@@ -44,10 +44,10 @@ namespace ServidorCore
         public int estadoDeParseo;
 
         /// <summary>
-        /// Cummulative received command char by char
+        /// Comando de recepcion acumulativo
         /// Todo: ver para qué se utiliza
         /// </summary>
-        protected string parseCurrentInputCmd;
+        protected string entradaAcumulativa;
 
         /// <summary>        
         /// Variable de apoyo para trabajar el mensaje que se recibe y no el original
@@ -192,7 +192,7 @@ namespace ServidorCore
         {
             referenciaSocketPrincipal = null;
             estadoDeParseo = 0;
-            parseCurrentInputCmd = "";
+            entradaAcumulativa = "";
             mensajeRecibidoAux = "";
             secuenciaDeRespuestasAlCliente = "";
             errorParseando = false;

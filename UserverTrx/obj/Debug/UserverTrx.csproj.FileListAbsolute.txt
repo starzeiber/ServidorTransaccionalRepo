@@ -1,0 +1,13 @@
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\CapaPresentacion.exe.config
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\CapaPresentacion.exe
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\CapaPresentacion.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\ServidorCore.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\ServidorCore.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\UserverTrx.csproj.AssemblyReference.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\CapaPresentacion.Userver.resources
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\CapaPresentacion.Properties.Resources.resources
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\UserverTrx.csproj.GenerateResource.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\UserverTrx.csproj.CoreCompileInputs.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\UserverTrx.csproj.CopyComplete
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\CapaPresentacion.exe
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\CapaPresentacion.pdb

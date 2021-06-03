@@ -786,8 +786,7 @@ namespace ServidorCore
                         bool willRaiseEvent = true;
                         try
                         {
-                            // se solicita un pedazo de buffer para la recepción del mensaje
-                            //TODO creo que esto está de mas, dado que ya se había asignado espacio
+                            // se solicita un pedazo de buffer para la recepción del mensaje                            
                             estadoDelCliente.saeaDeRecepcion.SetBuffer(estadoDelCliente.saeaDeRecepcion.Offset, tamanoBuffer);
                             // se procede a la recepción asincrona del mensaje,el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
                             willRaiseEvent = estadoDelCliente.socketDeTrabajo.ReceiveAsync(estadoDelCliente.saeaDeRecepcion);

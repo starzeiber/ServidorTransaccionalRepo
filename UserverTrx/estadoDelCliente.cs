@@ -15,7 +15,15 @@ namespace CapaPresentacion
     {
         public override void procesamientoTramaEntrante(string mensajeCliente)
         {
-            
+            ultimoMensajeRecibidoCliente += mensajeCliente;
+            int posSeparador = ultimoMensajeRecibidoCliente.IndexOf(".");
+            string palabra = "";
+            if (posSeparador != -1)
+            {
+                palabra = ultimoMensajeRecibidoCliente.Substring(0, posSeparador);
+                ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(posSeparador, ultimoMensajeRecibidoCliente.Length - posSeparador - 1);
+                secuenciaDeRespuestasAlCliente = palabra.ToUpper();
+            }
         }
     }
 }
