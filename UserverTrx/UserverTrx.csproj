@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -46,14 +47,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="estadoDelServidor.cs" />
+    <Compile Include="Clases\OperacionesFront.cs" />
+    <Compile Include="EstadoDelProveedor.cs" />
+    <Compile Include="EstadoDelServidor.cs" />
     <Compile Include="Userver.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Userver.Designer.cs">
       <DependentUpon>Userver.cs</DependentUpon>
     </Compile>
-    <Compile Include="estadoDelCliente.cs" />
+    <Compile Include="EstadoDelCliente.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Userver.resx">
@@ -83,6 +86,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CapaNegocio\CapaNegocio.csproj">
+      <Project>{ae06b939-4abe-4787-a015-c18fa4fe4d5a}</Project>
+      <Name>CapaNegocio</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServidorCore\ServidorCore.csproj">
       <Project>{1684ca50-c181-4396-b92c-9a6098798dcd}</Project>
       <Name>ServidorCore</Name>
