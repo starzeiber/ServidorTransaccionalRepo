@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminBuffer.cs" />
+    <Compile Include="AdminEstadosDeProveedor.cs" />
     <Compile Include="AdminEstadosDeCliente.cs" />
+    <Compile Include="EstadoDelProveedorBase.cs" />
     <Compile Include="ServidorTransaccional.cs" />
     <Compile Include="ClienteBloqueo.cs" />
     <Compile Include="EstadoDelServidorBase.cs" />

@@ -41,14 +41,15 @@
             this.button_Iniciar.UseVisualStyleBackColor = true;
             this.button_Iniciar.Click += new System.EventHandler(this.button_Iniciar_Click);
             // 
-            // frmPrincipal
+            // Userver
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Controls.Add(this.button_Iniciar);
-            this.Name = "frmPrincipal";
+            this.Name = "Userver";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Userver_Load);
             this.ResumeLayout(false);
 
         }

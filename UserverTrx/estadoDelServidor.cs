@@ -7,7 +7,7 @@ using ServidorCore;
 
 namespace CapaPresentacion
 {
-    class estadoDelServidor : EstadoDelServidorBase
+    class EstadoDelServidor : EstadoDelServidorBase
     {
     }
 }

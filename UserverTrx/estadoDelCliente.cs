@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CapaNegocio;
 using ServidorCore;
+using System;
 
 namespace CapaPresentacion
 {
@@ -11,19 +8,29 @@ namespace CapaPresentacion
     /// Clase que recibe el mensaje del cliente, realizará el envío de ese mensaje a la capa de negocio
     /// para su tratamiento y devolverá la respuesta por el socket al cliente
     /// </summary>
-    class estadoDelCliente : EstadoDelClienteBase
+    class EstadoDelCliente : EstadoDelClienteBase
     {
-        public override void procesamientoTramaEntrante(string mensajeCliente)
+        
+        public override void ProcesamientoTramaEntrante(string mensajeCliente)
         {
             ultimoMensajeRecibidoCliente += mensajeCliente;
-            int posSeparador = ultimoMensajeRecibidoCliente.IndexOf(".");
-            string palabra = "";
-            if (posSeparador != -1)
+            //TODO colocar el fin de texto
+            int posSeparadorTramas = ultimoMensajeRecibidoCliente.IndexOf(".");
+            
+            string tramaProveedor = "";
+            if (posSeparadorTramas != -1)
             {
-                palabra = ultimoMensajeRecibidoCliente.Substring(0, posSeparador);
-                ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(posSeparador, ultimoMensajeRecibidoCliente.Length - posSeparador - 1);
-                secuenciaDeRespuestasAlCliente = palabra.ToUpper();
+                //mensajeRespuesta = ultimoMensajeRecibidoCliente.Substring(0, posSeparadorTramas);
+                ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(posSeparadorTramas, ultimoMensajeRecibidoCliente.Length - posSeparadorTramas - 1);
+
+                tramaProveedor = Operaciones.PrepararMensajeriaProveedor(ultimoMensajeRecibidoCliente);
+
+                base.tramaProveedor = tramaProveedor;
+
+                secuenciaDeRespuestasAlCliente = tramaProveedor.ToUpper();
+
             }
         }
+
     }
 }
