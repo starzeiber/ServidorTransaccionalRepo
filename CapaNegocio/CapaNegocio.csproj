@@ -31,12 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AccesoBaseDatos">
-      <HintPath>Dll\AccesoBaseDatos.dll</HintPath>
-    </Reference>
-    <Reference Include="LogEventos">
-      <HintPath>Dll\LogEventos.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,27 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clases\ConsultaPxDatos.cs" />
-    <Compile Include="Clases\ConsultaPxTae.cs" />
-    <Compile Include="Clases\DatosConexion.cs" />
-    <Compile Include="Clases\RespuestaConsultaPxDatos.cs" />
-    <Compile Include="Clases\RespuestaConsultaPxTae.cs" />
-    <Compile Include="Clases\RespuestaPxBase.cs" />
-    <Compile Include="Clases\RespuestaSolicitudPxDatos.cs" />
-    <Compile Include="Clases\RespuestaSolicitudPxTae.cs" />
-    <Compile Include="Clases\RespuestaSolicitudTpvBase.cs" />
-    <Compile Include="Clases\SolicitudPxBase.cs" />
-    <Compile Include="Clases\SolicitudPxDatos.cs" />
-    <Compile Include="Clases\SolicitudPxTae.cs" />
-    <Compile Include="Clases\SolicitudTpv.cs" />
-    <Compile Include="Clases\SolicitudTpvBase.cs" />
-    <Compile Include="Operaciones.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UtileriaVariablesGlobales.cs" />
-    <Compile Include="Validaciones.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Dll\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

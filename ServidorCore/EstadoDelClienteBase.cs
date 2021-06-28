@@ -145,9 +145,6 @@ namespace ServidorCore
         /// </summary>
         public string LogTemporal;
 
-        public string tramaProveedor { get; set; }
-
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -156,14 +153,42 @@ namespace ServidorCore
             // waitSend = new AutoResetEvent(true);
             esperandoEnvio = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
-             InicializarEstadoDelClienteBase();            
+             inicializarEstadoDelClienteBase();            
+        }
+
+        /// <summary>
+        /// Función virtual para poder sobre escribirla, en esta se controla
+        /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+        /// </summary>
+        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
+        public virtual void procesamientoTramaEntrante(string mensajeCliente)
+        {
+        }
+
+        /// <summary>
+        /// Función virtual para sobre escribirla, con ella de ingresa a un cliente
+        /// en la lista de ip bloqueadas por alguna anomalía con un tiempo especifico
+        /// </summary>
+        /// <param name="cliente">Objeto sobre la clase clientesBloqueados</param>
+        public virtual void agregarClienteListaNegados(ClienteBloqueo cliente)
+        {
+        }
+
+        /// <summary>
+        /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
+        /// se inició toda la operación
+        /// </summary>
+        /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        public void SetParentSocketServer(object socketPrincipal)
+        {
+            this.referenciaSocketPrincipal = socketPrincipal;
         }
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        public virtual void InicializarEstadoDelClienteBase()
+        public virtual void inicializarEstadoDelClienteBase()
         {
             referenciaSocketPrincipal = null;
             estadoDeParseo = 0;
@@ -188,34 +213,5 @@ namespace ServidorCore
             NextOperation = NextOperationModes.Normal;
             LogTemporal = "";
         }
-
-        /// <summary>
-        /// Función virtual para poder sobre escribirla, en esta se controla
-        /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
-        /// </summary>
-        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void ProcesamientoTramaEntrante(string mensajeCliente)
-        {
-        }
-
-        /// <summary>
-        /// Función virtual para sobre escribirla, con ella de ingresa a un cliente
-        /// en la lista de ip bloqueadas por alguna anomalía con un tiempo especifico
-        /// </summary>
-        /// <param name="cliente">Objeto sobre la clase clientesBloqueados</param>
-        public virtual void AgregarClienteListaNegados(ClienteBloqueo cliente)
-        {
-        }
-
-        /// <summary>
-        /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
-        /// se inició toda la operación
-        /// </summary>
-        /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        public void IngresarReferenciaSocketPrincipal(object socketPrincipal)
-        {
-            this.referenciaSocketPrincipal = socketPrincipal;
-        }
-                
     }
 }

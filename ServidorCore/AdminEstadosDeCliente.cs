@@ -17,7 +17,7 @@ namespace ServidorCore
         /// <summary>
         /// El conjunto de estados se almacena como una pila
         /// </summary>
-        private Stack<T> pilaEstadosDeCliente;
+        private Stack<T> pilaEstadosSocket;
 
         /// <summary>
         /// Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
@@ -25,7 +25,7 @@ namespace ServidorCore
         /// <param name="capacidadPilaEstadosSocket">Máximo número de objetos que la pila de estados podrá almacenar</param>
         internal AdminEstadosDeCliente(Int32 capacidadPilaEstadosSocket)
         {
-            pilaEstadosDeCliente = new Stack<T>(capacidadPilaEstadosSocket);
+            pilaEstadosSocket = new Stack<T>(capacidadPilaEstadosSocket);
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace ServidorCore
         /// </summary>
         internal Int32 contadorElementos
         {
-            get { return this.pilaEstadosDeCliente.Count; }
+            get { return this.pilaEstadosSocket.Count; }
         }
 
         /// <summary>
@@ -43,12 +43,12 @@ namespace ServidorCore
         internal T obtenerUnElemento()
         {
             // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
-            lock (this.pilaEstadosDeCliente)
+            lock (this.pilaEstadosSocket)
             {
                 // obtengo un estado de la pila
-                T estadoDelClienteBase = pilaEstadosDeCliente.Pop();
+                T estadoDelClienteBase = pilaEstadosSocket.Pop();
                 //  con el estado obtenido, se inicializa sin una nueva instancia ya que la pila ya estaba creada
-                estadoDelClienteBase.InicializarEstadoDelClienteBase();
+                estadoDelClienteBase.inicializarEstadoDelClienteBase();
                 return estadoDelClienteBase;
             }
         }
@@ -64,9 +64,9 @@ namespace ServidorCore
                 throw new ArgumentNullException("El objeto no puede ser nulo");
             }
             // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
-            lock (this.pilaEstadosDeCliente)
+            lock (this.pilaEstadosSocket)
             {
-                this.pilaEstadosDeCliente.Push(estadoDelClienteBase);
+                this.pilaEstadosSocket.Push(estadoDelClienteBase);
             }
         }
     }

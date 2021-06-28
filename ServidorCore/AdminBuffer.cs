@@ -77,9 +77,9 @@ namespace ServidorCore
         /// <summary>
         /// Asigna un buffer desde la pila de bufferes para el objeto SocketAsyncEventArgs específico
         /// </summary>
-        /// <param name="socketAsyncEventArgs">SocketAsyncEventArgs donde el buffer se asignará</param>
+        /// <param name="args">SocketAsyncEventArgs donde el buffer se asignará</param>
         /// <returns>True si el buffer fue correctamente asignado</returns>
-        internal Boolean asignarBuffer(SocketAsyncEventArgs socketAsyncEventArgs)
+        internal Boolean asignarBuffer(SocketAsyncEventArgs args)
         {
             // si el indice de la pila es mayor a cero quiere decir que tenemos disponible espacio en
             // el buffer grande para asignar una sección de buffer al objeto
@@ -88,9 +88,9 @@ namespace ServidorCore
                 // se asigna un espacio para ser el buffer de trabajo, indicando el tamaño
                 // para la operación y su desplazamiento será el número del elemento de 
                 // la pila de indices, al mismo tiempo se le quita un elemento a dicha pila
-                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.pilaDeIndicesDeDesplazamientoBuffer.Pop(), this.tamanoBufferPorSeccion);
+                args.SetBuffer(this.bufferCompleto, this.pilaDeIndicesDeDesplazamientoBuffer.Pop(), this.tamanoBufferPorSeccion);
             }
-            else // si es la primera vez que se utiliza este socketAsyncEventArgs
+            else // si es la primera vez que se instancia
             {
                 // se comprueba que si le restamos el número de bytes a utilizar del número
                 // de bytes disponibles, si es menor al indice actual entonces no alcanza
@@ -98,8 +98,8 @@ namespace ServidorCore
                 {
                     return false;
                 }
-                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);
-                // aquí está la clave, con este offset, me posiciono dentro del buffer enorme para saber en que sección me encuentro después de haber asignado un pedazo
+                args.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);
+                // aquí está la clave, con este offset, me posiciono dentro del buffer enorme para saber en que sección me encuentro
                 this.indiceBuffer += this.tamanoBufferPorSeccion;
             }
 
