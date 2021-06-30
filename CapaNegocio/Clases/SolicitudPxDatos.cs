@@ -32,43 +32,43 @@ namespace CapaNegocio
 
 
 
-        /// <summary>
-        /// Constructor para inicializar el objeto
-        /// </summary>
-        /// <param name="solicitudDatosXml">Objeto con los valores entrantes</param>
-        public SolicitudPxDatos(SolicitudDatosXml solicitudDatosXml)
-        {
-            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_DATOS_PX);
-            idCadena = solicitudDatosXml.idCadena;
-            idTienda = solicitudDatosXml.idTienda;
-            idPos = solicitudDatosXml.idPos;
-            try
-            {
-                fecha = solicitudDatosXml.fechaHora.Substring(0, 8).Replace("/", "");
-            }
-            catch (Exception)
-            {
-                fecha = DateTime.Now.Date.ToString("ddMMyyyy");
-            }
-            try
-            {
-                hora = solicitudDatosXml.fechaHora.Substring(11, 8).Replace(":", "");
-            }
-            catch (Exception)
-            {
-                hora = DateTime.Now.ToString("hhmmss");
-            }
+        ///// <summary>
+        ///// Constructor para inicializar el objeto
+        ///// </summary>
+        ///// <param name="solicitudDatosXml">Objeto con los valores entrantes</param>
+        //public SolicitudPxDatos(SolicitudDatosXml solicitudDatosXml)
+        //{
+        //    encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_DATOS_PX);
+        //    idCadena = solicitudDatosXml.idCadena;
+        //    idTienda = solicitudDatosXml.idTienda;
+        //    idPos = solicitudDatosXml.idPos;
+        //    try
+        //    {
+        //        fecha = solicitudDatosXml.fechaHora.Substring(0, 8).Replace("/", "");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        fecha = DateTime.Now.Date.ToString("ddMMyyyy");
+        //    }
+        //    try
+        //    {
+        //        hora = solicitudDatosXml.fechaHora.Substring(11, 8).Replace(":", "");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        hora = DateTime.Now.ToString("hhmmss");
+        //    }
 
-            region = 9;
-            sku = solicitudDatosXml.Sku;
-            folio = solicitudDatosXml.telefono.ToString();
-            numeroTransaccion = solicitudDatosXml.numeroTransaccion;
-            monto = double.Parse(UtileriaVariablesGlobales.ObtenerMontoPorSku(sku) + "00");
-            cuenta = "";
-            datosAdicionales = solicitudDatosXml.idProducto;
-            extension = "";
+        //    region = 9;
+        //    sku = solicitudDatosXml.Sku;
+        //    folio = solicitudDatosXml.telefono.ToString();
+        //    numeroTransaccion = solicitudDatosXml.numeroTransaccion;
+        //    monto = double.Parse(UtileriaVariablesGlobales.ObtenerMontoPorSku(sku) + "00");
+        //    cuenta = "";
+        //    datosAdicionales = solicitudDatosXml.idProducto;
+        //    extension = "";
 
-        }
+        //}
 
         /// <summary>
         /// Función para  formar la trama de envío 

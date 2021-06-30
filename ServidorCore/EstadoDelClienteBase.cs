@@ -30,12 +30,12 @@ namespace ServidorCore
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
-        internal SocketAsyncEventArgs saeaDeRecepcion;
+        internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en el envío
         /// </summary>
-        internal SocketAsyncEventArgs saeaDeEnvio;
+        internal SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
 
         /// <summary>        
         /// Variable que indica el estado del parseo del mensaje
@@ -145,7 +145,8 @@ namespace ServidorCore
         /// </summary>
         public string LogTemporal;
 
-        public string tramaProveedor { get; set; }
+        public string tramaRecepcionProveedor { get; set; }
+        public string tramaEnvioProveedor { get; set; }
 
 
         /// <summary>

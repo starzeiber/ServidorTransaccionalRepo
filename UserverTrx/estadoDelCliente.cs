@@ -25,7 +25,7 @@ namespace CapaPresentacion
 
                 tramaProveedor = Operaciones.PrepararMensajeriaProveedor(ultimoMensajeRecibidoCliente);
 
-                base.tramaProveedor = tramaProveedor;
+                base.tramaEnvioProveedor = tramaProveedor;
 
                 secuenciaDeRespuestasAlCliente = tramaProveedor.ToUpper();
 

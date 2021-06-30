@@ -9,7 +9,7 @@ namespace CapaPresentacion
 {
     public class EstadoDelProveedor: EstadoDelProveedorBase
     {
-        public override void ProcesamientoTramaSaliente(string mensaje)
+        public override void ProcesarTramaDelProveeedor(string mensaje)
         {
             
         }

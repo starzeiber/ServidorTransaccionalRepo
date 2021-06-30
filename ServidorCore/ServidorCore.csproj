@@ -54,5 +54,8 @@
   <ItemGroup>
     <Content Include="Guia.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Dll\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -127,6 +127,8 @@ namespace ServidorCore
         /// </summary>
         public string LogTemporal;
 
+        public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -174,7 +176,7 @@ namespace ServidorCore
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void ProcesamientoTramaSaliente(string mensaje)
+        public virtual void ProcesarTramaDelProveeedor(string mensaje)
         {
         }
                 

@@ -81,16 +81,16 @@ namespace CapaNegocio
             switch (tipoLog)
             {
                 case TiposLog.info:
-                    log.EscribirLogEvento(mensaje);
+                    UtileriaVariablesGlobales.log.EscribirLogEvento(mensaje);
                     break;
                 case TiposLog.warnning:
-                    log.EscribirLogAdvertencia(mensaje);
+                    UtileriaVariablesGlobales.log.EscribirLogAdvertencia(mensaje);
                     break;
                 case TiposLog.error:
-                    log.EscribirLogError(mensaje);
+                    UtileriaVariablesGlobales.log.EscribirLogError(mensaje);
                     break;
                 default:
-                    log.EscribirLogEvento(mensaje);
+                    UtileriaVariablesGlobales.log.EscribirLogEvento(mensaje);
                     break;
             }
         }

@@ -9,37 +9,37 @@ namespace CapaNegocio
     /// </summary>
     public class ConsultaPxTae : SolicitudPxBase
     {
-        /// <summary>
-        /// Constructor para inicializar el objeto
-        /// </summary>
-        /// <param name="consultaTaeXml">Objeto con los valores entrantes</param>
-        public ConsultaPxTae(ConsultaTaeXml consultaTaeXml)
-        {
-            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX);
-            idCadena = consultaTaeXml.idCadena;
-            idTienda = consultaTaeXml.idTienda;
-            idPos = consultaTaeXml.idPos;
-            try
-            {
-                fecha = consultaTaeXml.fechaHora.Substring(0, 8).Replace("/", "");
-            }
-            catch (Exception)
-            {
-                fecha = DateTime.Now.Date.ToString("ddMMyyyy");
-            }
-            try
-            {
-                hora = consultaTaeXml.fechaHora.Substring(11, 8).Replace(":", "");
-            }
-            catch (Exception)
-            {
-                hora = DateTime.Now.ToString("hhmmss");
-            }
-            region = 9;
-            sku = consultaTaeXml.Sku;
-            telefono = consultaTaeXml.telefono.ToString();
-            numeroTransaccion = consultaTaeXml.numeroTransaccion;
-        }
+        ///// <summary>
+        ///// Constructor para inicializar el objeto
+        ///// </summary>
+        ///// <param name="consultaTaeXml">Objeto con los valores entrantes</param>
+        //public ConsultaPxTae(ConsultaTaeXml consultaTaeXml)
+        //{
+        //    encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX);
+        //    idCadena = consultaTaeXml.idCadena;
+        //    idTienda = consultaTaeXml.idTienda;
+        //    idPos = consultaTaeXml.idPos;
+        //    try
+        //    {
+        //        fecha = consultaTaeXml.fechaHora.Substring(0, 8).Replace("/", "");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        fecha = DateTime.Now.Date.ToString("ddMMyyyy");
+        //    }
+        //    try
+        //    {
+        //        hora = consultaTaeXml.fechaHora.Substring(11, 8).Replace(":", "");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        hora = DateTime.Now.ToString("hhmmss");
+        //    }
+        //    region = 9;
+        //    sku = consultaTaeXml.Sku;
+        //    telefono = consultaTaeXml.telefono.ToString();
+        //    numeroTransaccion = consultaTaeXml.numeroTransaccion;
+        //}
 
         /// <summary>
         /// Función para  formar la trama de envío 
