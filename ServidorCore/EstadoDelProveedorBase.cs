@@ -10,10 +10,7 @@ namespace ServidorCore
 {
     public class EstadoDelProveedorBase
     {
-        /// <summary>
-        /// Identificador único para un cliente
-        /// </summary>
-        public Guid idUnicoCliente { get; set; }
+        EstadoDelClienteBase EstadoDelClienteBase { get; set; }
 
         /// <summary>
         /// Identificador único para un proveedor
@@ -117,10 +114,10 @@ namespace ServidorCore
         /// </summary>
         public Socket socketDeTrabajo { get; set; }
 
-        /// <summary>
-        /// Experimental para ciertos protocolos, aún se prueba su función
-        /// </summary>
-        public NextOperationModes NextOperation { get; set; }
+        ///// <summary>
+        ///// Experimental para ciertos protocolos, aún se prueba su función
+        ///// </summary>
+        //public NextOperationModes NextOperation { get; set; }
 
         /// <summary>
         /// Variable que se utiliza temporalmente para almacenar en un log
@@ -167,7 +164,7 @@ namespace ServidorCore
             ipProveedor = "";
             fechaHoraConexionProveedor = DateTime.Now;
             socketDeTrabajo = null;
-            NextOperation = NextOperationModes.Normal;
+            //NextOperation = NextOperationModes.Normal;
             LogTemporal = "";
         }
 

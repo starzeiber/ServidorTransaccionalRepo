@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServidorCore
 {
-    // Enumerado experimental para ciertos protocolos, aún se prueba su función
-    public enum NextOperationModes { Normal, WaitForData, Idle };
-
+    
     /// <summary>
     /// Clase contiene toda la información relevante de un cliente así como un socket
     /// que será el de trabajo para el envío y recepción de mensajes
@@ -38,18 +33,6 @@ namespace ServidorCore
         internal SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
 
         /// <summary>        
-        /// Variable que indica el estado del parseo del mensaje
-        /// </summary>
-        /// todo: ver si esta variable si es para esto
-        public int estadoDeParseo;
-
-        /// <summary>
-        /// Comando de recepcion acumulativo
-        /// Todo: ver para qué se utiliza
-        /// </summary>
-        protected string entradaAcumulativa;
-
-        /// <summary>        
         /// Variable de apoyo para trabajar el mensaje que se recibe y no el original
         /// </summary>
         protected string mensajeRecibidoAux;
@@ -57,7 +40,7 @@ namespace ServidorCore
         /// <summary>        
         /// Secuencia de respuestas (Respuesta1\r\Respuesta2\r\n...RespuestaN\r\n)
         /// </summary>
-        public string secuenciaDeRespuestasAlCliente;
+        public string tramaRespuesta;
 
         /// <summary>
         /// Variable que marca un error en el parseo del mensaje de una solicitud, True = error
@@ -135,19 +118,8 @@ namespace ServidorCore
         /// </summary>
         public Socket socketDeTrabajo { get; set; }
 
-        /// <summary>
-        /// Experimental para ciertos protocolos, aún se prueba su función
-        /// </summary>
-        public NextOperationModes NextOperation { get; set; }
-
-        /// <summary>
-        /// Variable que se utiliza temporalmente para almacenar en un log
-        /// </summary>
-        public string LogTemporal;
-
-        public string tramaRecepcionProveedor { get; set; }
-        public string tramaEnvioProveedor { get; set; }
-
+        public int codigoRespuesta { get; set; }
+        public int codigoAutorizacion { get; set; }
 
         /// <summary>
         /// Constructor
@@ -157,7 +129,7 @@ namespace ServidorCore
             // waitSend = new AutoResetEvent(true);
             esperandoEnvio = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
-             InicializarEstadoDelClienteBase();            
+            InicializarEstadoDelClienteBase();
         }
 
         /// <summary>
@@ -170,7 +142,7 @@ namespace ServidorCore
             estadoDeParseo = 0;
             entradaAcumulativa = "";
             mensajeRecibidoAux = "";
-            secuenciaDeRespuestasAlCliente = "";
+            tramaRespuesta = "";
             errorParseando = false;
             ultimoErrorDeParseo = "";
             ultimoErrorConexionCliente = "";
@@ -186,8 +158,8 @@ namespace ServidorCore
             ipCliente = "";
             fechaHoraConexionCliente = DateTime.Now;
             socketDeTrabajo = null;
-            NextOperation = NextOperationModes.Normal;
-            LogTemporal = "";
+            //NextOperation = NextOperationModes.Normal;
+            //LogTemporal = "";
         }
 
         /// <summary>
@@ -195,7 +167,7 @@ namespace ServidorCore
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void ProcesamientoTramaEntrante(string mensajeCliente)
+        public virtual void ProcesarTrama(string mensajeCliente)
         {
         }
 
@@ -217,6 +189,12 @@ namespace ServidorCore
         {
             this.referenciaSocketPrincipal = socketPrincipal;
         }
-                
+
+        public virtual void ObtenerTrama(int codigoRespuesta, int codigoAutorizacion)
+        {
+
+        }
+
+
     }
 }

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using CapaPresentacion.Clases;
+using ServidorCore;
+using System;
 using System.Configuration;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CapaPresentacion.Clases;
-using ServidorCore;
 
 namespace CapaPresentacion
 {
@@ -23,10 +16,10 @@ namespace CapaPresentacion
 
         private void button_Iniciar_Click(object sender, EventArgs e)
         {
-            ServidorTransaccional<EstadoDelCliente, EstadoDelServidor,EstadoDelProveedor> servidor =
-                new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(10000, 1024, 10);
+            ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor> servidor =
+                new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(5, 1024, 10);
             servidor.ConfigInicioServidor();
-            servidor.IniciarServidor(int.Parse(ConfigurationManager.ConnectionStrings["puertoLocal"].ToString()));
+            servidor.IniciarServidor(int.Parse(ConfigurationManager.AppSettings["puertoLocal"].ToString()));
         }
 
         private void Userver_Load(object sender, EventArgs e)

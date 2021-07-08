@@ -30,43 +30,68 @@ namespace CapaNegocio
         /// </summary>
         public String extension { get; set; }
 
+        private const int LONGITUD_GRUPO = 4;
+        private const int LONGITUD_CADENA = 4;
+        private const int LONGITUD_TIENDA = 4;
+        private const int LONGITUD_POS = 4;
+        private const int LONGITUD_FECHA = 6;
+        private const int LONGITUD_HORA = 6;
+        private const int LONGITUD_REGION = 2;
+        private const int LONGITUD_SKU = 20;
+        private const int LONGITUD_CUENTA = 10;
+        private const int LONGITUD_NUM_TRANS = 5;
+        private const int LONGITUD_MONTO = 9;
+        private const int LONGITUD_FOLIO = 20;
+        private const int LONGITUD_DATOS_ADICIONALES = 20;
+        private const int LONGITUD_EXTENSION = 80;
 
-        ///// <summary>
-        ///// Constructor para inicializar el objeto
-        ///// </summary>
-        ///// <param name="consultaDatosXml">Objeto con los valores entrantes</param>
-        //public ConsultaPxDatos(ConsultaDatosXml consultaDatosXml)
-        //{
-        //    encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_DATOS_PX);
-        //    idCadena = consultaDatosXml.idCadena;
-        //    idTienda = consultaDatosXml.idTienda;
-        //    idPos = consultaDatosXml.idPos;
-        //    try
-        //    {
-        //        fecha = consultaDatosXml.fechaHora.Substring(0, 8).Replace("/", "");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        fecha = DateTime.Now.Date.ToString("ddMMyyyy");
-        //    }
-        //    try
-        //    {
-        //        hora = consultaDatosXml.fechaHora.Substring(11, 8).Replace(":", "");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        hora = DateTime.Now.ToString("hhmmss");
-        //    }
 
-        //    region = 9;
-        //    sku = consultaDatosXml.Sku;
-        //    folio = consultaDatosXml.telefono.ToString();
-        //    numeroTransaccion = consultaDatosXml.numeroTransaccion;
-        //    monto = double.Parse(UtileriaVariablesGlobales.ObtenerMontoPorSku(sku) + "00");
-        //    cuenta = String.Empty;
-        //    datosAdicionales = consultaDatosXml.idProducto;
-        //    extension = String.Empty;
-        //}
+        public bool DividirTrama(string trama)
+        {
+            int posicionParseo = 0;
+            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_DATOS_PX);
+            posicionParseo += 2;
+
+            try
+            {
+                idGrupo = int.Parse(trama.Substring(posicionParseo, LONGITUD_GRUPO));
+                posicionParseo += LONGITUD_GRUPO;
+                idCadena = int.Parse(trama.Substring(posicionParseo, LONGITUD_CADENA));
+                posicionParseo += LONGITUD_CADENA;
+                idTienda = int.Parse(trama.Substring(posicionParseo, LONGITUD_TIENDA));
+                posicionParseo += LONGITUD_TIENDA;
+                idPos = int.Parse(trama.Substring(posicionParseo, LONGITUD_POS));
+                posicionParseo += LONGITUD_POS;
+                fecha = trama.Substring(posicionParseo, LONGITUD_FECHA);
+                posicionParseo += LONGITUD_FECHA;
+                hora = trama.Substring(posicionParseo, LONGITUD_HORA);
+                posicionParseo += LONGITUD_HORA;
+                region = int.Parse(trama.Substring(posicionParseo, LONGITUD_REGION));
+                posicionParseo += LONGITUD_REGION;
+                sku = trama.Substring(posicionParseo, LONGITUD_SKU);
+                posicionParseo += LONGITUD_SKU;
+                cuenta = trama.Substring(posicionParseo, LONGITUD_CUENTA);
+                posicionParseo += LONGITUD_CUENTA;
+                numeroTransaccion = int.Parse(trama.Substring(posicionParseo, LONGITUD_NUM_TRANS));
+                posicionParseo += LONGITUD_NUM_TRANS;
+                monto = double.Parse(trama.Substring(posicionParseo, LONGITUD_MONTO));
+                posicionParseo += LONGITUD_MONTO;
+                folio = trama.Substring(posicionParseo, LONGITUD_FOLIO);
+                telefono = double.Parse(folio).ToString();
+                posicionParseo += LONGITUD_FOLIO;
+                datosAdicionales = trama.Substring(posicionParseo, LONGITUD_DATOS_ADICIONALES);
+                posicionParseo += LONGITUD_DATOS_ADICIONALES;
+                extension = trama.Substring(posicionParseo, LONGITUD_EXTENSION);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogEvento(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama)));
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Función para  formar la trama de envío 

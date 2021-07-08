@@ -9,37 +9,54 @@ namespace CapaNegocio
     /// </summary>
     public class ConsultaPxTae : SolicitudPxBase
     {
-        ///// <summary>
-        ///// Constructor para inicializar el objeto
-        ///// </summary>
-        ///// <param name="consultaTaeXml">Objeto con los valores entrantes</param>
-        //public ConsultaPxTae(ConsultaTaeXml consultaTaeXml)
-        //{
-        //    encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX);
-        //    idCadena = consultaTaeXml.idCadena;
-        //    idTienda = consultaTaeXml.idTienda;
-        //    idPos = consultaTaeXml.idPos;
-        //    try
-        //    {
-        //        fecha = consultaTaeXml.fechaHora.Substring(0, 8).Replace("/", "");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        fecha = DateTime.Now.Date.ToString("ddMMyyyy");
-        //    }
-        //    try
-        //    {
-        //        hora = consultaTaeXml.fechaHora.Substring(11, 8).Replace(":", "");
-        //    }
-        //    catch (Exception)
-        //    {
-        //        hora = DateTime.Now.ToString("hhmmss");
-        //    }
-        //    region = 9;
-        //    sku = consultaTaeXml.Sku;
-        //    telefono = consultaTaeXml.telefono.ToString();
-        //    numeroTransaccion = consultaTaeXml.numeroTransaccion;
-        //}
+        private const int LONGITUD_GRUPO = 4;
+        private const int LONGITUD_CADENA = 4;
+        private const int LONGITUD_TIENDA = 4;
+        private const int LONGITUD_POS = 4;
+        private const int LONGITUD_FECHA = 6;
+        private const int LONGITUD_HORA = 6;
+        private const int LONGITUD_REGION = 2;
+        private const int LONGITUD_SKU = 20;
+        private const int LONGITUD_TELEFONO = 10;
+        private const int LONGITUD_NUM_TRANS = 5;
+
+
+        public bool DividirTrama(string trama)
+        {
+            int posicionParseo = 0;
+            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX);
+            posicionParseo += 2;
+
+            try
+            {
+                idGrupo = int.Parse(trama.Substring(posicionParseo, LONGITUD_GRUPO));
+                posicionParseo += LONGITUD_GRUPO;
+                idCadena = int.Parse(trama.Substring(posicionParseo, LONGITUD_CADENA));
+                posicionParseo += LONGITUD_CADENA;
+                idTienda = int.Parse(trama.Substring(posicionParseo, LONGITUD_TIENDA));
+                posicionParseo += LONGITUD_TIENDA;
+                idPos = int.Parse(trama.Substring(posicionParseo, LONGITUD_POS));
+                posicionParseo += LONGITUD_POS;
+                fecha = trama.Substring(posicionParseo, LONGITUD_FECHA);
+                posicionParseo += LONGITUD_FECHA;
+                hora = trama.Substring(posicionParseo, LONGITUD_HORA);
+                posicionParseo += LONGITUD_HORA;
+                region = int.Parse(trama.Substring(posicionParseo, LONGITUD_REGION));
+                posicionParseo += LONGITUD_REGION;
+                sku = trama.Substring(posicionParseo, LONGITUD_SKU);
+                posicionParseo += LONGITUD_SKU;
+                telefono = trama.Substring(posicionParseo, LONGITUD_TELEFONO);
+                posicionParseo += LONGITUD_TELEFONO;
+                numeroTransaccion = int.Parse(trama.Substring(posicionParseo, LONGITUD_NUM_TRANS));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogEvento(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama)));
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Función para  formar la trama de envío 

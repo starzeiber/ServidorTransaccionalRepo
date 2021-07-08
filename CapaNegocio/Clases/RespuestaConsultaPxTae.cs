@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CapaNegocio
@@ -95,6 +96,40 @@ namespace CapaNegocio
                 return false;
             }
 
+        }
+
+        public string ObtenerTrama()
+        {
+            StringBuilder respuesta = new StringBuilder();
+            try
+            {
+                respuesta.Append(encabezado.ToString());
+                respuesta.Append(Validaciones.formatoValor(idGrupo.ToString(), TipoFormato.N, 4));
+                respuesta.Append(Validaciones.formatoValor(idCadena.ToString(), TipoFormato.N, 4));
+                respuesta.Append(Validaciones.formatoValor(idTienda.ToString(), TipoFormato.N, 4));
+                respuesta.Append(Validaciones.formatoValor(idPos.ToString(), TipoFormato.N, 4));
+                respuesta.Append(Validaciones.formatoValor(fecha, TipoFormato.N, 6));
+                respuesta.Append(Validaciones.formatoValor(hora, TipoFormato.N, 6));
+                respuesta.Append(Validaciones.formatoValor(region.ToString(), TipoFormato.N, 2));
+                respuesta.Append(Validaciones.formatoValor(sku, TipoFormato.ANS, 20));
+                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 10));
+                respuesta.Append(Validaciones.formatoValor(numeroTransaccion.ToString(), TipoFormato.N, 5));
+                respuesta.Append(Validaciones.formatoValor(autorizacion.ToString(), TipoFormato.N, 9));
+                respuesta.Append(Validaciones.formatoValor(PIN.ToString(), TipoFormato.ANS, 20));
+                respuesta.Append(Validaciones.formatoValor(fechaExpiracion.ToString(), TipoFormato.N, 6));
+                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
+                respuesta.Append(Validaciones.formatoValor(nombreProveedor.ToString(), TipoFormato.ANS, 14));
+                respuesta.Append(Validaciones.formatoValor(mensajeTicket1.ToString(), TipoFormato.ANS, 80));
+                respuesta.Append(Validaciones.formatoValor(mensajeTicket2.ToString(), TipoFormato.ANS, 60));
+                respuesta.Append(Validaciones.formatoValor(codigoRespuesta.ToString(), TipoFormato.N, 2));
+
+                return respuesta.ToString();
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogEvento(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message)));
+                return String.Empty;
+            }
         }
     }
 }

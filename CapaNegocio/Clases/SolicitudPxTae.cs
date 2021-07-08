@@ -24,7 +24,7 @@ namespace CapaNegocio
         /// Constructor para inicializar el objeto
         /// </summary>
         /// <param name="solicitudTaeXml">Objeto con los valores entrantes</param>
-        public SolicitudPxTae(string trama)
+        public SolicitudPxTae()
         {
 
         }

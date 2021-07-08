@@ -1,6 +1,6 @@
 ﻿using CapaNegocio;
 using ServidorCore;
-using System;
+using System.Threading.Tasks;
 
 namespace CapaPresentacion
 {
@@ -10,27 +10,62 @@ namespace CapaPresentacion
     /// </summary>
     class EstadoDelCliente : EstadoDelClienteBase
     {
-        
-        public override void ProcesamientoTramaEntrante(string mensajeCliente)
+        RespuestaGenerica respuestaGenerica;
+        public override void ProcesarTrama(string mensajeCliente)
         {
-            ultimoMensajeRecibidoCliente += mensajeCliente;
-            //TODO colocar el fin de texto
+            //ultimoMensajeRecibidoCliente += mensajeCliente;
+            ultimoMensajeRecibidoCliente = mensajeCliente;
+            //TODO colocar el fin de texto de trama TPV
             int posSeparadorTramas = ultimoMensajeRecibidoCliente.IndexOf(".");
-            
-            string tramaProveedor = "";
             if (posSeparadorTramas != -1)
             {
-                //mensajeRespuesta = ultimoMensajeRecibidoCliente.Substring(0, posSeparadorTramas);
-                ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(posSeparadorTramas, ultimoMensajeRecibidoCliente.Length - posSeparadorTramas - 1);
+                ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(0, posSeparadorTramas);
 
-                tramaProveedor = Operaciones.PrepararMensajeriaProveedor(ultimoMensajeRecibidoCliente);
+                Task<RespuestaGenerica> procesarMensajeriaTask = Task.Run(() => Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente));
+                procesarMensajeriaTask.Wait();
 
-                base.tramaEnvioProveedor = tramaProveedor;
-
-                secuenciaDeRespuestasAlCliente = tramaProveedor.ToUpper();
-
+                respuestaGenerica = procesarMensajeriaTask.Result;
+                codigoRespuesta = respuestaGenerica.codigoRespuesta;
             }
         }
 
+        public override void ObtenerTrama(int codigoRespuesta, int codigoAutorizacion)
+        {
+            switch (respuestaGenerica.cabecerasTrama)
+            {
+                case Operaciones.CabecerasTrama.compraTaePx:
+                    this.codigoRespuesta = codigoRespuesta;
+                    this.codigoAutorizacion = codigoAutorizacion;
+                    tramaRespuesta = respuestaGenerica.respuestaSolicitudPxTae.ObtenerTrama();
+                    break;
+                case Operaciones.CabecerasTrama.consultaTaePx:
+                    this.codigoRespuesta = codigoRespuesta;
+                    this.codigoAutorizacion = codigoAutorizacion;
+                    tramaRespuesta = respuestaGenerica.respuestaConsultaPxTae.ObtenerTrama();
+                    break;
+                case Operaciones.CabecerasTrama.compraDatosPx:
+                    this.codigoRespuesta = codigoRespuesta;
+                    this.codigoAutorizacion = codigoAutorizacion;
+                    tramaRespuesta = respuestaGenerica.respuestaSolicitudPxDatos.ObtenerTrama();
+                    break;
+                case Operaciones.CabecerasTrama.consultaDatosPx:
+                    this.codigoRespuesta = codigoRespuesta;
+                    this.codigoAutorizacion = codigoAutorizacion;
+                    tramaRespuesta = respuestaGenerica.respuestaConsultaPxDatos.ObtenerTrama();
+                    break;
+                case Operaciones.CabecerasTrama.compraTpv:
+                    this.codigoRespuesta = codigoRespuesta;
+                    this.codigoAutorizacion = codigoAutorizacion;
+                    //TODO obtener la trama TPV
+                    break;
+                case Operaciones.CabecerasTrama.consultaTpv:
+                    this.codigoRespuesta = codigoRespuesta;
+                    this.codigoAutorizacion = codigoAutorizacion;
+                    //TODO obtener la trama TPV
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

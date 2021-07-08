@@ -67,7 +67,7 @@ namespace CapaNegocio
         {
             TAE = 0,
             Datos = 1,
-            Otro=2
+            TPV=2
         }
 
 
@@ -95,109 +95,195 @@ namespace CapaNegocio
             }
         }
 
-        public static string PrepararMensajeriaProveedor(string trama)
+        #region Entrada
+
+        public static RespuestaGenerica ProcesarMensajeria(string trama)
         {
-            string tramaProveedor = string.Empty;
+            RespuestaGenerica respuestaGenerica = new RespuestaGenerica();
+
             try
             {
+                //Si la conversión de las 2 primeras posiciones son un número entonces no es una TPV
                 if (int.TryParse(trama.Substring(0, 2), out int encabezado))
                 {
-                    trama = trama.Substring(2);
                     switch (encabezado)
                     {
                         case (int)CabecerasTrama.compraTaePx:
-                            tramaProveedor = Compra(trama, tipoMensajeria.PX, categoriaProducto.TAE);
+                            respuestaGenerica.cabecerasTrama = CabecerasTrama.compraTaePx;
+                            respuestaGenerica = Compra(trama, tipoMensajeria.PX, categoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.consultaTaePx:
-                            tramaProveedor = Consulta(trama, tipoMensajeria.PX, categoriaProducto.TAE);
+                            respuestaGenerica.cabecerasTrama = CabecerasTrama.consultaTaePx;
+                            respuestaGenerica = Consulta(trama, tipoMensajeria.PX, categoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.compraDatosPx:
-                            tramaProveedor = Compra(trama, tipoMensajeria.PX, categoriaProducto.Datos);
+                            respuestaGenerica.cabecerasTrama = CabecerasTrama.compraDatosPx;
+                            respuestaGenerica = Compra(trama, tipoMensajeria.PX, categoriaProducto.Datos);
                             break;
                         case (int)CabecerasTrama.consultaDatosPx:
-                            tramaProveedor = Consulta(trama, tipoMensajeria.PX, categoriaProducto.Datos);
+                            respuestaGenerica.cabecerasTrama = CabecerasTrama.consultaDatosPx;
+                            respuestaGenerica = Consulta(trama, tipoMensajeria.PX, categoriaProducto.Datos);
                             break;
                         default:
+                            respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.Denegada;
                             break;
                     }
                 }
                 else
                 {
-                    trama = trama.Substring(3);
+                    //quito el encabezado HEX porque es una trama TPV
+                    trama = trama.Substring(2);
+                    //si las 3 posiciones es un número, entonces es correcta la trama
                     if (int.TryParse(trama.Substring(0, 3), out encabezado))
                     {
+
                         switch (encabezado)
                         {
                             case (int)CabecerasTrama.compraTpv:
-                                tramaProveedor = Compra(trama, tipoMensajeria.TenServer,categoriaProducto.Otro);
+                                respuestaGenerica = Compra(trama, tipoMensajeria.TenServer, categoriaProducto.TPV);
                                 break;
                             case (int)CabecerasTrama.consultaTpv:
-                                tramaProveedor = Consulta(trama, tipoMensajeria.TenServer, categoriaProducto.Otro);
+                                respuestaGenerica = Consulta(trama, tipoMensajeria.TenServer, categoriaProducto.TPV);
                                 break;
                             default:
+                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.Denegada;
                                 break;
                         }
                     }
+                    else
+                    {
+                        //Trama no reconocida
+                        respuestaGenerica.codigoRespuesta= (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                    }
                 }
-                return tramaProveedor;
+                return respuestaGenerica;
             }
             catch (Exception ex)
             {
                 UtileriaVariablesGlobales.log.EscribirLogError("Error al identificar el tipo de mensajeria: " + ex.Message);
-                return tramaProveedor;
+                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorProceso;
+                return respuestaGenerica;
             }
         }
 
-
-        private static string Compra(string trama, tipoMensajeria tipoMensajeria, categoriaProducto categoriaProducto)
+        private static RespuestaGenerica Compra(string trama, tipoMensajeria tipoMensajeria, categoriaProducto categoriaProducto = categoriaProducto.TPV)
         {
-            string tramaRespuesta=string.Empty;
+            RespuestaGenerica respuestaGenerica = new RespuestaGenerica();
+
             switch (tipoMensajeria)
             {
                 case tipoMensajeria.PX:
                     switch (categoriaProducto)
                     {
                         case categoriaProducto.TAE:
+                            // se obtienen los campos de la trama
+                            respuestaGenerica.solicitudPxTae = new SolicitudPxTae();
+                            if (respuestaGenerica.solicitudPxTae.DividirTrama(trama) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                return respuestaGenerica;
+                            }
+
+                            respuestaGenerica.respuestaSolicitudPxTae = new RespuestaSolicitudPxTae(respuestaGenerica.solicitudPxTae);
+
+                            //TODO todas la validaciones de la trama
+
+                            respuestaGenerica.trama = respuestaGenerica.respuestaSolicitudPxTae.ObtenerTrama();
+
+
                             break;
                         case categoriaProducto.Datos:
+                            respuestaGenerica.solicitudPxDatos = new SolicitudPxDatos();
+
+                            if (respuestaGenerica.solicitudPxDatos.DividirTrama(trama) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                return respuestaGenerica;
+                            }
+
+                            respuestaGenerica.respuestaSolicitudPxDatos = new RespuestaSolicitudPxDatos(respuestaGenerica.solicitudPxDatos);
+
+                            //TODO todas la validaciones de la trama
+
+                            respuestaGenerica.trama = respuestaGenerica.respuestaSolicitudPxDatos.ObtenerTrama();
+
                             break;
                         default:
+                            respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
                             break;
                     }
                     break;
                 case tipoMensajeria.TenServer:
+
                     break;
                 default:
+                    respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
                     break;
             }
-            
-            return tramaRespuesta;
+
+            return respuestaGenerica;
         }
 
-        private static string Consulta(string trama, tipoMensajeria tipoMensajeria, categoriaProducto categoriaProducto)
+        private static RespuestaGenerica Consulta(string trama, tipoMensajeria tipoMensajeria, categoriaProducto categoriaProducto)
         {
-            string tramaRespuesta = string.Empty;
+            RespuestaGenerica respuestaGenerica = new RespuestaGenerica();
+
             switch (tipoMensajeria)
             {
                 case tipoMensajeria.PX:
                     switch (categoriaProducto)
                     {
                         case categoriaProducto.TAE:
+                            // se obtienen los campos de la trama
+                            respuestaGenerica.consultaPxTae = new ConsultaPxTae();
+                            if (respuestaGenerica.consultaPxTae.DividirTrama(trama) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                return respuestaGenerica;
+                            }
+
+                            respuestaGenerica.respuestaConsultaPxTae = new RespuestaConsultaPxTae(respuestaGenerica.consultaPxTae);
+
+                            //TODO todas la validaciones de la trama
+
+                            respuestaGenerica.trama = respuestaGenerica.respuestaConsultaPxTae.ObtenerTrama();
+
+
                             break;
                         case categoriaProducto.Datos:
+                            respuestaGenerica.consultaPxDatos = new ConsultaPxDatos();
+
+                            if (respuestaGenerica.consultaPxDatos.DividirTrama(trama) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                return respuestaGenerica;
+                            }
+
+                            respuestaGenerica.respuestaConsultaPxDatos = new RespuestaConsultaPxDatos(respuestaGenerica.consultaPxDatos);
+
+                            //TODO todas la validaciones de la trama
+
+                            respuestaGenerica.trama = respuestaGenerica.respuestaConsultaPxDatos.ObtenerTrama();
+
                             break;
                         default:
+                            respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
                             break;
                     }
                     break;
                 case tipoMensajeria.TenServer:
+
                     break;
                 default:
+                    respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
                     break;
             }
 
-            return tramaRespuesta;
+            return respuestaGenerica;
         }
+
+        #endregion
+
 
 
         //private static string CompraTaePx(string trama)
