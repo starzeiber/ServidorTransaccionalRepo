@@ -52,7 +52,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogEvento(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama)));
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama),UtileriaVariablesGlobales.TiposLog.error));
                 return false;
             }
         }
@@ -81,7 +81,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogError("ConsultaPxTae.ObtenerTrama. " + ex.Message));
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
                 //Utileria.log.EscribirLogError("ConsultaPxTae.ObtenerTrama. " + ex.Message);
                 return String.Empty;
             }

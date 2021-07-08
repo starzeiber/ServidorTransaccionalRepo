@@ -87,7 +87,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogEvento(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama)));
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama),UtileriaVariablesGlobales.TiposLog.error));
                 return false;
             }
         }
@@ -120,8 +120,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogError("ConsultaPxDatos.ObtenerTrama. " + ex.Message));
-                //Utileria.log.EscribirLogError("ConsultaPxDatos.ObtenerTrama. " + ex.Message);
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
                 return String.Empty;
             }
         }

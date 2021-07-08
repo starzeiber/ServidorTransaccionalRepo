@@ -1,11 +1,7 @@
 ﻿using CapaNegocio;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CapaPresentacion.Clases
@@ -31,7 +27,7 @@ namespace CapaPresentacion.Clases
             try
             {
                 UtileriaVariablesGlobales.nombreLog = ConfigurationManager.AppSettings["Log"].ToString();
-                UtileriaVariablesGlobales.instanciarLog();
+                UtileriaVariablesGlobales.InstanciarLog();
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -42,7 +38,7 @@ namespace CapaPresentacion.Clases
                     eventLog.WriteEntry("Error al inicializar el log: " + ex.Message, EventLogEntryType.Error);
                 }
                 return Task.FromResult(false);
-            }            
+            }
         }
 
         /// <summary>
@@ -55,12 +51,12 @@ namespace CapaPresentacion.Clases
             {
                 UtileriaVariablesGlobales.cadenaConexionBO = ConfigurationManager.ConnectionStrings["cadenaConexionBO"].ToString();
                 UtileriaVariablesGlobales.cadenaConexionTrx = ConfigurationManager.ConnectionStrings["cadenaConexionTransaccional"].ToString();
-                
+
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                Task.Run(() => Operaciones.EscribirLogInterno("Error al cargar las cadenas de conexión: " + ex.Message, Operaciones.TiposLog.error));
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error al cargar las cadenas de conexión: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
                 return Task.FromResult(false);
             }
         }
@@ -86,7 +82,7 @@ namespace CapaPresentacion.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Operaciones.EscribirLogInterno("Error creando performance counter: " + ex.Message, Operaciones.TiposLog.error));                
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error creando performance counter: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
                 return Task.FromResult(false);
             }
         }

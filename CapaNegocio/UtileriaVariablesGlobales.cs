@@ -1,9 +1,4 @@
-﻿using LogEventos;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.SqlClient;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,7 +48,7 @@ namespace CapaNegocio
         /// <summary>
         /// Encabezado de un mensaje 28
         /// </summary>
-        public static String ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX = "28";        
+        public static String ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX = "28";
 
         /// <summary>
         /// Valor del timeout sobre una compra
@@ -61,7 +56,7 @@ namespace CapaNegocio
         public static int timeOut;
 
         public static string nombreLog;
-        
+
         /// <summary>
         /// cadena de conexión al BO
         /// </summary>
@@ -84,7 +79,7 @@ namespace CapaNegocio
         /// <summary>
         /// Log del sistema
         /// </summary>
-        public static LogService log = new LogService();
+        private static EventLogTraceListener logListener;
 
         [ThreadStatic]
         static int semillaAleatorio;
@@ -110,21 +105,64 @@ namespace CapaNegocio
             ErrorAccesoDB = 16,
             ErrorFormato = 30,
             NumeroTelefono = 35,
-            ErrorProceso = 50,            
+            ErrorProceso = 50,
             ClienteBloqueado = 65,
             SinCreditoDisponible = 66,
             ErrorObteniendoCredito = 67,
             ErrorConexionServer = 70,
             SinRespuestaCarrier = 71,
             CarrierAbajo = 73,
-            MontoInvalido=88
+            MontoInvalido = 88
 
         }
 
-        public static void instanciarLog()
+        /// <summary>
+        /// Enumerado con los tipos de log
+        /// </summary>
+        public enum TiposLog
         {
-            log = new LogService();
-            log.InicializarLog(nombreLog);
+            /// <summary>
+            /// Informativo
+            /// </summary>
+            info = 0,
+            /// <summary>
+            /// Alerta
+            /// </summary>
+            warnning = 1,
+            /// <summary>
+            /// Error
+            /// </summary>
+            error
+        }
+
+        public static void InstanciarLog()
+        {
+            logListener = new EventLogTraceListener(nombreLog);
+            Trace.Listeners.Add(logListener);
+        }
+
+        /// <summary>
+        /// Función que graba en un log interno desde afuera de la capa de negocio
+        /// </summary>
+        /// <param name="mensaje"></param>
+        /// <param name="tipoLog"></param>
+        public static void Log(string mensaje, TiposLog tipoLog)
+        {
+            switch (tipoLog)
+            {
+                case TiposLog.info:
+                    Trace.TraceInformation(mensaje);
+                    break;
+                case TiposLog.warnning:
+                    Trace.TraceWarning(mensaje);
+                    break;
+                case TiposLog.error:
+                    Trace.TraceError(mensaje);
+                    break;
+                default:
+                    Trace.WriteLine(mensaje);
+                    break;
+            }
         }
 
         /// <summary>
@@ -172,7 +210,7 @@ namespace CapaNegocio
                     break;
                 case 50:
                     descripcion = "ErrorProceso";
-                    break;                
+                    break;
                 case 65:
                     descripcion = "ClienteBloqueado";
                     break;
@@ -267,7 +305,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => log.EscribirLogError(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message)));
+                Task.Run(() => Log(ObtenerNombreFuncion(ex.Message), TiposLog.error));
                 return Task.FromResult(0);
             }
         }

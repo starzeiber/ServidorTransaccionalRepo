@@ -3,9 +3,7 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\CapaNegocio.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\CapaNegocio.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\AccesoBaseDatos.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\LogEventos.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\AccesoBaseDatos.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Debug\LogEventos.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Debug\CapaNegocio.pdb

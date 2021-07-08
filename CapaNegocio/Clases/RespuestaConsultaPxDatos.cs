@@ -107,8 +107,8 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogError("RespuestaConsultaPxDatos.ObtenerParametrosTrama: Error en el parseo de la trama: " + ex.Message));
-                //Utileria.log.EscribirLogError("RespuestaConsultaPxDatos.ObtenerParametrosTrama: Error en el parseo de la trama: " + ex.Message);
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                
                 return false;
             }
         }
@@ -143,8 +143,8 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogError("SolicitudPxDatos.ObtenerTrama. " + ex.Message));
-                //Utileria.log.EscribirLogError("SolicitudPxDatos.ObtenerTrama. " + ex.Message);
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                
                 return String.Empty;
             }
         }

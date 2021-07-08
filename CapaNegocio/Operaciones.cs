@@ -11,38 +11,7 @@ namespace CapaNegocio
     /// Clase que contiene todas las operaciones del sistema
     /// </summary>
     public static class Operaciones
-    {
-        ///// <summary>
-        ///// Cadena de conexión al BO
-        ///// </summary>
-        //public static String cadenaConexionBO;
-        ///// <summary>
-        ///// Cadena de conexión a una transaccional
-        ///// </summary>
-        //public static String cadenaConexionTrx;
-
-        //public static String nombreLog;
-
-
-
-        /// <summary>
-        /// Enumerado con los tipos de log
-        /// </summary>
-        public enum TiposLog
-        {
-            /// <summary>
-            /// Informativo
-            /// </summary>
-            info = 0,
-            /// <summary>
-            /// Alerta
-            /// </summary>
-            warnning = 1,
-            /// <summary>
-            /// Error
-            /// </summary>
-            error
-        }
+    {     
 
         /// <summary>
         /// Listado de cabeceras de trama para identificar el tipo de solicitud
@@ -68,31 +37,6 @@ namespace CapaNegocio
             TAE = 0,
             Datos = 1,
             TPV=2
-        }
-
-
-        /// <summary>
-        /// Función que graba en un log interno desde afuera de la capa de negocio
-        /// </summary>
-        /// <param name="mensaje"></param>
-        /// <param name="tipoLog"></param>
-        public static void EscribirLogInterno(string mensaje, TiposLog tipoLog)
-        {
-            switch (tipoLog)
-            {
-                case TiposLog.info:
-                    UtileriaVariablesGlobales.log.EscribirLogEvento(mensaje);
-                    break;
-                case TiposLog.warnning:
-                    UtileriaVariablesGlobales.log.EscribirLogAdvertencia(mensaje);
-                    break;
-                case TiposLog.error:
-                    UtileriaVariablesGlobales.log.EscribirLogError(mensaje);
-                    break;
-                default:
-                    UtileriaVariablesGlobales.log.EscribirLogEvento(mensaje);
-                    break;
-            }
         }
 
         #region Entrada
@@ -160,7 +104,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                UtileriaVariablesGlobales.log.EscribirLogError("Error al identificar el tipo de mensajeria: " + ex.Message);
+                UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error al identificar el tipo de mensajeria: " + ex.Message),UtileriaVariablesGlobales.TiposLog.error);
                 respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorProceso;
                 return respuestaGenerica;
             }
@@ -420,18 +364,18 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogAdvertencia(UtileriaVariablesGlobales.ObtenerNombreFuncion("No hay resultados con la operación")));
+                        Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("No hay resultados con la operación"),UtileriaVariablesGlobales.TiposLog.warnning));
                     }
                 }
                 else
                 {
-                    Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogAdvertencia(UtileriaVariablesGlobales.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message)));
+                    Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), UtileriaVariablesGlobales.TiposLog.error));
                 }
                 return datosConexion;
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.log.EscribirLogAdvertencia(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message)));
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
                 return datosConexion;
             }
             finally

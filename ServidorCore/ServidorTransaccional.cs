@@ -765,85 +765,70 @@ namespace ServidorCore
 
         private void ResponderAlCliente(T estadoDelCliente, SocketAsyncEventArgs saeaDeEnvioRecepcion, int codigoRespuesta, int codigoAutorizacion)
         {
-            //IMPORTANTE: LO QUE SE REALIZÓ EN estadoDelCliente.ProcesamientoTramaEntrante SE DEJÓ EN LA VARIABLE secuenciaDeRespuestasAlCliente LLENA
-            //SI CONTIENE ALGO, SERÁ LA RESPUESTA AL CLIENTE. ENTONCES ESA VARIABLE DEBE SER LO ÚLTIMO QUE SE HACE DESPUÉS DE ENVIARLA Y TENER RESPUESTA DE PROCESA
-            // si hay un error de parseo de la trama se desconecta al cliente inmediatamente
-            if (estadoDelCliente.errorParseando)
+            // trato de obtener la trama que se le responderá al cliente
+            estadoDelCliente.ObtenerTrama(codigoRespuesta, codigoAutorizacion);
+
+            // Si ya se cuenta con una respuesta(s) para el cliente
+            if (estadoDelCliente.tramaRespuesta != "")
             {
-                //TODO Existe una trama de respuesta, ver si ocupo errorParseando o compruebo mejor vacios
-                //if (string.Compare(estadoDelCliente.tramaRespuesta, string.Empty) == 0 || string.Compare(estadoDelCliente.tramaRespuesta, "") == 0)
-                //{
-                //    //TODO responderle al cliente sin enviar al proveedor
-                //}
-
-
-                CerrarSocketCliente(estadoDelCliente);
-                return;
-            }
-            else
-            {
-                estadoDelCliente.ObtenerTrama(codigoRespuesta, codigoAutorizacion);
-
-                // Si ya se cuenta con una respuesta(s) para el cliente
-                if (estadoDelCliente.tramaRespuesta != "")
+                // se obtiene el mensaje de respuesta que se enviará cliente
+                string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
+                // se obtiene la cantidad de bytes de la trama completa
+                int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
+                // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
+                if (numeroDeBytes > tamanoBufferPorPeticion)
                 {
-                    // se obtiene el mensaje de respuesta que se enviará cliente
-                    string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
-                    // se obtiene la cantidad de bytes de la trama completa
-                    int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
-                    // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
-                    if (numeroDeBytes > tamanoBufferPorPeticion)
-                    {
-                        EscribirLog("La respuesta es más grande que el buffer", tipoLog.ALERTA);
-                        CerrarSocketCliente(estadoDelCliente);
-                        return;
-                    }
-                    // Se solicita el espacio de buffer para los bytes que se van a enviar                    
-                    estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
+                    EscribirLog("La respuesta es más grande que el buffer", tipoLog.ALERTA);
+                    CerrarSocketCliente(estadoDelCliente);
+                    return;
+                }
+                // Se solicita el espacio de buffer para los bytes que se van a enviar                    
+                estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
 
+                try
+                {
+                    // se envía asincronamente por medio del socket copia de recepción que es
+                    // con el que se está trabajando en esta operación, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
+                    // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
+                    bool seHizoAsync = estadoDelCliente.socketDeTrabajo.SendAsync(saeaDeEnvioRecepcion);
+                    if (!seHizoAsync)
+                        // Si se tiene una respuesta False de que el proceso está pendiente, se completa el flujo,
+                        // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
+                        // en su evento callback
+                        RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, saeaDeEnvioRecepcion);
+                }
+                catch (Exception)
+                {
+                    CerrarSocketCliente(estadoDelCliente);
+                    return;
+                }
+            }
+            else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
+            {
+                if (estadoDelCliente.socketDeTrabajo.Connected)
+                {
                     try
                     {
-                        // se envía asincronamente por medio del socket copia de recepción que es
-                        // con el que se está trabajando en esta operación, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
+                        // se solicita el espacio de buffer para la recepción del mensaje
+                        saeaDeEnvioRecepcion.SetBuffer(saeaDeEnvioRecepcion.Offset, tamanoBufferPorPeticion);
+                        // se solicita un proceso de recepción asincrono, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
                         // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
-                        bool seHizoAsync = estadoDelCliente.socketDeTrabajo.SendAsync(saeaDeEnvioRecepcion);
+                        bool seHizoAsync = estadoDelCliente.socketDeTrabajo.ReceiveAsync(saeaDeEnvioRecepcion);
                         if (!seHizoAsync)
-                            // Si se tiene una respuesta False de que el proceso está pendiente, se completa el flujo,
+                            // si el evento indica que el proceso asincrono está pendiente, se completa el flujo,
                             // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
                             // en su evento callback
                             RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, saeaDeEnvioRecepcion);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketCliente(estadoDelCliente);
-                        return;
-                    }
-                }
-                else  // Si el proceso no tuvo una respuesta se procede con el siguiente bloque de transmisión en la recepción
-                {
-                    if (estadoDelCliente.socketDeTrabajo.Connected)
-                    {
-                        try
-                        {
-                            // se solicita el espacio de buffer para la recepción del mensaje
-                            saeaDeEnvioRecepcion.SetBuffer(saeaDeEnvioRecepcion.Offset, tamanoBufferPorPeticion);
-                            // se solicita un proceso de recepción asincrono, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
-                            // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
-                            bool seHizoAsync = estadoDelCliente.socketDeTrabajo.ReceiveAsync(saeaDeEnvioRecepcion);
-                            if (!seHizoAsync)
-                                // si el evento indica que el proceso asincrono está pendiente, se completa el flujo,
-                                // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-                                // en su evento callback
-                                RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, saeaDeEnvioRecepcion);
-                        }
-                        catch (Exception ex)
-                        {
-                            EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
-                            CerrarSocketCliente(estadoDelCliente);
-                        }
                     }
                 }
             }
+
+
         }
 
         /// <summary>
@@ -1253,7 +1238,7 @@ namespace ServidorCore
                     }
                     catch (Exception ex)
                     {
-                        EscribirLog(ex.Message + "Desconectado al cliente " + estadoDelProveedor.idUnicoCliente + ", ColaEnvios", tipoLog.ERROR);
+                        EscribirLog(ex.Message + "Desconectado al cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", ColaEnvios", tipoLog.ERROR);
                         //InvokeAppendLog("Disconnecting client (ProcessQueue) " + infoYSocketDeTrabajo.user_Guid + "\r\nConn: " + infoYSocketDeTrabajo.fechaHoraConexionCliente + ", Offset: " +
                         //    infoYSocketDeTrabajo.saeaDeEnvio.Offset.ToString() + " Sent: [" + infoYSocketDeTrabajo.ultimoMensajeAlCliente + "], Recv: [" + infoYSocketDeTrabajo.ultimoMensajeRecibidoCliente + "]\r\nError: " + ex.Message);
                         // se marca el evento manual en señalado para que otros proceso puedan continuar

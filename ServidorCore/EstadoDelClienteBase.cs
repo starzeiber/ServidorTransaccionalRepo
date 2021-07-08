@@ -33,24 +33,9 @@ namespace ServidorCore
         internal SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
 
         /// <summary>        
-        /// Variable de apoyo para trabajar el mensaje que se recibe y no el original
-        /// </summary>
-        protected string mensajeRecibidoAux;
-
-        /// <summary>        
         /// Secuencia de respuestas (Respuesta1\r\Respuesta2\r\n...RespuestaN\r\n)
         /// </summary>
         public string tramaRespuesta;
-
-        /// <summary>
-        /// Variable que marca un error en el parseo del mensaje de una solicitud, True = error
-        /// </summary>
-        public bool errorParseando;
-
-        /// <summary>
-        /// Variable que almacena el ultimo error detectado en el cliente, lo utilizo como bitácora
-        /// </summary>
-        public string ultimoErrorDeParseo;
 
         /// <summary>
         /// como unicamente debo y puedo mandar un paquete a la vez, si existen muchos se debe tener una cola de envío
@@ -118,7 +103,14 @@ namespace ServidorCore
         /// </summary>
         public Socket socketDeTrabajo { get; set; }
 
+        /// <summary>
+        /// Codigo de respuesta sobre el proceso del cliente
+        /// </summary>
         public int codigoRespuesta { get; set; }
+
+        /// <summary>
+        /// Codigo de autorización sobre el proceso del cliente
+        /// </summary>
         public int codigoAutorizacion { get; set; }
 
         /// <summary>
@@ -138,13 +130,8 @@ namespace ServidorCore
         /// </summary>
         public virtual void InicializarEstadoDelClienteBase()
         {
-            referenciaSocketPrincipal = null;
-            estadoDeParseo = 0;
-            entradaAcumulativa = "";
-            mensajeRecibidoAux = "";
+            referenciaSocketPrincipal = null;            
             tramaRespuesta = "";
-            errorParseando = false;
-            ultimoErrorDeParseo = "";
             ultimoErrorConexionCliente = "";
             ultimoMensajeAlCliente = "";
             fechaHoraUltimoMensajeAlCliente = DateTime.MaxValue;
@@ -157,9 +144,7 @@ namespace ServidorCore
             idUnicoCliente = Guid.NewGuid();
             ipCliente = "";
             fechaHoraConexionCliente = DateTime.Now;
-            socketDeTrabajo = null;
-            //NextOperation = NextOperationModes.Normal;
-            //LogTemporal = "";
+            socketDeTrabajo = null;            
         }
 
         /// <summary>
@@ -190,6 +175,11 @@ namespace ServidorCore
             this.referenciaSocketPrincipal = socketPrincipal;
         }
 
+        /// <summary>
+        /// Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
+        /// </summary>
+        /// <param name="codigoRespuesta">código de respuesta a ingresar en la trama</param>
+        /// <param name="codigoAutorizacion">código de autorización a ingresar en la trama</param>
         public virtual void ObtenerTrama(int codigoRespuesta, int codigoAutorizacion)
         {
 

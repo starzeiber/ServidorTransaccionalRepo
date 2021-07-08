@@ -158,14 +158,11 @@ namespace ServidorCore
             puertoProveedor = 0;
             colaEnvio = new Queue<string>();
             seEstaEnviandoAlgo = false;
-            esperandoEnvio.Set();
-            idUnicoCliente = Guid.NewGuid();
+            esperandoEnvio.Set();            
             idUnicoProveedor= Guid.NewGuid();
             ipProveedor = "";
             fechaHoraConexionProveedor = DateTime.Now;
-            socketDeTrabajo = null;
-            //NextOperation = NextOperationModes.Normal;
-            LogTemporal = "";
+            socketDeTrabajo = null;            
         }
 
         /// <summary>

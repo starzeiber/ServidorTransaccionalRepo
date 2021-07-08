@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace CapaNegocio
 {
@@ -55,7 +56,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                UtileriaVariablesGlobales.log.EscribirLogError("Error en darle formato a una cadena: " + ex.Message);
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
                 return String.Empty;
             }
             return cadena;
