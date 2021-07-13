@@ -7,7 +7,7 @@ namespace CapaNegocio
     /// <summary>
     /// Clase que contiene todas las propiedades
     /// </summary>
-    public class RespuestaConsultaPxTae : RespuestaPxBase
+    public class RespuestaConsultaPxTae : RespuestaCompraPxBase
     {
         /// <summary>
         /// Autorización de la recarga
@@ -49,19 +49,9 @@ namespace CapaNegocio
         /// <summary>
         /// Constructor del objeto
         /// </summary>
-        /// <param name="consultaPxDatos">Valores de la solicitud original</param>
-        public RespuestaConsultaPxTae(ConsultaPxTae consultaPxTae)
+        public RespuestaConsultaPxTae()
         {
             encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_TAE_PX);
-            idCadena = consultaPxTae.idCadena;
-            idTienda = consultaPxTae.idTienda;
-            idPos = consultaPxTae.idPos;
-            fecha = consultaPxTae.fecha;
-            hora = consultaPxTae.hora;
-            region = consultaPxTae.region;
-            sku = consultaPxTae.sku;
-            telefono = consultaPxTae.telefono;
-            numeroTransaccion = consultaPxTae.numeroTransaccion;
             PIN = "";
             fechaExpiracion = "";
             folio = "";
@@ -69,6 +59,29 @@ namespace CapaNegocio
             mensajeTicket1 = "";
             mensajeTicket2 = "";
         }
+
+        public bool Ingresar(ConsultaPxTae consultaPxTae)
+        {
+            try
+            {
+                idCadena = consultaPxTae.idCadena;
+                idTienda = consultaPxTae.idTienda;
+                idPos = consultaPxTae.idPos;
+                fecha = consultaPxTae.fecha;
+                hora = consultaPxTae.hora;
+                region = consultaPxTae.region;
+                sku = consultaPxTae.sku;
+                telefono = consultaPxTae.telefono;
+                numeroTransaccion = consultaPxTae.numeroTransaccion;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Función que obtiene los parámetros de la trama entrante

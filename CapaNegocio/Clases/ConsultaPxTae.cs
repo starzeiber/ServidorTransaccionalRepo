@@ -7,7 +7,7 @@ namespace CapaNegocio
     /// <summary>
     /// clase que contiene todas las propiedades de una solicitud TAE al px
     /// </summary>
-    public class ConsultaPxTae : SolicitudPxBase
+    public class ConsultaPxTae : CompraPxBase
     {
         private const int LONGITUD_GRUPO = 4;
         private const int LONGITUD_CADENA = 4;
@@ -21,7 +21,7 @@ namespace CapaNegocio
         private const int LONGITUD_NUM_TRANS = 5;
 
 
-        public bool DividirTrama(string trama)
+        public bool Ingresar(string trama)
         {
             int posicionParseo = 0;
             encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX);
@@ -52,7 +52,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama),UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama), UtileriaVariablesGlobales.TiposLog.error));
                 return false;
             }
         }
@@ -82,7 +82,7 @@ namespace CapaNegocio
             catch (Exception ex)
             {
                 Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
-                //Utileria.log.EscribirLogError("ConsultaPxTae.ObtenerTrama. " + ex.Message);
+
                 return String.Empty;
             }
         }

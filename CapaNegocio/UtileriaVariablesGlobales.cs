@@ -81,6 +81,17 @@ namespace CapaNegocio
         /// </summary>
         private static EventLogTraceListener logListener;
 
+        public static int puertoLocal;
+
+        /// <summary>
+        /// ip del switch del proveedor
+        /// </summary>
+        public static string ipProveedor;
+        /// <summary>
+        /// puerto del switch del proveedor
+        /// </summary>
+        public static int puertoProveedor;
+
         [ThreadStatic]
         static int semillaAleatorio;
 

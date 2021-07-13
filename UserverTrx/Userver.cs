@@ -4,6 +4,7 @@ using System;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CapaNegocio;
 
 namespace CapaPresentacion
 {
@@ -19,7 +20,11 @@ namespace CapaPresentacion
             ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor> servidor =
                 new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(5, 1024, 10);
             servidor.ConfigInicioServidor();
-            servidor.IniciarServidor(int.Parse(ConfigurationManager.AppSettings["puertoLocal"].ToString()));
+            servidor.IniciarServidor(
+                UtileriaVariablesGlobales.puertoLocal,
+                UtileriaVariablesGlobales.ipProveedor,
+                UtileriaVariablesGlobales.puertoProveedor
+                );
         }
 
         private void Userver_Load(object sender, EventArgs e)
@@ -28,7 +33,9 @@ namespace CapaPresentacion
             if (CargarConfiguracionTask.Result == false)
             {
                 MessageBox.Show("Error al cargar la configuración del sistema, revise el visor de sucesos Application o bien el log del sistema", "ERROR AL INICIAR", MessageBoxButtons.OK);
+                Environment.Exit(666);
             }
+            
         }
     }
 }

@@ -7,30 +7,8 @@ namespace CapaNegocio
     /// <summary>
     /// clase que contiene todas las propiedades de una solicitud TAE al px
     /// </summary>
-    public class SolicitudPxDatos : SolicitudPxBase
+    public class CompraPxTae : CompraPxBase
     {
-        /// <summary>
-        /// Campo para información de la cuenta
-        /// </summary>
-        public String cuenta { get; set; }
-        /// <summary>
-        /// campo que se utiliza para el ingreso del número y/o clave
-        /// </summary>
-        public String folio { get; set; }
-        /// <summary>
-        /// Monto del paquete
-        /// </summary>
-        public Double monto { get; set; }
-        /// <summary>
-        /// información del paquete
-        /// </summary>
-        public String datosAdicionales { get; set; }
-        /// <summary>
-        /// Extensión del protocolo para información varia
-        /// </summary>
-        public String extension { get; set; }
-
-
         private const int LONGITUD_GRUPO = 4;
         private const int LONGITUD_CADENA = 4;
         private const int LONGITUD_TIENDA = 4;
@@ -39,32 +17,22 @@ namespace CapaNegocio
         private const int LONGITUD_HORA = 6;
         private const int LONGITUD_REGION = 2;
         private const int LONGITUD_SKU = 20;
-        private const int LONGITUD_CUENTA = 10;
+        private const int LONGITUD_TELEFONO = 10;
         private const int LONGITUD_NUM_TRANS = 5;
-        private const int LONGITUD_MONTO = 9;
-        private const int LONGITUD_FOLIO = 20;
-        private const int LONGITUD_DATOS_ADICIONALES = 20;
-        private const int LONGITUD_EXTENSION = 80;
-
 
         /// <summary>
-        /// 
+        /// Constructor para inicializar el objeto
         /// </summary>
-        public SolicitudPxDatos()
+        /// <param name="solicitudTaeXml">Objeto con los valores entrantes</param>
+        public CompraPxTae()
         {
-            
 
         }
 
-        /// <summary>
-        /// Divide la trama en sus propiedades
-        /// </summary>
-        /// <param name="trama">trama completa de solicitud de datos con la mensajería PX</param>
-        /// <returns></returns>
-        public bool DividirTrama(string trama)
+        public bool Ingresar(string trama)
         {
             int posicionParseo = 0;
-            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_DATOS_PX);
+            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_TAE_PX);
             posicionParseo += 2;
 
             try
@@ -85,24 +53,15 @@ namespace CapaNegocio
                 posicionParseo += LONGITUD_REGION;
                 sku = trama.Substring(posicionParseo, LONGITUD_SKU);
                 posicionParseo += LONGITUD_SKU;
-                cuenta = trama.Substring(posicionParseo, LONGITUD_CUENTA);
-                posicionParseo += LONGITUD_CUENTA;
+                telefono = trama.Substring(posicionParseo, LONGITUD_TELEFONO);
+                posicionParseo += LONGITUD_TELEFONO;
                 numeroTransaccion = int.Parse(trama.Substring(posicionParseo, LONGITUD_NUM_TRANS));
-                posicionParseo += LONGITUD_NUM_TRANS;
-                monto= double.Parse(trama.Substring(posicionParseo, LONGITUD_MONTO));
-                posicionParseo += LONGITUD_MONTO;
-                folio= trama.Substring(posicionParseo, LONGITUD_FOLIO);
-                telefono = double.Parse(folio).ToString();
-                posicionParseo += LONGITUD_FOLIO;
-                datosAdicionales= trama.Substring(posicionParseo, LONGITUD_DATOS_ADICIONALES);
-                posicionParseo += LONGITUD_DATOS_ADICIONALES;
-                extension= trama.Substring(posicionParseo, LONGITUD_EXTENSION);
-
                 return true;
             }
             catch (Exception ex)
             {
                 Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama), UtileriaVariablesGlobales.TiposLog.error));
+                
                 return false;
             }
         }
@@ -111,7 +70,7 @@ namespace CapaNegocio
         /// Función para  formar la trama de envío 
         /// </summary>
         /// <returns></returns>
-        public String ObtenerTrama()
+        public String Obtener()
         {
             StringBuilder respuesta = new StringBuilder();
             try
@@ -124,12 +83,8 @@ namespace CapaNegocio
                 respuesta.Append(Validaciones.formatoValor(hora, TipoFormato.N, 6));
                 respuesta.Append(Validaciones.formatoValor(region.ToString(), TipoFormato.N, 2));
                 respuesta.Append(Validaciones.formatoValor(sku, TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(cuenta, TipoFormato.N, 10));
+                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 10));
                 respuesta.Append(Validaciones.formatoValor(numeroTransaccion.ToString(), TipoFormato.N, 5));
-                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
-                respuesta.Append(Validaciones.formatoValor(folio, TipoFormato.N, 20));
-                respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(extension, TipoFormato.ANS, 80));
                 return respuesta.ToString();
             }
             catch (Exception ex)

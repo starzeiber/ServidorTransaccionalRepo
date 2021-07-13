@@ -7,12 +7,8 @@ namespace CapaNegocio
     /// <summary>
     /// Clase que contiene todas las propiedades
     /// </summary>
-    public class RespuestaSolicitudPxDatos : RespuestaPxBase
+    public class RespuestaCompraPxTae : RespuestaCompraPxBase
     {
-        /// <summary>
-        /// Campo para información de la cuenta
-        /// </summary>
-        public String cuenta { get; set; }
         /// <summary>
         /// Autorización de la recarga
         /// </summary>
@@ -49,41 +45,56 @@ namespace CapaNegocio
         /// Código de respuesta sobre la transacción
         /// </summary>
         public int codigoRespuesta { get; set; }
-        /// <summary>
-        /// información del paquete
-        /// </summary>
-        public String datosAdicionales { get; set; }
-        /// <summary>
-        /// Extensión del protocolo para información varia
-        /// </summary>
-        public String extension { get; set; }
 
-
-        public RespuestaSolicitudPxDatos(SolicitudPxDatos solicitudPxDatos)
+        /// <summary>
+        /// Constructor de la clase
+        /// </summary>
+        public RespuestaCompraPxTae()
         {
             encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_TAE_PX);
-            idCadena = solicitudPxDatos.idCadena;
-            idTienda = solicitudPxDatos.idTienda;
-            idPos = solicitudPxDatos.idPos;
-            fecha = solicitudPxDatos.fecha;
-            hora = solicitudPxDatos.hora;
-            region = solicitudPxDatos.region;
-            sku = solicitudPxDatos.sku;
-            cuenta = solicitudPxDatos.cuenta;
-            numeroTransaccion = solicitudPxDatos.numeroTransaccion;
-            monto = solicitudPxDatos.monto;
-            folio = solicitudPxDatos.folio;
-            datosAdicionales = solicitudPxDatos.datosAdicionales;
-            extension = solicitudPxDatos.extension;
             PIN = "";
             fechaExpiracion = "";
+            folio = "";
             nombreProveedor = "";
             mensajeTicket1 = "";
             mensajeTicket2 = "";
+        }
+
+        /// <summary>
+        /// Ingresa los datos de la clase de compra a la clase de respuesta
+        /// </summary>
+        /// <param name="compraPxTae">Instancia de CompraPxTae</param>
+        /// <returns></returns>
+        public bool Ingresar(CompraPxTae compraPxTae)
+        {
+            try
+            {
+                idGrupo = compraPxTae.idGrupo;
+                idCadena = compraPxTae.idCadena;
+                idTienda = compraPxTae.idTienda;
+                idPos = compraPxTae.idPos;
+                fecha = compraPxTae.fecha;
+                hora = compraPxTae.hora;
+                region = compraPxTae.region;
+                sku = compraPxTae.sku;
+                telefono = compraPxTae.telefono;
+                numeroTransaccion = compraPxTae.numeroTransaccion;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                return false;
+            }
 
         }
 
-        public Boolean ObtenerParametrosTrama(String tramaRecibida)
+        /// <summary>
+        /// Obtiene todos los parámetros de una trama tae de PX
+        /// </summary>
+        /// <param name="tramaRecibida">trama recibida desde el px</param>
+        /// <returns></returns>
+        public Boolean Ingresar(String tramaRecibida)
         {
             try
             {
@@ -100,7 +111,7 @@ namespace CapaNegocio
             catch (Exception ex)
             {
                 Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
-                
+
                 return false;
             }
         }
@@ -111,6 +122,7 @@ namespace CapaNegocio
             try
             {
                 respuesta.Append(encabezado.ToString());
+                respuesta.Append(Validaciones.formatoValor(idGrupo.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(idCadena.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(idTienda.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(idPos.ToString(), TipoFormato.N, 4));
@@ -118,25 +130,22 @@ namespace CapaNegocio
                 respuesta.Append(Validaciones.formatoValor(hora, TipoFormato.N, 6));
                 respuesta.Append(Validaciones.formatoValor(region.ToString(), TipoFormato.N, 2));
                 respuesta.Append(Validaciones.formatoValor(sku, TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(cuenta, TipoFormato.N, 10));
+                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 10));
                 respuesta.Append(Validaciones.formatoValor(numeroTransaccion.ToString(), TipoFormato.N, 5));
                 respuesta.Append(Validaciones.formatoValor(autorizacion.ToString(), TipoFormato.N, 9));
                 respuesta.Append(Validaciones.formatoValor(PIN.ToString(), TipoFormato.ANS, 20));
                 respuesta.Append(Validaciones.formatoValor(fechaExpiracion.ToString(), TipoFormato.N, 6));
                 respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
-                respuesta.Append(Validaciones.formatoValor(folio, TipoFormato.N, 20));
-                respuesta.Append(Validaciones.formatoValor(nombreProveedor, TipoFormato.ANS, 14));
-                respuesta.Append(Validaciones.formatoValor(mensajeTicket1, TipoFormato.ANS, 80));
-                respuesta.Append(Validaciones.formatoValor(mensajeTicket2, TipoFormato.ANS, 60));
+                respuesta.Append(Validaciones.formatoValor(nombreProveedor.ToString(), TipoFormato.ANS, 14));
+                respuesta.Append(Validaciones.formatoValor(mensajeTicket1.ToString(), TipoFormato.ANS, 80));
+                respuesta.Append(Validaciones.formatoValor(mensajeTicket2.ToString(), TipoFormato.ANS, 60));
                 respuesta.Append(Validaciones.formatoValor(codigoRespuesta.ToString(), TipoFormato.N, 2));
-                respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(extension, TipoFormato.ANS, 80));
+
                 return respuesta.ToString();
             }
             catch (Exception ex)
             {
                 Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
-                
                 return String.Empty;
             }
         }

@@ -14,17 +14,21 @@ namespace CapaNegocio
         public int codigoRespuesta { get; set; }
         public string trama { get; set; }
 
-        public SolicitudPxTae solicitudPxTae { get; set; }
-        public RespuestaSolicitudPxTae respuestaSolicitudPxTae { get; set; }
+        //public CompraPxTae compraPxTae { get; set; }
+        //public RespuestaCompraPxTae respuestaCompraPxTae { get; set; }
 
-        public SolicitudPxDatos solicitudPxDatos { get; set; }
-        public RespuestaSolicitudPxDatos respuestaSolicitudPxDatos { get; set; }
+        //public CompraPxDatos compraPxDatos { get; set; }
+        //public RespuestaCompraPxDatos respuestaCompraPxDatos { get; set; }
 
-        public ConsultaPxTae consultaPxTae { get; set; }
-        public RespuestaConsultaPxTae respuestaConsultaPxTae { get; set; }
+        //public ConsultaPxTae consultaPxTae { get; set; }
+        //public RespuestaConsultaPxTae respuestaConsultaPxTae { get; set; }
 
-        public ConsultaPxDatos consultaPxDatos { get; set; }
-        public RespuestaConsultaPxDatos respuestaConsultaPxDatos { get; set; }
+        //public ConsultaPxDatos consultaPxDatos { get; set; }
+        //public RespuestaConsultaPxDatos respuestaConsultaPxDatos { get; set; }
+
+        public object objPeticionCliente { get; set; }
+
+        public object objRespuestaCliente { get; set; }
 
         public RespuestaGenerica()
         {

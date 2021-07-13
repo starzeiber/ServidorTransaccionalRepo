@@ -15,7 +15,9 @@ namespace CapaPresentacion.Clases
         /// <returns></returns>
         public static async Task<bool> CargarConfiguracion()
         {
-            return await PrepararLog() != false && await ObtenerCadenasConexion() != false && await CargarPerfomanceCounter() != false;
+            return await PrepararLog() != false && 
+                await ObtenerCadenasConexion() != false && 
+                await CargarIpsYPuertos() != false;
         }
 
         /// <summary>
@@ -60,6 +62,24 @@ namespace CapaPresentacion.Clases
                 return Task.FromResult(false);
             }
         }
+
+        private static Task<bool> CargarIpsYPuertos()
+        {
+            try
+            {
+                UtileriaVariablesGlobales.puertoLocal = int.Parse(ConfigurationManager.AppSettings["puertoLocal"].ToString());
+                UtileriaVariablesGlobales.ipProveedor = ConfigurationManager.AppSettings["ipProveedor"].ToString();
+                UtileriaVariablesGlobales.puertoProveedor = int.Parse(ConfigurationManager.AppSettings["puertoProveedor"].ToString());
+
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                return Task.FromResult(false);
+            }
+        }
+
 
         /// <summary>
         /// Inicializa el performance counter del sistema

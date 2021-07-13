@@ -7,7 +7,7 @@ namespace CapaNegocio
     /// <summary>
     /// Clase que contiene todas las propiedades
     /// </summary>
-    public class RespuestaConsultaPxDatos : RespuestaPxBase
+    public class RespuestaConsultaPxDatos : RespuestaCompraPxBase
     {
         /// <summary>
         /// Campo para información de la cuenta
@@ -61,29 +61,42 @@ namespace CapaNegocio
         /// <summary>
         /// Constructor del objeto
         /// </summary>
-        /// <param name="consultaPxDatos">Valores de la solicitud original</param>
-        public RespuestaConsultaPxDatos(ConsultaPxDatos consultaPxDatos)
+        public RespuestaConsultaPxDatos()
         {
             encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX);
-            idCadena = consultaPxDatos.idCadena;
-            idTienda = consultaPxDatos.idTienda;
-            idPos = consultaPxDatos.idPos;
-            fecha = consultaPxDatos.fecha;
-            hora = consultaPxDatos.hora;
-            region = consultaPxDatos.region;
-            sku = consultaPxDatos.sku;
-            cuenta = consultaPxDatos.cuenta;
-            numeroTransaccion = consultaPxDatos.numeroTransaccion;
-            monto = consultaPxDatos.monto;
-            folio = consultaPxDatos.folio;
-            datosAdicionales = consultaPxDatos.datosAdicionales;
-            extension = consultaPxDatos.extension;
             PIN = "";
             fechaExpiracion = "";
             nombreProveedor = "";
             mensajeTicket1 = "";
             mensajeTicket2 = "";
 
+        }
+
+        public bool Ingresar(ConsultaPxDatos consultaPxDatos)
+        {
+            try
+            {
+                idCadena = consultaPxDatos.idCadena;
+                idTienda = consultaPxDatos.idTienda;
+                idPos = consultaPxDatos.idPos;
+                fecha = consultaPxDatos.fecha;
+                hora = consultaPxDatos.hora;
+                region = consultaPxDatos.region;
+                sku = consultaPxDatos.sku;
+                cuenta = consultaPxDatos.cuenta;
+                numeroTransaccion = consultaPxDatos.numeroTransaccion;
+                monto = consultaPxDatos.monto;
+                folio = consultaPxDatos.folio;
+                datosAdicionales = consultaPxDatos.datosAdicionales;
+                extension = consultaPxDatos.extension;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+
+                return false;
+            }
         }
 
         /// <summary>
@@ -108,7 +121,7 @@ namespace CapaNegocio
             catch (Exception ex)
             {
                 Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
-                
+
                 return false;
             }
         }
@@ -144,7 +157,7 @@ namespace CapaNegocio
             catch (Exception ex)
             {
                 Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
-                
+
                 return String.Empty;
             }
         }

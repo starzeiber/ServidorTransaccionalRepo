@@ -6,17 +6,40 @@ using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
-    public class SolicitudTpv:SolicitudTpvBase
-    {
-        public SolicitudTpv()
+    public class CompraTpvTae:CompraTpvBase
+    {        
+        public bool Ingresar(CompraPxTae compraPxTae)
         {
-
+            try
+            {
+                pCode = 650000;
+                //TODO obtener el monto a partir del SKU de la solicitud PX
+                monto = 100;
+                systemTrace = compraPxTae.numeroTransaccion;
+                // TODO obtener el issuer de la base
+                issuer = "106800000001";
+                referencia =Task.Run(() => UtileriaVariablesGlobales.ObtenerNumeroResultadoAleatorio(6)).Result;
+                TerminalId = "STTN" +
+                    Validaciones.formatoValor(compraPxTae.idGrupo.ToString(), TipoFormato.N, 3) +
+                    Validaciones.formatoValor(compraPxTae.idCadena.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxTae.idTienda.ToString(), TipoFormato.N, 4);
+                merchantData = "TARJETASN      " +
+                    Validaciones.formatoValor(compraPxTae.idGrupo.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxTae.idCadena.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxTae.idTienda.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxTae.idPos.ToString(), TipoFormato.N, 5) +
+                    "DF MX";
+                telefono = compraPxTae.telefono;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                return false;
+            }
+            
         }
-        public SolicitudTpv(SolicitudPxTae solicitudPxTae)
-        {
-
-        }
-        public string ObtenerTrama()
+        public string Obtener()
         {
             StringBuilder respuesta = new StringBuilder();
             try

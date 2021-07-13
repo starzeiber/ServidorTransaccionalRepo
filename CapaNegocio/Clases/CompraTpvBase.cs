@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
-    public class SolicitudTpvBase
+    public class CompraTpvBase
     {
         public int encabezado { get; set; }
         public int pCode { get; set; }
@@ -41,7 +41,7 @@ namespace CapaNegocio.Clases
         public string datosAdicionales { get; set; }
         public string telefono { get; set; }
 
-        public SolicitudTpvBase()
+        public CompraTpvBase()
         {
             encabezado = 200;
             pCode = 0;

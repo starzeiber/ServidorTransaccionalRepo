@@ -10,8 +10,6 @@ namespace ServidorCore
 {
     public class EstadoDelProveedorBase
     {
-        EstadoDelClienteBase EstadoDelClienteBase { get; set; }
-
         /// <summary>
         /// Identificador único para un proveedor
         /// </summary>
@@ -26,27 +24,6 @@ namespace ServidorCore
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
         internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
-
-        /// <summary>        
-        /// Variable que indica el estado del parseo del mensaje
-        /// </summary>
-        /// todo: ver si esta variable si es para esto
-        public int estadoDeParseo;
-
-        /// <summary>        
-        /// Secuencia de respuestas (Respuesta1\r\Respuesta2\r\n...RespuestaN\r\n)
-        /// </summary>
-        public string secuenciaDeRespuestasDelProveedor;
-
-        /// <summary>
-        /// Variable que marca un error en el parseo del mensaje de una solicitud, True = error
-        /// </summary>
-        public bool errorParseando;
-
-        /// <summary>
-        /// Variable que almacena el ultimo error detectado en el cliente, lo utilizo como bitácora
-        /// </summary>
-        public string ultimoErrorDeParseo;
 
         /// <summary>
         /// como unicamente debo y puedo mandar un paquete a la vez, si existen muchos se debe tener una cola de envío
@@ -107,24 +84,31 @@ namespace ServidorCore
         /// <summary>
         /// Fecha y hora del ultimo mensaje recibido del Proveedor
         /// </summary>
-        public DateTime fechaHoraUltimoMensajeRecibidoDelProveedor { get; set; }
+        public DateTime fechaHoraUltimoMensajeRecibido { get; set; }
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
         public Socket socketDeTrabajo { get; set; }
 
-        ///// <summary>
-        ///// Experimental para ciertos protocolos, aún se prueba su función
-        ///// </summary>
-        //public NextOperationModes NextOperation { get; set; }
+        /// <summary>
+        /// Codigo de respuesta sobre el proceso del cliente
+        /// </summary>
+        public int codigoRespuesta { get; set; }
 
         /// <summary>
-        /// Variable que se utiliza temporalmente para almacenar en un log
+        /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public string LogTemporal;
+        public int codigoAutorizacion { get; set; }
 
         public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
+
+        public AutoResetEvent autoEvent;
+
+        public bool timeOutConexion { get; set; }
+
+        public string mensajeAlProveedor { get; set; }
+
 
         /// <summary>
         /// Constructor
@@ -154,7 +138,7 @@ namespace ServidorCore
             ultimoMensajeAlProveedor = "";
             fechaHoraUltimoMensajeAlProveedor = DateTime.MaxValue;
             ultimoMensajeRecibido = "";
-            fechaHoraUltimoMensajeRecibidoDelProveedor = DateTime.MaxValue;
+            fechaHoraUltimoMensajeRecibido = DateTime.MaxValue;
             puertoProveedor = 0;
             colaEnvio = new Queue<string>();
             seEstaEnviandoAlgo = false;
@@ -162,7 +146,9 @@ namespace ServidorCore
             idUnicoProveedor= Guid.NewGuid();
             ipProveedor = "";
             fechaHoraConexionProveedor = DateTime.Now;
-            socketDeTrabajo = null;            
+            socketDeTrabajo = null;
+            timeOutConexion = false;
+            estadoDelClienteOrigen = null;
         }
 
         /// <summary>
@@ -182,6 +168,11 @@ namespace ServidorCore
         public void IngresarReferenciaSocketPrincipal(object socketPrincipal)
         {
             this.referenciaSocketPrincipal = socketPrincipal;
+        }
+
+        public virtual void PreparaTramaAlProveedor(int cabeceraMensaje, object objeto)
+        {
+
         }
     }
 }

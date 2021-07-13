@@ -113,6 +113,16 @@ namespace ServidorCore
         /// </summary>
         public int codigoAutorizacion { get; set; }
 
+        public int cabeceraMensaje { get; set; }
+
+        public object objPeticionCliente { get; set; }
+
+        public object objRespuestaCliente { get; set; }
+
+        
+
+
+
         /// <summary>
         /// Constructor
         /// </summary>

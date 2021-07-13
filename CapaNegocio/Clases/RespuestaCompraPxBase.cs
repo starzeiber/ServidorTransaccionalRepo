@@ -5,7 +5,7 @@ namespace CapaNegocio
     /// <summary>
     /// Clase que contiene todas las propiedades constantes en una solicitud de TAE al PX
     /// </summary>
-    public class SolicitudPxBase
+    public class RespuestaCompraPxBase
     {
         /// <summary>
         /// Encabezado de la mensajeria
