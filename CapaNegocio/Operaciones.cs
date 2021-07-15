@@ -245,8 +245,8 @@ namespace CapaNegocio
 
             //TODO validaciones
 
-            respuestaGenerica.objPeticionCliente = compraTpvTae;
-            respuestaGenerica.objRespuestaCliente = respuestaCompraTpvTAE;
+            respuestaGenerica.objPeticionProveedor = compraTpvTae;
+            respuestaGenerica.objRespuestaProveedor = respuestaCompraTpvTAE;
 
             return respuestaGenerica;
         }

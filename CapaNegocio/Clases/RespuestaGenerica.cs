@@ -13,22 +13,12 @@ namespace CapaNegocio
         public CabecerasTrama cabecerasTrama { get; set; }
         public int codigoRespuesta { get; set; }
         public string trama { get; set; }
-
-        //public CompraPxTae compraPxTae { get; set; }
-        //public RespuestaCompraPxTae respuestaCompraPxTae { get; set; }
-
-        //public CompraPxDatos compraPxDatos { get; set; }
-        //public RespuestaCompraPxDatos respuestaCompraPxDatos { get; set; }
-
-        //public ConsultaPxTae consultaPxTae { get; set; }
-        //public RespuestaConsultaPxTae respuestaConsultaPxTae { get; set; }
-
-        //public ConsultaPxDatos consultaPxDatos { get; set; }
-        //public RespuestaConsultaPxDatos respuestaConsultaPxDatos { get; set; }
-
         public object objPeticionCliente { get; set; }
-
         public object objRespuestaCliente { get; set; }
+        public object objPeticionProveedor { get; set; }
+        public object objRespuestaProveedor { get; set; }
+
+        public categoriaProducto categoriaProducto { get; set; }
 
         public RespuestaGenerica()
         {

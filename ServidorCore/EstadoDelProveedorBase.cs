@@ -103,11 +103,18 @@ namespace ServidorCore
 
         public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
 
-        public AutoResetEvent autoEvent;
+        public AutoResetEvent autoEventConexion;
+        public AutoResetEvent autoEventEnvio;
+        public AutoResetEvent autoEventRecepcion;
 
-        public bool timeOutConexion { get; set; }
+        public bool seVencioElTimeOutConexion { get; set; }
 
-        public string mensajeAlProveedor { get; set; }
+        public string tramaSolicitud { get; set; }
+
+        public string tramaRespuesta { get; set; }
+
+        public object objPeticion { get; set; }
+        public object objRespuesta { get; set; }
 
 
         /// <summary>
@@ -128,12 +135,6 @@ namespace ServidorCore
         public virtual void InicializarEstadoDelProveedorBase()
         {
             referenciaSocketPrincipal = null;
-            estadoDeParseo = 0;
-            //entradaAcumulativa = "";
-            //mensajeRecibidoAux = "";
-            secuenciaDeRespuestasDelProveedor = "";
-            errorParseando = false;
-            ultimoErrorDeParseo = "";
             ultimoErrorConexion = "";
             ultimoMensajeAlProveedor = "";
             fechaHoraUltimoMensajeAlProveedor = DateTime.MaxValue;
@@ -147,8 +148,13 @@ namespace ServidorCore
             ipProveedor = "";
             fechaHoraConexionProveedor = DateTime.Now;
             socketDeTrabajo = null;
-            timeOutConexion = false;
+            seVencioElTimeOutConexion = false;
             estadoDelClienteOrigen = null;
+        }
+
+        public virtual void IngresarDatos(int cabeceraMensaje, object objeto)
+        {
+
         }
 
         /// <summary>
@@ -170,7 +176,12 @@ namespace ServidorCore
             this.referenciaSocketPrincipal = socketPrincipal;
         }
 
-        public virtual void PreparaTramaAlProveedor(int cabeceraMensaje, object objeto)
+        public virtual void ObtenerTramaPeticion()
+        {
+
+        }
+
+        public virtual void ObtenerTramaRespuesta(int codigoRespuesta, int codigoAutorizacion)
         {
 
         }

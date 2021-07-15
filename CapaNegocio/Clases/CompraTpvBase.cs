@@ -10,7 +10,7 @@ namespace CapaNegocio.Clases
     {
         public int encabezado { get; set; }
         public int pCode { get; set; }
-        public float monto { get; set; }
+        public double monto { get; set; }
         /// <summary>
         /// MMDDHHmmss
         /// </summary>
@@ -46,11 +46,12 @@ namespace CapaNegocio.Clases
             encabezado = 200;
             pCode = 0;
             monto = 0;
-            fechaHora = DateTime.Now.ToString("MMDDHHmmss");
+            fechaHora = DateTime.Now.ToString("MMddHHmmss");
             systemTrace = 0;
+            fechaTerminal = DateTime.Now.ToString("MMdd");
             horaTerminal = DateTime.Now.ToString("hhmmss");
-            fechaContableTerminal = DateTime.Now.ToString("MMDD");
-            fechaCapturaTerminal = DateTime.Now.ToString("MMDD");
+            fechaContableTerminal = DateTime.Now.ToString("MMdd");
+            fechaCapturaTerminal = DateTime.Now.ToString("MMdd");
             adquiriente = "106900000001";
             issuer = "106800000001";
             referencia = 0;

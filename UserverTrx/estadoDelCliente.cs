@@ -27,8 +27,8 @@ namespace CapaPresentacion
                 respuestaGenerica = procesarMensajeriaTask.Result;
                 codigoRespuesta = procesarMensajeriaTask.Result.codigoRespuesta;
                 cabeceraMensaje = (int)procesarMensajeriaTask.Result.cabecerasTrama;
-                objPeticionCliente = respuestaGenerica.objPeticionCliente;
-                objRespuestaCliente = respuestaGenerica.objRespuestaCliente;
+                objPeticion = respuestaGenerica.objPeticionCliente;
+                objRespuesta = respuestaGenerica.objRespuestaCliente;
                 //TODO para pruebas
                 //codigoRespuesta = 02;
             }
@@ -46,7 +46,7 @@ namespace CapaPresentacion
                 case Operaciones.CabecerasTrama.compraTaePx:
                     this.codigoRespuesta = codigoRespuesta;
                     this.codigoAutorizacion = codigoAutorizacion;
-                    RespuestaCompraPxTae respuestaCompraPxTae = objRespuestaCliente as RespuestaCompraPxTae;
+                    RespuestaCompraPxTae respuestaCompraPxTae = objRespuesta as RespuestaCompraPxTae;
                     respuestaCompraPxTae.codigoRespuesta = codigoRespuesta;
                     respuestaCompraPxTae.autorizacion = codigoAutorizacion;
                     tramaRespuesta = respuestaCompraPxTae.ObtenerTrama();
@@ -54,17 +54,17 @@ namespace CapaPresentacion
                 case Operaciones.CabecerasTrama.consultaTaePx:
                     this.codigoRespuesta = codigoRespuesta;
                     this.codigoAutorizacion = codigoAutorizacion;
-                    tramaRespuesta = (objRespuestaCliente as RespuestaConsultaPxTae).ObtenerTrama();
+                    tramaRespuesta = (objRespuesta as RespuestaConsultaPxTae).ObtenerTrama();
                     break;
                 case Operaciones.CabecerasTrama.compraDatosPx:
                     this.codigoRespuesta = codigoRespuesta;
                     this.codigoAutorizacion = codigoAutorizacion;
-                    tramaRespuesta = (objRespuestaCliente as RespuestaCompraPxDatos).ObtenerTrama();
+                    tramaRespuesta = (objRespuesta as RespuestaCompraPxDatos).ObtenerTrama();
                     break;
                 case Operaciones.CabecerasTrama.consultaDatosPx:
                     this.codigoRespuesta = codigoRespuesta;
                     this.codigoAutorizacion = codigoAutorizacion;
-                    tramaRespuesta = (objRespuestaCliente as RespuestaConsultaPxDatos).ObtenerTrama();
+                    tramaRespuesta = (objRespuesta as RespuestaConsultaPxDatos).ObtenerTrama();
                     break;
                 case Operaciones.CabecerasTrama.compraTpv:
                     this.codigoRespuesta = codigoRespuesta;

@@ -310,7 +310,7 @@ namespace CapaNegocio
                 semillaAleatorio = (int)DateTime.Now.Ticks & 0x0000FFFF;
                 random = new Random(semillaAleatorio);
                 Monitor.Enter(random);
-                int aleatorio = random.Next(numElementos);
+                int aleatorio = random.Next(1,numElementos);
                 Monitor.Exit(random);
                 return Task.FromResult(aleatorio);
             }

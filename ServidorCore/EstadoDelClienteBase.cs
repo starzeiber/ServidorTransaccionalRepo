@@ -115,13 +115,15 @@ namespace ServidorCore
 
         public int cabeceraMensaje { get; set; }
 
-        public object objPeticionCliente { get; set; }
+        public object objPeticion { get; set; }
 
-        public object objRespuestaCliente { get; set; }
+        public object objRespuesta { get; set; }
 
-        
+        public AutoResetEvent autoEventTimeOut;
 
+        public bool seVencioElTimeOut { get; set; }
 
+        public bool seRespondioAlClienteAlgo { get; set; }
 
         /// <summary>
         /// Constructor

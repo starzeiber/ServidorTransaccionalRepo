@@ -34,6 +34,9 @@
     <Reference Include="AccesoBaseDatos">
       <HintPath>Dll\AccesoBaseDatos.dll</HintPath>
     </Reference>
+    <Reference Include="CheaderTPV">
+      <HintPath>Dll\CheaderTPV.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
