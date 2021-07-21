@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ServidorCore;
 
-namespace CapaPresentacion
+namespace Userver
 {
     class EstadoDelServidor : EstadoDelServidorBase
     {

@@ -4,7 +4,7 @@ using ServidorCore;
 using System;
 using System.Threading.Tasks;
 
-namespace CapaPresentacion
+namespace Userver
 {
     public class EstadoDelProveedor : EstadoDelProveedorBase
     {

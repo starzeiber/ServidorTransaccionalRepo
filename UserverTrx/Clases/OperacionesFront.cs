@@ -4,7 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace CapaPresentacion.Clases
+namespace Userver.Clases
 {
     public static class OperacionesFront
     {

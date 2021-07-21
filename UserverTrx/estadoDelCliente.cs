@@ -2,7 +2,7 @@
 using ServidorCore;
 using System.Threading.Tasks;
 
-namespace CapaPresentacion
+namespace Userver
 {
     /// <summary>
     /// Clase que recibe el mensaje del cliente, realizará el envío de ese mensaje a la capa de negocio
@@ -13,7 +13,10 @@ namespace CapaPresentacion
         RespuestaGenerica respuestaGenerica;
         public override void ProcesarTrama(string mensajeCliente)
         {
-            //ultimoMensajeRecibidoCliente += mensajeCliente;
+            if (mensajeCliente.Length ==0)
+            {
+                codigoRespuesta = 30;
+            }
             ultimoMensajeRecibidoCliente = mensajeCliente;
             //TODO colocar el fin de texto de trama TPV
             int posSeparadorTramas = ultimoMensajeRecibidoCliente.IndexOf(".");

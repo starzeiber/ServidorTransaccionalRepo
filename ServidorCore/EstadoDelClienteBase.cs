@@ -119,11 +119,13 @@ namespace ServidorCore
 
         public object objRespuesta { get; set; }
 
-        public AutoResetEvent autoEventTimeOut;
+        public DateTime fechaInicioTrx { get; set; }
 
-        public bool seVencioElTimeOut { get; set; }
+        //public bool seVencioElTimeOut { get; set; }
 
-        public bool seRespondioAlClienteAlgo { get; set; }
+        //public bool seRespondioAlgoAlCliente { get; set; }
+
+        public int segundosDeTO { get; set; }
 
         /// <summary>
         /// Constructor
@@ -156,7 +158,8 @@ namespace ServidorCore
             idUnicoCliente = Guid.NewGuid();
             ipCliente = "";
             fechaHoraConexionCliente = DateTime.Now;
-            socketDeTrabajo = null;            
+            socketDeTrabajo = null;
+            segundosDeTO = 20;
         }
 
         /// <summary>

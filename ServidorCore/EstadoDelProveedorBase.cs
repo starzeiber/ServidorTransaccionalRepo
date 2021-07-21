@@ -103,12 +103,6 @@ namespace ServidorCore
 
         public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
 
-        public AutoResetEvent autoEventConexion;
-        public AutoResetEvent autoEventEnvio;
-        public AutoResetEvent autoEventRecepcion;
-
-        public bool seVencioElTimeOutConexion { get; set; }
-
         public string tramaSolicitud { get; set; }
 
         public string tramaRespuesta { get; set; }
@@ -116,6 +110,11 @@ namespace ServidorCore
         public object objPeticion { get; set; }
         public object objRespuesta { get; set; }
 
+        public DateTime fechaInicioTrx { get; set; }
+
+        public int segundosDeTO { get; set; }
+
+        public AutoResetEvent autoResetConexionProveedor;
 
         /// <summary>
         /// Constructor
@@ -148,8 +147,8 @@ namespace ServidorCore
             ipProveedor = "";
             fechaHoraConexionProveedor = DateTime.Now;
             socketDeTrabajo = null;
-            seVencioElTimeOutConexion = false;
             estadoDelClienteOrigen = null;
+            segundosDeTO = 15;
         }
 
         public virtual void IngresarDatos(int cabeceraMensaje, object objeto)

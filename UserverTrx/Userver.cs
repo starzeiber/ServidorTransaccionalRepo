@@ -1,4 +1,4 @@
-﻿using CapaPresentacion.Clases;
+﻿using Userver.Clases;
 using ServidorCore;
 using System;
 using System.Configuration;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CapaNegocio;
 
-namespace CapaPresentacion
+namespace Userver
 {
     public partial class Userver : Form
     {
@@ -18,13 +18,14 @@ namespace CapaPresentacion
         private void button_Iniciar_Click(object sender, EventArgs e)
         {
             ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor> servidor =
-                new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(5, 1024, 10);
+                new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(1000, 1024, 100);
             servidor.ConfigInicioServidor();
             servidor.IniciarServidor(
                 UtileriaVariablesGlobales.puertoLocal,
                 UtileriaVariablesGlobales.ipProveedor,
                 UtileriaVariablesGlobales.puertoProveedor
                 );
+            button_Iniciar.Enabled = false;
         }
 
         private void Userver_Load(object sender, EventArgs e)
