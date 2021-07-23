@@ -39,20 +39,22 @@ namespace CapaNegocio
         }
 
 
-        public static RespuestaGenerica ProcesarMensajeria(string trama)
+        public static RespuestaGenerica ProcesarMensajeria(string trama,Guid guid)
         {
             RespuestaGenerica respuestaGenerica = new RespuestaGenerica();
-
+            
             try
             {
+                
                 //Si la conversión de las 2 primeras posiciones son un número entonces no es una TPV
                 if (int.TryParse(trama.Substring(0, 2), out int encabezado))
                 {
                     switch (encabezado)
                     {
                         case (int)CabecerasTrama.compraTaePx:
+                            
                             respuestaGenerica.cabecerasTrama = CabecerasTrama.compraTaePx;
-                            Compra(trama, tipoMensajeria.PX, ref respuestaGenerica, categoriaProducto.TAE);
+                            Compra(trama, tipoMensajeria.PX, ref respuestaGenerica, categoriaProducto.TAE);                           
                             break;
                         case (int)CabecerasTrama.consultaTaePx:
                             respuestaGenerica.cabecerasTrama = CabecerasTrama.consultaTaePx;
@@ -111,8 +113,7 @@ namespace CapaNegocio
         #region Cliente
 
         private static void Compra(string trama, tipoMensajeria tipoMensajeria, ref RespuestaGenerica respuestaGenerica, categoriaProducto categoriaProducto=categoriaProducto.TAE)
-        {           
-
+        {            
             switch (tipoMensajeria)
             {
                 case tipoMensajeria.PX:
@@ -121,6 +122,7 @@ namespace CapaNegocio
                         case categoriaProducto.TAE:
                             // se obtienen los campos de la trama
                             CompraPxTae compraPxTae = new CompraPxTae();
+                            
                             if (compraPxTae.Ingresar(trama) != true)
                             {
                                 respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
@@ -134,9 +136,11 @@ namespace CapaNegocio
                             //TODO todas la validaciones de la trama
 
                             respuestaGenerica.trama = respuestaCompraPxTae.ObtenerTrama();
+                            
                             respuestaGenerica.objPeticionCliente = compraPxTae;
+                            
                             respuestaGenerica.objRespuestaCliente = respuestaCompraPxTae;
-
+                            
                             break;
                         case categoriaProducto.Datos:
                             CompraPxDatos compraPxDatos = new CompraPxDatos();

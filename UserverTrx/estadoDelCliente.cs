@@ -1,5 +1,6 @@
 ﻿using CapaNegocio;
 using ServidorCore;
+using System;
 using System.Threading.Tasks;
 
 namespace Userver
@@ -13,25 +14,33 @@ namespace Userver
         RespuestaGenerica respuestaGenerica;
         public override void ProcesarTrama(string mensajeCliente)
         {
+            //TimeSpan timeSpan;
             if (mensajeCliente.Length ==0)
             {
                 codigoRespuesta = 30;
             }
+
             ultimoMensajeRecibidoCliente = mensajeCliente;
+            
             //TODO colocar el fin de texto de trama TPV
             int posSeparadorTramas = ultimoMensajeRecibidoCliente.IndexOf(".");
+            
             if (posSeparadorTramas != -1)
             {
                 ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(0, posSeparadorTramas);
+                //timeSpan = DateTime.Now - fechaInicioTrx;
+                //UtileriaVariablesGlobales.Log("TIME. antes ProcesarMensajeria: " + timeSpan.Seconds + "GUID: " + idUnicoCliente.ToString(), UtileriaVariablesGlobales.TiposLog.error);
+                //Task<RespuestaGenerica> procesarMensajeriaTask = Task.Run(() => Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente, idUnicoCliente));
+                respuestaGenerica = Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente, idUnicoCliente);
+                //timeSpan = DateTime.Now - fechaInicioTrx;
+                //UtileriaVariablesGlobales.Log("TIME. despues ProcesarMensajeria: " + timeSpan.Seconds + "GUID: " + idUnicoCliente.ToString(), UtileriaVariablesGlobales.TiposLog.error);
+                //procesarMensajeriaTask.Wait();
 
-                Task<RespuestaGenerica> procesarMensajeriaTask = Task.Run(() => Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente));
-                procesarMensajeriaTask.Wait();
-
-                respuestaGenerica = procesarMensajeriaTask.Result;
-                codigoRespuesta = procesarMensajeriaTask.Result.codigoRespuesta;
-                cabeceraMensaje = (int)procesarMensajeriaTask.Result.cabecerasTrama;
+                //respuestaGenerica = procesarMensajeriaTask.Result;
+                codigoRespuesta = respuestaGenerica.codigoRespuesta;
+                cabeceraMensaje = (int)respuestaGenerica.cabecerasTrama;
                 objPeticion = respuestaGenerica.objPeticionCliente;
-                objRespuesta = respuestaGenerica.objRespuestaCliente;
+                objRespuesta = respuestaGenerica.objRespuestaCliente;                
                 //TODO para pruebas
                 //codigoRespuesta = 02;
             }

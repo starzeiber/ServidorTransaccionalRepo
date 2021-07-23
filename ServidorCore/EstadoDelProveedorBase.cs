@@ -40,11 +40,11 @@ namespace ServidorCore
         /// </summary>
         public bool seEstaEnviandoAlgo;
 
-        /// <summary>        
-        /// evento para sincronización de procesos, con este manejador de evento controlo
-        /// el flujo cuando el fin de un envío ocurre
-        /// </summary>
-        internal EventWaitHandle esperandoEnvio;
+        ///// <summary>        
+        ///// evento para sincronización de procesos, con este manejador de evento controlo
+        ///// el flujo cuando el fin de un envío ocurre
+        ///// </summary>
+        //internal EventWaitHandle esperandoEnvio;
 
         /// <summary>
         /// Ip del proveedor
@@ -114,7 +114,7 @@ namespace ServidorCore
 
         public int segundosDeTO { get; set; }
 
-        public AutoResetEvent autoResetConexionProveedor;
+        //public AutoResetEvent autoResetConexionProveedor;
 
         /// <summary>
         /// Constructor
@@ -122,7 +122,7 @@ namespace ServidorCore
         public EstadoDelProveedorBase()
         {
             // waitSend = new AutoResetEvent(true);
-            esperandoEnvio = new ManualResetEvent(true);
+            //esperandoEnvio = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InicializarEstadoDelProveedorBase();
         }
@@ -142,7 +142,7 @@ namespace ServidorCore
             puertoProveedor = 0;
             colaEnvio = new Queue<string>();
             seEstaEnviandoAlgo = false;
-            esperandoEnvio.Set();            
+            //esperandoEnvio.Set();            
             idUnicoProveedor= Guid.NewGuid();
             ipProveedor = "";
             fechaHoraConexionProveedor = DateTime.Now;

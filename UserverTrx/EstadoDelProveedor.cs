@@ -17,11 +17,11 @@ namespace Userver
                 {
                     case (int)Operaciones.CabecerasTrama.compraTaePx:
                         CompraPxTae compraPxTae = objPeticion as CompraPxTae;
-                        Task<RespuestaGenerica> procesarMensajeriaTask = Task.Run(() => Operaciones.CompraTpv(compraPxTae));
-                        procesarMensajeriaTask.Wait();
-                        codigoRespuesta = procesarMensajeriaTask.Result.codigoRespuesta;
-                        this.objPeticion = procesarMensajeriaTask.Result.objPeticionProveedor;
-                        this.objRespuesta = procesarMensajeriaTask.Result.objRespuestaProveedor;
+                        respuestaGenerica=Operaciones.CompraTpv(compraPxTae);
+                        
+                        codigoRespuesta = respuestaGenerica.codigoRespuesta;
+                        this.objPeticion = respuestaGenerica.objPeticionProveedor;
+                        this.objRespuesta = respuestaGenerica.objRespuestaProveedor;
                         break;
                     case (int)Operaciones.CabecerasTrama.compraDatosPx:
                         break;

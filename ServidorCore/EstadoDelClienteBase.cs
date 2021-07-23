@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace ServidorCore
 {
-    
+
     /// <summary>
     /// Clase contiene toda la información relevante de un cliente así como un socket
     /// que será el de trabajo para el envío y recepción de mensajes
@@ -27,10 +27,10 @@ namespace ServidorCore
         /// </summary>
         internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
 
-        /// <summary>
-        /// SocketAsyncEventArgs que se utilizará en el envío
-        /// </summary>
-        internal SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
+        ///// <summary>
+        ///// SocketAsyncEventArgs que se utilizará en el envío
+        ///// </summary>
+        //internal SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
 
         /// <summary>        
         /// Secuencia de respuestas (Respuesta1\r\Respuesta2\r\n...RespuestaN\r\n)
@@ -127,6 +127,19 @@ namespace ServidorCore
 
         public int segundosDeTO { get; set; }
 
+        public DateTime inicioConexion { get; set; }
+
+        public DateTime inicioRecepcion { get; set; }
+
+        public DateTime finConexion { get; set; }
+
+        public DateTime finRecepcion { get; set; }
+
+        public DateTime inicioProcesoTrama { get; set; }
+
+        public DateTime finProcesoTrama { get; set; }
+
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -144,7 +157,7 @@ namespace ServidorCore
         /// </summary>
         public virtual void InicializarEstadoDelClienteBase()
         {
-            referenciaSocketPrincipal = null;            
+            referenciaSocketPrincipal = null;
             tramaRespuesta = "";
             ultimoErrorConexionCliente = "";
             ultimoMensajeAlCliente = "";

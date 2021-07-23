@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace ServidorCore
 {
@@ -14,9 +10,9 @@ namespace ServidorCore
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelServidorBase() 
+        public EstadoDelServidorBase()
         {
-            
+
         }
 
         /// <summary>
@@ -41,6 +37,7 @@ namespace ServidorCore
         /// </summary>
         public virtual void OnInicio()
         {
+            Trace.TraceInformation("Se ha iniciado el servidor");
         }
 
         /// <summary>
@@ -64,6 +61,8 @@ namespace ServidorCore
         /// <param name="args"></param>
         public virtual void OnAceptacion(object args)
         {
+            EstadoDelClienteBase estadoDelCliente = (EstadoDelClienteBase)args;
+            Trace.TraceInformation("Cliente conectado, ip: " + estadoDelCliente.ipCliente);
         }
 
         /// <summary>

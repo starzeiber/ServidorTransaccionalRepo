@@ -12,7 +12,7 @@ namespace Cliente
         static int numClientesYaRespondidos = 0;
         //static private ManualResetEvent manual = new ManualResetEvent(false);
 
-        static SemaphoreSlim semaforo = new SemaphoreSlim(80);
+        static SemaphoreSlim semaforo = new SemaphoreSlim(100);
         static void Main(string[] args)
         {
             List<Thread> listaHilos = new List<Thread>();
@@ -56,7 +56,7 @@ namespace Cliente
         {
             //manual.WaitOne();
 
-            IPAddress iPAddress = IPAddress.Parse("10.0.0.4");
+            IPAddress iPAddress = IPAddress.Parse("10.0.0.70");
             //IPAddress iPAddress = IPAddress.Parse("192.168.69.12");
             IPEndPoint endPointProcesa = new IPEndPoint(iPAddress, 8002);
             
