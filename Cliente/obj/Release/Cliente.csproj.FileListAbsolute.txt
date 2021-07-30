@@ -1,0 +1,7 @@
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\bin\Release\Cliente.exe.config
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\bin\Release\Cliente.exe
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\bin\Release\Cliente.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Release\Cliente.csproj.AssemblyReference.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Release\Cliente.csproj.CoreCompileInputs.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Release\Cliente.exe
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Release\Cliente.pdb

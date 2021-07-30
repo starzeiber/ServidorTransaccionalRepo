@@ -73,10 +73,10 @@ namespace ServidorCore
         /// </summary>
         public DateTime fechaHoraConexionCliente { get; set; }
 
-        /// <summary>
-        /// ultimo error en la conexión del cliente, se utiliza como bitácora
-        /// </summary>
-        public string ultimoErrorConexionCliente;
+        ///// <summary>
+        ///// ultimo error en la conexión del cliente, se utiliza como bitácora
+        ///// </summary>
+        //public string ultimoErrorConexionCliente;
 
         /// <summary>
         /// Ultimo mensaje enviado al cliente
@@ -126,19 +126,6 @@ namespace ServidorCore
         //public bool seRespondioAlgoAlCliente { get; set; }
 
         public int segundosDeTO { get; set; }
-
-        public DateTime inicioConexion { get; set; }
-
-        public DateTime inicioRecepcion { get; set; }
-
-        public DateTime finConexion { get; set; }
-
-        public DateTime finRecepcion { get; set; }
-
-        public DateTime inicioProcesoTrama { get; set; }
-
-        public DateTime finProcesoTrama { get; set; }
-
 
         /// <summary>
         /// Constructor

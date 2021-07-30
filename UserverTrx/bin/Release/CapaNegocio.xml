@@ -1,0 +1,793 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CapaNegocio</name>
+    </assembly>
+    <members>
+        <member name="T:CapaNegocio.ConsultaPxDatos">
+            <summary>
+            clase que contiene todas las propiedades de una solicitud TAE al px
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.ConsultaPxDatos.cuenta">
+            <summary>
+            Campo para información de la cuenta
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.ConsultaPxDatos.folio">
+            <summary>
+            campo que se utiliza para el ingreso del número y/o clave
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.ConsultaPxDatos.monto">
+            <summary>
+            Monto del paquete
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.ConsultaPxDatos.datosAdicionales">
+            <summary>
+            información del paquete
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.ConsultaPxDatos.extension">
+            <summary>
+            Extensión del protocolo para información varia
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.ConsultaPxDatos.Ingresar(System.String)">
+            <summary>
+            Divide la trama en los campos de la clase
+            </summary>
+            <param name="trama">trama en formato PX datos de consulta</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.ConsultaPxDatos.ObtenerTrama">
+            <summary>
+            Función para  formar la trama de envío 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.ConsultaPxTae">
+            <summary>
+            clase que contiene todas las propiedades de una solicitud TAE al px
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.ConsultaPxTae.ObtenerTrama">
+            <summary>
+            Función para  formar la trama de envío 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.DatosConexion">
+            <summary>
+            Clase que contiene las propiedades de conexión hacia la plataforma
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.DatosConexion.ip">
+            <summary>
+            IP del switch en la plataforma
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.DatosConexion.puerto">
+            <summary>
+            Puerto por el que se enviará la trama
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.DatosConexion.timeOut">
+            <summary>
+            Tiempo de espera de la DLL para conexión y recepción
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.DatosConexion.siglas">
+            <summary>
+            Siglas asociadas a grupo
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.DatosConexion.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.fechaHora">
+            <summary>
+            MMDDHHmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.horaTerminal">
+            <summary>
+            hhmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.fechaTerminal">
+            <summary>
+            MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.fechaContableTerminal">
+            <summary>
+            MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.fechaCapturaTerminal">
+            <summary>
+            MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaHora">
+            <summary>
+            MMDDHHmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.horaTerminal">
+            <summary>
+            hhmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaTerminal">
+            <summary>
+            MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaContableTerminal">
+            <summary>
+            MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaCapturaTerminal">
+            <summary>
+            MMDD
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.RespuestaConsultaPxDatos">
+            <summary>
+            Clase que contiene todas las propiedades
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.cuenta">
+            <summary>
+            Campo para información de la cuenta
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.autorizacion">
+            <summary>
+            Autorización de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.PIN">
+            <summary>
+            Clave PIN o adicional a la compra
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.fechaExpiracion">
+            <summary>
+            Fecha de expiración de la recarga YYMMdd
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.monto">
+            <summary>
+            Monto de la recarga efectuada
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.folio">
+            <summary>
+            Folio adicional a la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.nombreProveedor">
+            <summary>
+            nombre del proveedor de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.mensajeTicket1">
+            <summary>
+            Mensaje1 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.mensajeTicket2">
+            <summary>
+            Mensaje2 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.codigoRespuesta">
+            <summary>
+            Código de respuesta sobre la transacción
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.datosAdicionales">
+            <summary>
+            información del paquete
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxDatos.extension">
+            <summary>
+            Extensión del protocolo para información varia
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxDatos.#ctor">
+            <summary>
+            Constructor del objeto
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxDatos.ObtenerParametrosTrama(System.String)">
+            <summary>
+            Función que obtiene los parámetros de la trama entrante
+            </summary>
+            <param name="tramaRecibida">Trama de respuesta para poder dividirla</param>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.RespuestaConsultaPxTae">
+            <summary>
+            Clase que contiene todas las propiedades
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.autorizacion">
+            <summary>
+            Autorización de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.PIN">
+            <summary>
+            Clave PIN o adicional a la compra
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.fechaExpiracion">
+            <summary>
+            Fecha de expiración de la recarga YYMMdd
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.monto">
+            <summary>
+            Monto de la recarga efectuada
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.folio">
+            <summary>
+            Folio adicional a la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.nombreProveedor">
+            <summary>
+            nombre del proveedor de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.mensajeTicket1">
+            <summary>
+            Mensaje1 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.mensajeTicket2">
+            <summary>
+            Mensaje2 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaConsultaPxTae.codigoRespuesta">
+            <summary>
+            Código de respuesta sobre la transacción
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxTae.#ctor">
+            <summary>
+            Constructor del objeto
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxTae.ObtenerParametrosTrama(System.String)">
+            <summary>
+            Función que obtiene los parámetros de la trama entrante
+            </summary>
+            <param name="tramaRecibida">Trama de respuesta para poder dividirla</param>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.RespuestaCompraPxBase">
+            <summary>
+            Clase que contiene todas las propiedades constantes en una solicitud de TAE al PX
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.encabezado">
+            <summary>
+            Encabezado de la mensajeria
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.idGrupo">
+            <summary>
+            Identificador del grupo
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.idCadena">
+            <summary>
+            Identificador de la cadena
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.idTienda">
+            <summary>
+            Identificador de la tienda
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.idPos">
+            <summary>
+            identificador del cadejo
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.fecha">
+            <summary>
+            Fecha de la transacción en formato YYMMdd
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.hora">
+            <summary>
+            Hora de la transacción en formato HHmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.region">
+            <summary>
+            Region asignada al teléfono del abono
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.sku">
+            <summary>
+            Identificador del producto
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.telefono">
+            <summary>
+            Teléfono para el abono de saldo
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxBase.numeroTransaccion">
+            <summary>
+            Numero consecutivo que identifica la transacción
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.RespuestaCompraPxDatos">
+            <summary>
+            Clase que contiene todas las propiedades
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.cuenta">
+            <summary>
+            Campo para información de la cuenta
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.autorizacion">
+            <summary>
+            Autorización de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.PIN">
+            <summary>
+            Clave PIN o adicional a la compra
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.fechaExpiracion">
+            <summary>
+            Fecha de expiración de la recarga YYMMdd
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.monto">
+            <summary>
+            Monto de la recarga efectuada
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.folio">
+            <summary>
+            Folio adicional a la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.nombreProveedor">
+            <summary>
+            nombre del proveedor de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.mensajeTicket1">
+            <summary>
+            Mensaje1 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.mensajeTicket2">
+            <summary>
+            Mensaje2 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.codigoRespuesta">
+            <summary>
+            Código de respuesta sobre la transacción
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.datosAdicionales">
+            <summary>
+            información del paquete
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxDatos.extension">
+            <summary>
+            Extensión del protocolo para información varia
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxDatos.Ingresar(System.String)">
+            <summary>
+            Divide la trama en los respectivos campos de la clase
+            </summary>
+            <param name="tramaRecibida">trama en formato PX encabezado 25</param>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.RespuestaCompraPxTae">
+            <summary>
+            Clase que contiene todas las propiedades
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.autorizacion">
+            <summary>
+            Autorización de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.PIN">
+            <summary>
+            Clave PIN o adicional a la compra
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.fechaExpiracion">
+            <summary>
+            Fecha de expiración de la recarga YYMMdd
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.monto">
+            <summary>
+            Monto de la recarga efectuada
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.folio">
+            <summary>
+            Folio adicional a la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.nombreProveedor">
+            <summary>
+            nombre del proveedor de la recarga
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.mensajeTicket1">
+            <summary>
+            Mensaje1 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.mensajeTicket2">
+            <summary>
+            Mensaje2 imprimible en el ticket
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaCompraPxTae.codigoRespuesta">
+            <summary>
+            Código de respuesta sobre la transacción
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxTae.#ctor">
+            <summary>
+            Constructor de la clase
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxTae.Ingresar(CapaNegocio.CompraPxTae)">
+            <summary>
+            Ingresa los datos de la clase de compra a la clase de respuesta
+            </summary>
+            <param name="compraPxTae">Instancia de CompraPxTae</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxTae.Ingresar(System.String)">
+            <summary>
+            Obtiene todos los parámetros de una trama tae de PX
+            </summary>
+            <param name="tramaRecibida">trama recibida desde el px</param>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.CompraPxBase">
+            <summary>
+            Clase que contiene todas las propiedades constantes en una solicitud de TAE al PX
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.encabezado">
+            <summary>
+            Encabezado de la mensajeria
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.idGrupo">
+            <summary>
+            Identificador del grupo
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.idCadena">
+            <summary>
+            Identificador de la cadena
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.idTienda">
+            <summary>
+            Identificador de la tienda
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.idPos">
+            <summary>
+            identificador del cadejo
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.fecha">
+            <summary>
+            Fecha de la transacción en formato YYMMdd
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.hora">
+            <summary>
+            Hora de la transacción en formato HHmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.region">
+            <summary>
+            Region asignada al teléfono del abono
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.sku">
+            <summary>
+            Identificador del producto
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.telefono">
+            <summary>
+            Teléfono para el abono de saldo
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxBase.numeroTransaccion">
+            <summary>
+            Numero consecutivo que identifica la transacción
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.CompraPxDatos">
+            <summary>
+            clase que contiene todas las propiedades de una solicitud TAE al px
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxDatos.cuenta">
+            <summary>
+            Campo para información de la cuenta
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxDatos.folio">
+            <summary>
+            campo que se utiliza para el ingreso del número y/o clave
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxDatos.monto">
+            <summary>
+            Monto del paquete
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxDatos.datosAdicionales">
+            <summary>
+            información del paquete
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.CompraPxDatos.extension">
+            <summary>
+            Extensión del protocolo para información varia
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.CompraPxDatos.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.CompraPxDatos.Ingresar(System.String)">
+            <summary>
+            Divide la trama en sus propiedades
+            </summary>
+            <param name="trama">trama completa de solicitud de datos con la mensajería PX</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.CompraPxDatos.ObtenerTrama">
+            <summary>
+            Función para  formar la trama de envío 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.CompraPxTae">
+            <summary>
+            clase que contiene todas las propiedades de una solicitud TAE al px
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.CompraPxTae.#ctor">
+            <summary>
+            Constructor para inicializar el objeto
+            </summary>
+            <param name="solicitudTaeXml">Objeto con los valores entrantes</param>
+        </member>
+        <member name="M:CapaNegocio.CompraPxTae.Obtener">
+            <summary>
+            Función para  formar la trama de envío 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.Operaciones">
+            <summary>
+            Clase que contiene todas las operaciones del sistema
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Operaciones.CabecerasTrama">
+            <summary>
+            Listado de cabeceras de trama para identificar el tipo de solicitud
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.UtileriaVariablesGlobales">
+            <summary>
+            Clase que contiene varias funciones y variables que se pueden utilizar en todo el proyecto
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_TAE_PX">
+            <summary>
+            Encabezado de un mensaje 13
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_TAE_PX">
+            <summary>
+            Encabezado de un mensaje 14
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX">
+            <summary>
+            Encabezado de un mensaje 17
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_TAE_PX">
+            <summary>
+            Encabezado de un mensaje 18
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_DATOS_PX">
+            <summary>
+            Encabezado de un mensaje 25
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_DATOS_PX">
+            <summary>
+            Encabezado de un mensaje 26
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_DATOS_PX">
+            <summary>
+            Encabezado de un mensaje 27
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX">
+            <summary>
+            Encabezado de un mensaje 28
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.timeOut">
+            <summary>
+            Valor del timeout sobre una compra
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.cadenaConexionBO">
+            <summary>
+            cadena de conexión al BO
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.cadenaConexionTrx">
+            <summary>
+            Cadena de conexión a la base administrativa del ws
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.peformancePeticionesEntrantes">
+            <summary>
+            Instancias del performance counter de peticiones entrantes
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.peformancePeticionesSalientes">
+            <summary>
+            Instancias del performance counter de peticiones entrantes
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.logListener">
+            <summary>
+            Log del sistema
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ipProveedor">
+            <summary>
+            ip del switch del proveedor
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.puertoProveedor">
+            <summary>
+            puerto del switch del proveedor
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.random">
+            <summary>
+            Número aleatorio para seleccionar un puerto disponible
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.UtileriaVariablesGlobales.codigosRespuesta">
+            <summary>
+            listado de códigos de respuesta del sistema
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.UtileriaVariablesGlobales.TiposLog">
+            <summary>
+            Enumerado con los tipos de log
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.TiposLog.info">
+            <summary>
+            Informativo
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.TiposLog.warnning">
+            <summary>
+            Alerta
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.UtileriaVariablesGlobales.TiposLog.error">
+            <summary>
+            Error
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.UtileriaVariablesGlobales.Log(System.String,CapaNegocio.UtileriaVariablesGlobales.TiposLog)">
+            <summary>
+            Función que graba en un log interno desde afuera de la capa de negocio
+            </summary>
+            <param name="mensaje"></param>
+            <param name="tipoLog"></param>
+        </member>
+        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerDescripcionCodigoRespuesta(System.Int32)">
+            <summary>
+            Obtiene la descripción sobre un código del sistema
+            </summary>
+            <param name="codigo">código del sistema</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerNombreFuncion(System.String)">
+            <summary>
+            Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
+            </summary>
+            <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerNombreFuncion(System.String,System.String)">
+            <summary>
+            Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
+            </summary>
+            <param name="propiedadesConValores">Si se desea ingrear propiedad:valor como cadena para darle formato de salida</param>
+            <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerNumeroResultadoAleatorio(System.Int32)">
+            <summary>
+            Función para obtener un número aleatorio confiable
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.TipoFormato">
+            <summary>
+            Enumerado para indicar el tipo de formato a otorgar a una cadena de caracteres
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Validaciones">
+            <summary>
+            Validaciones que contiene globalmente la DLL
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Validaciones.formatoValor(System.String,CapaNegocio.TipoFormato,System.Int32)">
+            <summary>
+            Función que realiza la adecuación de una cadena de caracteres dependiendo el tipo de formato establecido
+            </summary>
+            <param name="cadena">Cadena de caracteres a realizar un formato</param>
+            <param name="tipoFormato">Tipo de formato a otorgar</param>
+            <param name="longitud">Longitud final de la cadena</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Validaciones.revisionCaracteresEspeciales(System.String)">
+            <summary>
+            función que valida si la entrada tiene carateres especiales
+            </summary>
+            <param name="valor"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

@@ -204,8 +204,8 @@ namespace ServidorCore
             numeroMaximoConexionesPorIpCliente = 0;
             this.backLog = backlog;
             listaClientes = new Dictionary<Guid, T>();
-            listaClientesBloqueados = new Dictionary<IPAddress, ClienteBloqueo>();
-            listaClientesPermitidos = new List<Regex>();
+            //listaClientesBloqueados = new Dictionary<IPAddress, ClienteBloqueo>();
+            //listaClientesPermitidos = new List<Regex>();
             listaClientesPendientesDesconexion = new List<T>();
             this.tamanoBufferPorPeticion = tamanoBuffer;
 
@@ -488,9 +488,8 @@ namespace ServidorCore
         private void RecepcionEnvioEntranteCallBack(object sender, SocketAsyncEventArgs e)
         {
             // obtengo el estado del socket
-            T estadoDelCliente = e.UserToken as T;
             // se comprueba que el estado haya sido obtenido correctamente
-            if (estadoDelCliente == null)
+            if (!(e.UserToken is T estadoDelCliente))
             {
                 EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
@@ -509,43 +508,22 @@ namespace ServidorCore
                     else
                     {
                         // se marca para la bitácora el error dentro del estado
-                        estadoDelCliente.ultimoErrorConexionCliente = e.SocketError.ToString();
-                        //EscribirLog("GUID cliente: " + estadoDelCliente.idUnicoCliente + " error en la recepción: " + estadoDelCliente.ultimoErrorConexionCliente, tipoLog.ALERTA);
+                        estadoDelCliente.ultimoErrorConexionCliente = e.SocketError.ToString();                        
                         CerrarSocketCliente(estadoDelCliente);
                     }
                     break;
                 case SocketAsyncOperation.Send:
-                    // si se está enviando algo al cliente, puede ser un envío forzado o respuesta de su trama
-                    if (e == estadoDelCliente.saeaDeEnvioForzadoAlCliente)
+                    //indico que estaré enviando algo al cliente para que otro proceso con la misma conexión no quiera enviar algo al mismo tiempo
+                    estadoDelCliente.esperandoEnvio.Set();
+                    // se comprueba que no hay errores con el socket
+                    if (e.SocketError == SocketError.Success)
                     {
-                        // si es de envío forzado se coloca el evento manual indicando que se estará enviando algo al cliente para que se suspenda un momento el flujo
-                        estadoDelCliente.esperandoEnvio.Set();
-                        // se comprueba que no hay errores con el socket
-                        if (e.SocketError == SocketError.Success)
-                        {
-                            // se procesa el envío
-                            //ProcesarEnvio(estadoDelCliente);
-                        }
-                        else
-                        {
-                            EscribirLog("Error en el envío, RecepcionEnvioEntranteCallBack" + e.SocketError.ToString(), tipoLog.ALERTA);
-                            CerrarSocketCliente(estadoDelCliente);
-                        }
+                        //Intento colocar el socket de nuevo en escucha por si el cliente envía otra trama con la misma conexión
+                        ProcesarRecepcionEnvioCiclicoCliente(estadoDelCliente);                        
                     }
-                    else if (e == estadoDelCliente.saeaDeEnvioRecepcion)
-                    {
-                        estadoDelCliente.esperandoEnvio.Set();
-                        // se comprueba que no hay errores con el socket
-                        if (e.SocketError == SocketError.Success)
-                        {
-                            ProcesarRecepcionEnvioCiclicoCliente(estadoDelCliente);
-                            //CerrarSocketCliente(estadoDelCliente);
-                        }
-                        else
-                        {
-                            estadoDelCliente.ultimoErrorConexionCliente = e.SocketError.ToString();
-                            CerrarSocketCliente(estadoDelCliente);
-                        }
+                    else
+                    {                        
+                        CerrarSocketCliente(estadoDelCliente);
                     }
                     break;
                 default:
@@ -562,12 +540,7 @@ namespace ServidorCore
         /// <param name="estadoDelCliente">Objeto que tiene la información y socket de trabajo del cliente</param>
         private void ProcesarRecepcion(T estadoDelCliente)
         {
-            //TimeSpan timeSpan;
-            //Se comprueba que se puede empezar a recibir y no hay una respuesta en curso
-            //estadoDelCliente.esperandoEnvio.WaitOne();
-
-            estadoDelCliente.inicioRecepcion = DateTime.Now;
-
+            //Para ir midiendo el TO por cada recepción
             bool bloqueo = Monitor.TryEnter(estadoDelCliente.fechaInicioTrx, 5000);
             if (bloqueo)
             {
@@ -585,15 +558,6 @@ namespace ServidorCore
                 EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, bloqueo para ingresar la fecha de inicio", tipoLog.ERROR);
             }
 
-            //timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
-            //if (timeSpan.Seconds>10) EscribirLog(estadoDelCliente.idUnicoCliente.ToString() + ". TIME1 desde inicio en procesarRecepcion hasta despues de colocar la fecha de inicio: " + timeSpan.Seconds, tipoLog.INFORMACION);
-
-            if (SeVencioTO(estadoDelCliente))
-            {
-                EscribirLog("Se venció el TimeOut para el cliente. después de estadoDelCliente.esperandoEnvio.WaitOne()", tipoLog.ALERTA);
-                ResponderAlCliente(estadoDelCliente, 6, 0);
-            }
-
             // se obtiene el SAEA de trabajo
             SocketAsyncEventArgs saeaDeEnvioRecepcion = estadoDelCliente.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
@@ -601,17 +565,15 @@ namespace ServidorCore
 
             // se obtiene el mensaje y se decodifica para entenderlo
             String mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
-            estadoDelCliente.finRecepcion = DateTime.Now;
+
             // incrementa el contador de bytes totales recibidos para tener estadísticas nada más
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
             Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
 
-            //timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
-            //if (timeSpan.Seconds > 10) EscribirLog(estadoDelCliente.idUnicoCliente.ToString() +  ". TIME2 desde colocar la fecha de inicio hasta obtener el mensaje: " + timeSpan.Seconds, tipoLog.INFORMACION);
-
+            // se mide el tiempo para saber si se excede el tiempo
             if (SeVencioTO(estadoDelCliente))
             {
-                EscribirLog("Se venció el TimeOut para el cliente. Recibiendo el mensaje", tipoLog.ALERTA);
+                EscribirLog("Se venció el TimeOut para el cliente: " + estadoDelCliente.idUnicoCliente.ToString() + " Recibiendo el mensaje", tipoLog.ALERTA);
                 ResponderAlCliente(estadoDelCliente, 6, 0);
             }
 
@@ -619,13 +581,11 @@ namespace ServidorCore
             // para que se consuma en otra capa, se procese y se entregue una respuesta
             try
             {
-                estadoDelCliente.inicioProcesoTrama = DateTime.Now;
+                // bloqueo los procesos sobre este mismo cliente hasta no terminar con esta petición
                 estadoDelCliente.esperandoEnvio.Reset();
 
                 // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la varia tramaEnvioProveedor
                 estadoDelCliente.ProcesarTrama(mensajeRecibido);
-
-                estadoDelCliente.finProcesoTrama = DateTime.Now;
 
                 if (SeVencioTO(estadoDelCliente))
                 {
@@ -1571,48 +1531,48 @@ namespace ServidorCore
             }
         }
 
-        /// <summary>
-        /// Adiciona IP como bloqueada
-        /// </summary>
-        /// <param name="ip">IP a agregar</param>
-        /// <param name="razon">la razón del bloquedo</param>
-        /// <param name="segundosBloqueo">Número de segundos que estaba bloqueada</param>
-        public void AgregarListaBloqueados(IPAddress ip, string razon, int segundosBloqueo)
-        {
-            // se hace un bloqueo sobre la lista para que no exista choque de procesos
-            // en el ingreso y obtención
-            lock (listaClientesBloqueados)
-            {
-                if (!listaClientesBloqueados.ContainsKey(ip))
-                {
-                    listaClientesBloqueados.Add(ip, new ClienteBloqueo(ip, razon, segundosBloqueo, true));
-                }
-            }
-        }
+        ///// <summary>
+        ///// Adiciona IP como bloqueada
+        ///// </summary>
+        ///// <param name="ip">IP a agregar</param>
+        ///// <param name="razon">la razón del bloquedo</param>
+        ///// <param name="segundosBloqueo">Número de segundos que estaba bloqueada</param>
+        //public void AgregarListaBloqueados(IPAddress ip, string razon, int segundosBloqueo)
+        //{
+        //    // se hace un bloqueo sobre la lista para que no exista choque de procesos
+        //    // en el ingreso y obtención
+        //    lock (listaClientesBloqueados)
+        //    {
+        //        if (!listaClientesBloqueados.ContainsKey(ip))
+        //        {
+        //            listaClientesBloqueados.Add(ip, new ClienteBloqueo(ip, razon, segundosBloqueo, true));
+        //        }
+        //    }
+        //}
 
-        /// <summary>
-        /// Remueve una ip como bloqueada
-        /// </summary>
-        /// <param name="ip">Ip a remover de la lista</param>
-        public void RemoverListaBloqueados(IPAddress ip)
-        {
-            // se hace un bloqueo sobre la lista para que no exista choque de procesos
-            // en el ingreso y obtención
-            lock (listaClientesBloqueados)
-            {
-                if (listaClientesBloqueados.ContainsKey(ip))
-                    listaClientesBloqueados.Remove(ip);
-            }
-        }
+        ///// <summary>
+        ///// Remueve una ip como bloqueada
+        ///// </summary>
+        ///// <param name="ip">Ip a remover de la lista</param>
+        //public void RemoverListaBloqueados(IPAddress ip)
+        //{
+        //    // se hace un bloqueo sobre la lista para que no exista choque de procesos
+        //    // en el ingreso y obtención
+        //    lock (listaClientesBloqueados)
+        //    {
+        //        if (listaClientesBloqueados.ContainsKey(ip))
+        //            listaClientesBloqueados.Remove(ip);
+        //    }
+        //}
 
-        /// <summary>
-        /// Valida que una ip esté bloqueada
-        /// </summary>
-        /// <param name="ip">ip a validar</param>
-        public bool ClienteEstaBloqueado(IPAddress ip)
-        {
-            return listaClientesBloqueados.ContainsKey(ip);
-        }
+        ///// <summary>
+        ///// Valida que una ip esté bloqueada
+        ///// </summary>
+        ///// <param name="ip">ip a validar</param>
+        //public bool ClienteEstaBloqueado(IPAddress ip)
+        //{
+        //    return listaClientesBloqueados.ContainsKey(ip);
+        //}
 
         /// <summary>
         /// Se detiene el servidor
