@@ -357,7 +357,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Utileria.log.EscribirLogError("Error en darle formato a una cadena: " + ex.Message);
+                Log(ObtenerNombreFuncion(ex.Message), TiposLog.error);                
                 return String.Empty;
             }
             return cadena;

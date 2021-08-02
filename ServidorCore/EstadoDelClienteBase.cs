@@ -87,12 +87,7 @@ namespace ServidorCore
         /// Fecha y hora del ultimo mensaje al cliente
         /// </summary>
         public DateTime fechaHoraUltimoMensajeAlCliente { get; set; }
-
-        /// <summary>
-        /// Ultimo mensaje recibido del cliente
-        /// </summary>
-        public string ultimoMensajeRecibidoCliente;
-
+        
         /// <summary>
         /// Fecha y hora del ultimo mensaje recibido del cliente
         /// </summary>

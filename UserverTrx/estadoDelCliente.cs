@@ -24,7 +24,7 @@ namespace Userver
         {   
 
             // se envía la mensajería a la capa de negocio para su evaluación
-            respuestaGenerica = Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente, idUnicoCliente);
+            respuestaGenerica = Operaciones.ProcesarMensajeria(mensajeCliente);
 
             // el proceso de evaluación de la mensajería entrega un codigo de respuesta
             codigoRespuesta = respuestaGenerica.codigoRespuesta;

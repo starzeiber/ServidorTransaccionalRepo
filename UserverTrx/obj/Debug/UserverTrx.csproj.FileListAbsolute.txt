@@ -32,3 +32,5 @@ C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\U
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\UserverTrx.csproj.CopyComplete
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\Userver.exe
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\Userver.pdb
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\AccesoBaseDatos.dll
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\AccesoBaseDatos.pdb

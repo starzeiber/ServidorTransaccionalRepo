@@ -1,5 +1,10 @@
 ﻿using CapaNegocio.Clases;
 using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using AccesoBaseDatos;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace CapaNegocio
 {
@@ -142,10 +147,9 @@ namespace CapaNegocio
                                 return;
                             }
 
-
-                            if ((compraPxTae.idGrupo > 0) != true || (compraPxTae.idCadena > 0) != true || (compraPxTae.idTienda > 0) != true || (compraPxTae.idPos > 0) != true)
+                            if (ValidarGrupoCadenaTienda(compraPxTae.idGrupo,compraPxTae.idCadena,compraPxTae.idTienda)!=true)
                             {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
                                 return;
                             }
 
@@ -155,10 +159,15 @@ namespace CapaNegocio
                                 return;
                             }
 
+                            decimal monto = ObtenerMontoPorSku(compraPxTae.sku);
+                            if (monto == 0)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
+
                             respuestaGenerica.trama = respuestaCompraPxTae.ObtenerTrama();
-
                             respuestaGenerica.objPeticionCliente = compraPxTae;
-
                             respuestaGenerica.objRespuestaCliente = respuestaCompraPxTae;
 
                             break;
@@ -173,7 +182,23 @@ namespace CapaNegocio
 
                             RespuestaCompraPxDatos respuestaCompraPxDatos = new RespuestaCompraPxDatos();
 
-                            //TODO todas la validaciones de la trama
+                            if (respuestaCompraPxDatos.Ingresar(compraPxDatos) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
+
+                            if (ValidarGrupoCadenaTienda(compraPxDatos.idGrupo, compraPxDatos.idCadena, compraPxDatos.idTienda) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                return;
+                            }
+
+                            if (DateTime.Parse(compraPxDatos.fecha).CompareTo(DateTime.Now) > 0)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
 
                             respuestaGenerica.trama = respuestaCompraPxDatos.ObtenerTrama();
                             respuestaGenerica.objPeticionCliente = compraPxDatos;
@@ -279,55 +304,107 @@ namespace CapaNegocio
 
         #endregion
 
-        //public static DatosConexion ObtenerIpPuertoTimeOutSiglasProcesa(int idGrupo)
-        //{
-        //    DatosConexion datosConexion = new DatosConexion();
-        //    try
-        //    {
-        //        //lista de paramatros sobre la consulta
-        //        List<SqlParameter> listaParametros = new List<SqlParameter>()
-        //        {
-        //            new SqlParameter("@idGrupo", idGrupo)
-        //        };
+        /// <summary>
+        /// Función que realiza la validación de los datos del punto de venta que realiza una compra
+        /// </summary>
+        /// <param name="idGrupo">identificador del grupo</param>
+        /// <param name="idCadena">identificador de la cadena</param>
+        /// <param name="idTienda">identificador de la tienda</param>
+        /// <returns></returns>
+        private static bool ValidarGrupoCadenaTienda(int idGrupo, int idCadena, int idTienda)
+        {            
+            try
+            {
+                //lista de paramatros sobre la consulta
+                List<SqlParameter> listaParametros = new List<SqlParameter>()
+                {
+                    new SqlParameter("@idGrupo", idGrupo),
+                    new SqlParameter("@idCadena", idCadena),
+                    new SqlParameter("@idTienda", idTienda)
+                };
 
-        //        AccesoBaseDatos.ResultadoBaseDatos resultadoBaseDatos = AccesoBaseDatos.OperacionesBaseDatos.EjecutaSP("sprObtenerIpPuertoToProcesa", listaParametros, UtileriaVariablesGlobales.cadenaConexionTrx);
+                ResultadoBaseDatos resultadoBaseDatos = AccesoBaseDatos.OperacionesBaseDatos.EjecutaSP("sprValidarGrupoCadenaTienda", listaParametros, Utileria.cadenaConexionTrx);
 
 
-        //        // se pregunta si existió un error en base de datos
-        //        if (!resultadoBaseDatos.Error)
-        //        {
-        //            //Se revisa si existen resultados
-        //            if (resultadoBaseDatos.Datos.Tables.Count > 0 && resultadoBaseDatos.Datos.Tables[0].Rows.Count > 0)
-        //            {
-        //                foreach (DataRow dataRow in resultadoBaseDatos.Datos.Tables[0].Rows)
-        //                {
-        //                    datosConexion.ip = dataRow["ip"].ToString();
-        //                    datosConexion.puerto = int.Parse(dataRow["puerto"].ToString());
-        //                    datosConexion.timeOut = int.Parse(dataRow["timeOut"].ToString());
-        //                    datosConexion.siglas = dataRow["siglas"].ToString();
-        //                }
-        //            }
-        //            else
-        //            {
-        //                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("No hay resultados con la operación"),UtileriaVariablesGlobales.TiposLog.warnning));
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), UtileriaVariablesGlobales.TiposLog.error));
-        //        }
-        //        return datosConexion;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
-        //        return datosConexion;
-        //    }
-        //    finally
-        //    {
-        //        GC.Collect();
-        //    }
-        //}
+                // se pregunta si existió un error en base de datos
+                if (!resultadoBaseDatos.Error)
+                {
+                    //Se revisa si existen resultados
+                    if (resultadoBaseDatos.Datos.Tables.Count > 0 && resultadoBaseDatos.Datos.Tables[0].Rows.Count > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        return false;
+                    }
+                }
+                else
+                {
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                return false;
+            }
+            finally
+            {
+                GC.Collect();
+            }
+        }
+
+        private static decimal ObtenerMontoPorSku(string sku)
+        {
+            decimal monto = 0;
+            try
+            {
+                //lista de paramatros sobre la consulta
+                List<SqlParameter> listaParametros = new List<SqlParameter>()
+                {
+                    new SqlParameter("@sku", sku)
+                };
+
+                ResultadoBaseDatos resultadoBaseDatos = AccesoBaseDatos.OperacionesBaseDatos.EjecutaSP("sprObtenerMontoPorSku", listaParametros, Utileria.cadenaConexionTrx);
+
+
+                // se pregunta si existió un error en base de datos
+                if (!resultadoBaseDatos.Error)
+                {
+                    //Se revisa si existen resultados
+                    if (resultadoBaseDatos.Datos.Tables.Count > 0 && resultadoBaseDatos.Datos.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow cadaResultado in resultadoBaseDatos.Datos.Tables[0].Rows)
+                        {
+                            monto = decimal.Parse(cadaResultado[""].ToString());
+                        }
+                    }
+                    else
+                    {
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        
+                    }
+                }
+                else
+                {
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    
+                }
+                return monto;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                return monto;
+            }
+            finally
+            {
+                GC.Collect();
+            }
+        }
 
     }
 }
