@@ -21,9 +21,9 @@ namespace Userver
                 new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(1000, 1024, 100);
             servidor.ConfigInicioServidor();
             servidor.IniciarServidor(
-                UtileriaVariablesGlobales.puertoLocal,
-                UtileriaVariablesGlobales.ipProveedor,
-                UtileriaVariablesGlobales.puertoProveedor
+                Utileria.puertoLocal,
+                Utileria.ipProveedor,
+                Utileria.puertoProveedor
                 );
             button_Iniciar.Enabled = false;
         }

@@ -29,10 +29,15 @@ namespace CapaNegocio
 
         }
 
+        /// <summary>
+        /// Se divide la trama en sus propiedades
+        /// </summary>
+        /// <param name="trama">Trama a dividir</param>
+        /// <returns></returns>
         public bool Ingresar(string trama)
         {
             int posicionParseo = 0;
-            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_TAE_PX);
+            encabezado = int.Parse(Utileria.ENCABEZADO_SOLICITUD_TAE_PX);
             posicionParseo += 2;
 
             try
@@ -60,7 +65,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama), Utileria.TiposLog.error));
                 
                 return false;
             }
@@ -89,7 +94,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

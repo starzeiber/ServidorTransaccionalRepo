@@ -17,7 +17,7 @@ namespace CapaNegocio.Clases
                 systemTrace = compraPxTae.numeroTransaccion;
                 // TODO obtener el issuer de la base
                 issuer = "106800000001";
-                referencia = Task.Run(() => UtileriaVariablesGlobales.ObtenerNumeroResultadoAleatorio(6)).Result;
+                referencia = Task.Run(() => Utileria.ObtenerNumeroResultadoAleatorio(6)).Result;
                 TerminalId = "STTN" +
                     Validaciones.formatoValor(compraPxTae.idGrupo.ToString(), TipoFormato.N, 3) +
                     Validaciones.formatoValor(compraPxTae.idCadena.ToString(), TipoFormato.N, 5) +
@@ -33,7 +33,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
 
@@ -66,7 +66,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

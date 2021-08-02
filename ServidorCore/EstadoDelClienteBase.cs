@@ -145,8 +145,7 @@ namespace ServidorCore
         public virtual void InicializarEstadoDelClienteBase()
         {
             referenciaSocketPrincipal = null;
-            tramaRespuesta = "";
-            ultimoErrorConexionCliente = "";
+            tramaRespuesta = "";            
             ultimoMensajeAlCliente = "";
             fechaHoraUltimoMensajeAlCliente = DateTime.MaxValue;
             ultimoMensajeRecibidoCliente = "";

@@ -24,7 +24,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
         }
@@ -58,7 +58,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

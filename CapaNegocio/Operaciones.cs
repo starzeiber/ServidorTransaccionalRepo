@@ -1,9 +1,5 @@
 ﻿using CapaNegocio.Clases;
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
 
 namespace CapaNegocio
 {
@@ -11,7 +7,7 @@ namespace CapaNegocio
     /// Clase que contiene todas las operaciones del sistema
     /// </summary>
     public static class Operaciones
-    {     
+    {
 
         /// <summary>
         /// Listado de cabeceras de trama para identificar el tipo de solicitud
@@ -35,26 +31,30 @@ namespace CapaNegocio
         public enum categoriaProducto
         {
             TAE = 0,
-            Datos = 1            
+            Datos = 1
         }
 
-
-        public static RespuestaGenerica ProcesarMensajeria(string trama,Guid guid)
+        /// <summary>
+        /// Funcion que recibe la trama del cliente, identifica de que tipo es y la particiona en sus propiedades
+        /// </summary>
+        /// <param name="trama">trama del cliente</param>
+        /// <returns></returns>
+        public static RespuestaGenerica ProcesarMensajeria(string trama)
         {
             RespuestaGenerica respuestaGenerica = new RespuestaGenerica();
-            
+
             try
             {
-                
-                //Si la conversión de las 2 primeras posiciones son un número entonces no es una TPV
+
+                //Si la conversión de las 2 primeras posiciones son un número entonces no es una TPV, porque la TPV tiene un encabezado HEX
                 if (int.TryParse(trama.Substring(0, 2), out int encabezado))
                 {
+                    // dependiendo del valor de cabecera es su tratamiento
                     switch (encabezado)
                     {
                         case (int)CabecerasTrama.compraTaePx:
-                            
                             respuestaGenerica.cabecerasTrama = CabecerasTrama.compraTaePx;
-                            Compra(trama, tipoMensajeria.PX, ref respuestaGenerica, categoriaProducto.TAE);                           
+                            Compra(trama, tipoMensajeria.PX, ref respuestaGenerica, categoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.consultaTaePx:
                             respuestaGenerica.cabecerasTrama = CabecerasTrama.consultaTaePx;
@@ -62,14 +62,14 @@ namespace CapaNegocio
                             break;
                         case (int)CabecerasTrama.compraDatosPx:
                             respuestaGenerica.cabecerasTrama = CabecerasTrama.compraDatosPx;
-                            Compra(trama, tipoMensajeria.PX, ref respuestaGenerica,categoriaProducto.Datos);
+                            Compra(trama, tipoMensajeria.PX, ref respuestaGenerica, categoriaProducto.Datos);
                             break;
                         case (int)CabecerasTrama.consultaDatosPx:
                             respuestaGenerica.cabecerasTrama = CabecerasTrama.consultaDatosPx;
-                            Consulta(trama, tipoMensajeria.PX, ref respuestaGenerica ,categoriaProducto.Datos);
+                            Consulta(trama, tipoMensajeria.PX, ref respuestaGenerica, categoriaProducto.Datos);
                             break;
                         default:
-                            respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.Denegada;
+                            respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
                             break;
                     }
                 }
@@ -77,10 +77,9 @@ namespace CapaNegocio
                 {
                     //quito el encabezado HEX porque es una trama TPV
                     trama = trama.Substring(2);
-                    //si las 3 posiciones es un número, entonces es correcta la trama
+                    //si las 3 posiciones es un número, entonces es correcto el encabezado
                     if (int.TryParse(trama.Substring(0, 3), out encabezado))
                     {
-
                         switch (encabezado)
                         {
                             case (int)CabecerasTrama.compraTpv:
@@ -90,30 +89,36 @@ namespace CapaNegocio
                                 Consulta(trama, tipoMensajeria.TenServer, ref respuestaGenerica);
                                 break;
                             default:
-                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.Denegada;
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
                                 break;
                         }
                     }
                     else
                     {
-                        //Trama no reconocida
-                        respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                        respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                     }
                 }
                 return respuestaGenerica;
             }
             catch (Exception ex)
             {
-                UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error al identificar el tipo de mensajeria: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error);
-                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorProceso;
+                Utileria.Log(Utileria.ObtenerNombreFuncion("Error al identificar el tipo de mensajeria: " + ex.Message), Utileria.TiposLog.error);
+                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
                 return respuestaGenerica;
             }
         }
 
         #region Cliente
 
-        private static void Compra(string trama, tipoMensajeria tipoMensajeria, ref RespuestaGenerica respuestaGenerica, categoriaProducto categoriaProducto=categoriaProducto.TAE)
-        {            
+        /// <summary>
+        /// Función que validará la mensajería que sea acorde a una compra dependiendo de su formato y petición
+        /// </summary>
+        /// <param name="trama">trama del cliente</param>
+        /// <param name="tipoMensajeria">tipo de mensajería</param>
+        /// <param name="respuestaGenerica">respuesta sobre el proceso</param>
+        /// <param name="categoriaProducto">categoría del producto a comprar</param>
+        private static void Compra(string trama, tipoMensajeria tipoMensajeria, ref RespuestaGenerica respuestaGenerica, categoriaProducto categoriaProducto = categoriaProducto.TAE)
+        {
             switch (tipoMensajeria)
             {
                 case tipoMensajeria.PX:
@@ -122,32 +127,47 @@ namespace CapaNegocio
                         case categoriaProducto.TAE:
                             // se obtienen los campos de la trama
                             CompraPxTae compraPxTae = new CompraPxTae();
-                            
+
                             if (compraPxTae.Ingresar(trama) != true)
                             {
-                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                                 return;
                             }
 
                             RespuestaCompraPxTae respuestaCompraPxTae = new RespuestaCompraPxTae();
 
-                            respuestaCompraPxTae.Ingresar(compraPxTae);
+                            if (respuestaCompraPxTae.Ingresar(compraPxTae) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
 
-                            //TODO todas la validaciones de la trama
+
+                            if ((compraPxTae.idGrupo > 0) != true || (compraPxTae.idCadena > 0) != true || (compraPxTae.idTienda > 0) != true || (compraPxTae.idPos > 0) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
+
+                            if (DateTime.Parse(compraPxTae.fecha).CompareTo(DateTime.Now)>0)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
 
                             respuestaGenerica.trama = respuestaCompraPxTae.ObtenerTrama();
-                            
+
                             respuestaGenerica.objPeticionCliente = compraPxTae;
-                            
+
                             respuestaGenerica.objRespuestaCliente = respuestaCompraPxTae;
-                            
+
                             break;
                         case categoriaProducto.Datos:
                             CompraPxDatos compraPxDatos = new CompraPxDatos();
 
                             if (compraPxDatos.Ingresar(trama) != true)
                             {
-                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                                 return;
                             }
 
@@ -161,7 +181,7 @@ namespace CapaNegocio
 
                             break;
                         default:
-                            respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                            respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                             break;
                     }
                     break;
@@ -169,13 +189,13 @@ namespace CapaNegocio
 
                     break;
                 default:
-                    respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                     break;
-            }            
+            }
         }
 
-        private static void Consulta(string trama, tipoMensajeria tipoMensajeria, ref RespuestaGenerica respuestaGenerica, categoriaProducto categoriaProducto=categoriaProducto.TAE)
-        {           
+        private static void Consulta(string trama, tipoMensajeria tipoMensajeria, ref RespuestaGenerica respuestaGenerica, categoriaProducto categoriaProducto = categoriaProducto.TAE)
+        {
 
             switch (tipoMensajeria)
             {
@@ -187,7 +207,7 @@ namespace CapaNegocio
                             ConsultaPxTae consultaPxTae = new ConsultaPxTae();
                             if (consultaPxTae.Ingresar(trama) != true)
                             {
-                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                                 return;
                             }
 
@@ -206,7 +226,7 @@ namespace CapaNegocio
 
                             if (consultaPxDatos.Ingresar(trama) != true)
                             {
-                                respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                                 return;
                             }
 
@@ -220,7 +240,7 @@ namespace CapaNegocio
 
                             break;
                         default:
-                            respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                            respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                             break;
                     }
                     break;
@@ -228,10 +248,12 @@ namespace CapaNegocio
 
                     break;
                 default:
-                    respuestaGenerica.codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
+                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                     break;
             }
         }
+
+
 
         #endregion
 

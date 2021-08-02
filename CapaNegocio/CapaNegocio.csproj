@@ -67,7 +67,7 @@
     <Compile Include="Operaciones.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Clases\RespuestaGenerica.cs" />
-    <Compile Include="UtileriaVariablesGlobales.cs" />
+    <Compile Include="Utileria.cs" />
     <Compile Include="Validaciones.cs" />
   </ItemGroup>
   <ItemGroup>

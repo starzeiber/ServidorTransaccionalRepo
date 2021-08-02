@@ -11,46 +11,38 @@ namespace Userver
     /// </summary>
     class EstadoDelCliente : EstadoDelClienteBase
     {
+        /// <summary>
+        /// Instancia que contendrá la respuesta y parametros necesarios sobre la evaluación de la mensajería
+        /// </summary>
         RespuestaGenerica respuestaGenerica;
+
+        /// <summary>
+        /// Función que realiza todo el procesamiento de particionar la trama y evaluarla
+        /// </summary>
+        /// <param name="mensajeCliente">Mensaje enviado por el cliente</param>
         public override void ProcesarTrama(string mensajeCliente)
-        {
-            //TimeSpan timeSpan;
-            if (mensajeCliente.Length ==0)
-            {
-                codigoRespuesta = 30;
-            }
+        {   
 
-            ultimoMensajeRecibidoCliente = mensajeCliente;
-            
-            //TODO colocar el fin de texto de trama TPV
-            int posSeparadorTramas = ultimoMensajeRecibidoCliente.IndexOf(".");
-            
-            if (posSeparadorTramas != -1)
-            {
-                ultimoMensajeRecibidoCliente = ultimoMensajeRecibidoCliente.Substring(0, posSeparadorTramas);
-                //timeSpan = DateTime.Now - fechaInicioTrx;
-                //UtileriaVariablesGlobales.Log("TIME. antes ProcesarMensajeria: " + timeSpan.Seconds + "GUID: " + idUnicoCliente.ToString(), UtileriaVariablesGlobales.TiposLog.error);
-                //Task<RespuestaGenerica> procesarMensajeriaTask = Task.Run(() => Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente, idUnicoCliente));
-                respuestaGenerica = Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente, idUnicoCliente);
-                //timeSpan = DateTime.Now - fechaInicioTrx;
-                //UtileriaVariablesGlobales.Log("TIME. despues ProcesarMensajeria: " + timeSpan.Seconds + "GUID: " + idUnicoCliente.ToString(), UtileriaVariablesGlobales.TiposLog.error);
-                //procesarMensajeriaTask.Wait();
+            // se envía la mensajería a la capa de negocio para su evaluación
+            respuestaGenerica = Operaciones.ProcesarMensajeria(ultimoMensajeRecibidoCliente, idUnicoCliente);
 
-                //respuestaGenerica = procesarMensajeriaTask.Result;
-                codigoRespuesta = respuestaGenerica.codigoRespuesta;
-                cabeceraMensaje = (int)respuestaGenerica.cabecerasTrama;
-                objPeticion = respuestaGenerica.objPeticionCliente;
-                objRespuesta = respuestaGenerica.objRespuestaCliente;                
-                //TODO para pruebas
-                //codigoRespuesta = 02;
-            }
-            else
-            {
+            // el proceso de evaluación de la mensajería entrega un codigo de respuesta
+            codigoRespuesta = respuestaGenerica.codigoRespuesta;
+            // también la cabecera que identifica que tipo de mensajería fue
+            cabeceraMensaje = (int)respuestaGenerica.cabecerasTrama;
+            // y los objetos genéricos de petición y respuesta pre seteados
+            objPeticion = respuestaGenerica.objPeticionCliente;
+            objRespuesta = respuestaGenerica.objRespuestaCliente;
+            //TODO para pruebas
+            //codigoRespuesta = 02;
 
-                codigoRespuesta = (int)UtileriaVariablesGlobales.codigosRespuesta.ErrorFormato;
-            }
         }
 
+        /// <summary>
+        /// Función que obtiene la trama de respuesta a un mensaje del cliente
+        /// </summary>
+        /// <param name="codigoRespuesta"></param>
+        /// <param name="codigoAutorizacion"></param>
         public override void ObtenerTrama(int codigoRespuesta, int codigoAutorizacion)
         {
             switch (respuestaGenerica.cabecerasTrama)

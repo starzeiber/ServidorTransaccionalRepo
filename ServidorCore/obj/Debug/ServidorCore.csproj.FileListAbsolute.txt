@@ -19,3 +19,9 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.AssemblyReference.cache
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csprojAssemblyReference.cache
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
+C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb

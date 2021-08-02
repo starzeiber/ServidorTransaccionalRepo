@@ -51,7 +51,7 @@ namespace CapaNegocio
         /// </summary>
         public RespuestaConsultaPxTae()
         {
-            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_TAE_PX);
+            encabezado = int.Parse(Utileria.ENCABEZADO_RESPUESTA_CONSULTA_TAE_PX);
             PIN = "";
             fechaExpiracion = "";
             folio = "";
@@ -77,7 +77,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
         }
@@ -104,7 +104,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
 
@@ -139,7 +139,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

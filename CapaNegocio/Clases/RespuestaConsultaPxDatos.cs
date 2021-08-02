@@ -63,7 +63,7 @@ namespace CapaNegocio
         /// </summary>
         public RespuestaConsultaPxDatos()
         {
-            encabezado = int.Parse(UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX);
+            encabezado = int.Parse(Utileria.ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX);
             PIN = "";
             fechaExpiracion = "";
             nombreProveedor = "";
@@ -93,7 +93,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
 
                 return false;
             }
@@ -120,7 +120,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
 
                 return false;
             }
@@ -156,7 +156,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
 
                 return String.Empty;
             }

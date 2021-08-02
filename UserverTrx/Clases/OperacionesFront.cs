@@ -28,8 +28,8 @@ namespace Userver.Clases
         {
             try
             {
-                UtileriaVariablesGlobales.nombreLog = ConfigurationManager.AppSettings["Log"].ToString();
-                UtileriaVariablesGlobales.InstanciarLog();
+                Utileria.nombreLog = ConfigurationManager.AppSettings["Log"].ToString();
+                Utileria.InstanciarLog();
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -51,14 +51,14 @@ namespace Userver.Clases
         {
             try
             {
-                UtileriaVariablesGlobales.cadenaConexionBO = ConfigurationManager.ConnectionStrings["cadenaConexionBO"].ToString();
-                UtileriaVariablesGlobales.cadenaConexionTrx = ConfigurationManager.ConnectionStrings["cadenaConexionTransaccional"].ToString();
+                Utileria.cadenaConexionBO = ConfigurationManager.ConnectionStrings["cadenaConexionBO"].ToString();
+                Utileria.cadenaConexionTrx = ConfigurationManager.ConnectionStrings["cadenaConexionTransaccional"].ToString();
 
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error al cargar las cadenas de conexión: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error al cargar las cadenas de conexión: " + ex.Message), Utileria.TiposLog.error));
                 return Task.FromResult(false);
             }
         }
@@ -67,15 +67,15 @@ namespace Userver.Clases
         {
             try
             {
-                UtileriaVariablesGlobales.puertoLocal = int.Parse(ConfigurationManager.AppSettings["puertoLocal"].ToString());
-                UtileriaVariablesGlobales.ipProveedor = ConfigurationManager.AppSettings["ipProveedor"].ToString();
-                UtileriaVariablesGlobales.puertoProveedor = int.Parse(ConfigurationManager.AppSettings["puertoProveedor"].ToString());
+                Utileria.puertoLocal = int.Parse(ConfigurationManager.AppSettings["puertoLocal"].ToString());
+                Utileria.ipProveedor = ConfigurationManager.AppSettings["ipProveedor"].ToString();
+                Utileria.puertoProveedor = int.Parse(ConfigurationManager.AppSettings["puertoProveedor"].ToString());
 
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion(ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return Task.FromResult(false);
             }
         }
@@ -95,14 +95,14 @@ namespace Userver.Clases
                 }
                 else
                 {
-                    UtileriaVariablesGlobales.peformancePeticionesEntrantes = new PerformanceCounter("TN", "PeticionesEntrantesUserver", false);
-                    UtileriaVariablesGlobales.peformancePeticionesSalientes = new PerformanceCounter("TN", "wsPeticionesRespondidasUserver", false);
+                    Utileria.peformancePeticionesEntrantes = new PerformanceCounter("TN", "PeticionesEntrantesUserver", false);
+                    Utileria.peformancePeticionesSalientes = new PerformanceCounter("TN", "wsPeticionesRespondidasUserver", false);
                     return Task.FromResult(true);
                 }
             }
             catch (Exception ex)
             {
-                Task.Run(() => UtileriaVariablesGlobales.Log(UtileriaVariablesGlobales.ObtenerNombreFuncion("Error creando performance counter: " + ex.Message), UtileriaVariablesGlobales.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error creando performance counter: " + ex.Message), Utileria.TiposLog.error));
                 return Task.FromResult(false);
             }
         }
