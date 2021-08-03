@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapaNegocio.Clases;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,6 +45,10 @@ namespace CapaNegocio
         private const int LONGITUD_FOLIO = 20;
         private const int LONGITUD_DATOS_ADICIONALES = 20;
         private const int LONGITUD_EXTENSION = 80;
+
+        public ProductoInfo productoInfo;
+
+        public ProveedorInfo ProveedorInfo;
 
         /// <summary>
         /// Divide la trama en los campos de la clase

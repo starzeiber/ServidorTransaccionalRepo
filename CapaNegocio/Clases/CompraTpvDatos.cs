@@ -22,10 +22,8 @@ namespace CapaNegocio.Clases
         {
             try
             {
-                pCode = 650000;
-                //TODO obtener el monto a partir del SKU de la solicitud PX            
-                systemTrace = solicitudPxDatos.numeroTransaccion;
-                // TODO obtener el issuer de la base
+                pCode = 650000;                            
+                systemTrace = solicitudPxDatos.numeroTransaccion;                
                 issuer = "106800000001";
                 referencia = Task.Run(() => Utileria.ObtenerNumeroResultadoAleatorio(6)).Result;
                 TerminalId = "STTN" +

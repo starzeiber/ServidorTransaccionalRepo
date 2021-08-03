@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapaNegocio.Clases;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +20,10 @@ namespace CapaNegocio
         private const int LONGITUD_SKU = 20;
         private const int LONGITUD_TELEFONO = 10;
         private const int LONGITUD_NUM_TRANS = 5;
+
+        public ProductoInfo productoInfo;
+
+        public ProveedorInfo proveedorInfo;
 
         /// <summary>
         /// Constructor para inicializar el objeto

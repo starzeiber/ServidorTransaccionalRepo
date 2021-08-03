@@ -125,7 +125,6 @@ namespace CapaNegocio
             SinRespuestaCarrier = 71,
             CarrierAbajo = 73,
             MontoInvalido = 88
-
         }
 
         /// <summary>

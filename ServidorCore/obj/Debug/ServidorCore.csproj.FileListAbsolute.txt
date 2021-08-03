@@ -13,15 +13,15 @@ D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\bin\Debug\S
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.dll
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.pdb
 D:\TN\proyectos propios\ServidorTransaccional V 3.0.0.0\ServidorCore\obj\Debug\ServidorCore.csprojResolveAssemblyReference.cache
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.AssemblyReference.cache
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csprojAssemblyReference.cache
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.AssemblyReference.cache

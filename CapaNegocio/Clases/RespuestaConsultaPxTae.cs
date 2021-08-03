@@ -24,7 +24,7 @@ namespace CapaNegocio
         /// <summary>
         /// Monto de la recarga efectuada
         /// </summary>
-        public Double monto { get; set; }
+        public decimal monto { get; set; }
         /// <summary>
         /// Folio adicional a la recarga
         /// </summary>

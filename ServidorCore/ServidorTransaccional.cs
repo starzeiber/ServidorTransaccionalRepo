@@ -647,24 +647,25 @@ namespace ServidorCore
                         //    ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
 
                         //TODO pruebas
-
-                        ResponderAlCliente(estadoDelProveedor, 70, 0);
+                        ResponderAlCliente(estadoDelProveedor, 0, 123456);
                         semaforoParaAceptarProveedores.Release();
                         adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                     }
                     else // si no se logró conectar el socket en 1 segundo, se responde con error
                     {
                         socketDeTrabajoProveedor.Close();
-                        ResponderAlCliente(estadoDelProveedor, 70, 0);
+                        //TODO pruebas
+                        ResponderAlCliente(estadoDelProveedor, 0, 123456);
+                        //ResponderAlCliente(estadoDelProveedor, 70, 0);
                         // se libera el semaforo por si otra petición está solicitando acceso
                         semaforoParaAceptarProveedores.Release();
                         // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
                         adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                     }
                 }
-                // si el código de respuesta es 30(error en el formato), 4(petición denegada) o 50 (Error en algún paso de evaluar la mensajería),
+                // si el código de respuesta es 30(error en el formato) o 50 (Error en algún paso de evaluar la mensajería),
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
-                else if (estadoDelCliente.codigoRespuesta != 30 && estadoDelCliente.codigoRespuesta != 4 && estadoDelCliente.codigoRespuesta != 50)
+                else if (estadoDelCliente.codigoRespuesta != 30 && estadoDelCliente.codigoRespuesta != 50)
                 {
                     ResponderAlCliente(estadoDelCliente, estadoDelCliente.codigoRespuesta, estadoDelCliente.codigoAutorizacion);
                 }
@@ -761,7 +762,7 @@ namespace ServidorCore
                         CerrarSocketCliente(estadoDelCliente);
                     }
                 }
-            }         
+            }
         }
 
         /// <summary>
@@ -1295,7 +1296,7 @@ namespace ServidorCore
                     }
                 }
             }
-            
+
         }
 
         //private void ProcesarEnvio(X estadoDelProveedor)
@@ -1634,27 +1635,13 @@ namespace ServidorCore
         private bool SeVencioTO(T estadoDelCliente)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
-            if (timeSpan.Seconds > estadoDelCliente.segundosDeTO)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return timeSpan.Seconds > estadoDelCliente.segundosDeTO;
         }
 
         private bool SeVencioTO(X estadoDelProveedor)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
-            if (timeSpan.Seconds > estadoDelProveedor.segundosDeTO)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return timeSpan.Seconds > estadoDelProveedor.segundosDeTO;
         }
 
         #endregion

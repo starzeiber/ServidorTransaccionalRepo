@@ -32,7 +32,8 @@
     <DocumentationFile>bin\Release\CapaNegocio.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AccesoBaseDatos">
+    <Reference Include="AccesoBaseDatos, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Dll\AccesoBaseDatos.dll</HintPath>
     </Reference>
     <Reference Include="CheaderTPV">
@@ -51,6 +52,8 @@
     <Compile Include="Clases\ConsultaPxDatos.cs" />
     <Compile Include="Clases\ConsultaPxTae.cs" />
     <Compile Include="Clases\DatosConexion.cs" />
+    <Compile Include="Clases\ProductoInfo.cs" />
+    <Compile Include="Clases\ProveedorInfo.cs" />
     <Compile Include="Clases\RespuestaCompraTpvTAE.cs" />
     <Compile Include="Clases\RespuestaConsultaPxDatos.cs" />
     <Compile Include="Clases\RespuestaConsultaPxTae.cs" />

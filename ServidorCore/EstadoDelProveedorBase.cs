@@ -148,7 +148,7 @@ namespace ServidorCore
             fechaHoraConexionProveedor = DateTime.Now;
             socketDeTrabajo = null;
             estadoDelClienteOrigen = null;
-            segundosDeTO = 15;
+            segundosDeTO = 25;
         }
 
         public virtual void IngresarDatos(int cabeceraMensaje, object objeto)

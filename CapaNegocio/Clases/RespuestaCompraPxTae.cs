@@ -16,15 +16,15 @@ namespace CapaNegocio
         /// <summary>
         /// Clave PIN o adicional a la compra
         /// </summary>
-        public String PIN { get; set; }
+        public string PIN { get; set; }
         /// <summary>
         /// Fecha de expiración de la recarga YYMMdd
         /// </summary>
-        public String fechaExpiracion { get; set; }
+        public string fechaExpiracion { get; set; }
         /// <summary>
         /// Monto de la recarga efectuada
         /// </summary>
-        public Double monto { get; set; }
+        public decimal monto { get; set; }
         /// <summary>
         /// Folio adicional a la recarga
         /// </summary>
@@ -45,6 +45,7 @@ namespace CapaNegocio
         /// Código de respuesta sobre la transacción
         /// </summary>
         public int codigoRespuesta { get; set; }
+
 
         /// <summary>
         /// Constructor de la clase
@@ -105,7 +106,6 @@ namespace CapaNegocio
                 mensajeTicket1 = tramaRecibida.Substring(141, 80);
                 mensajeTicket2 = tramaRecibida.Substring(221, 60);
                 codigoRespuesta = int.Parse(tramaRecibida.Substring(281, 2));
-
                 return true;
             }
             catch (Exception ex)
@@ -135,7 +135,7 @@ namespace CapaNegocio
                 respuesta.Append(Validaciones.formatoValor(autorizacion.ToString(), TipoFormato.N, 9));
                 respuesta.Append(Validaciones.formatoValor(PIN.ToString(), TipoFormato.ANS, 20));
                 respuesta.Append(Validaciones.formatoValor(fechaExpiracion.ToString(), TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
+                respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + monto.ToString().Split('.')[1], TipoFormato.N, 9));
                 respuesta.Append(Validaciones.formatoValor(nombreProveedor.ToString(), TipoFormato.ANS, 14));
                 respuesta.Append(Validaciones.formatoValor(mensajeTicket1.ToString(), TipoFormato.ANS, 80));
                 respuesta.Append(Validaciones.formatoValor(mensajeTicket2.ToString(), TipoFormato.ANS, 60));

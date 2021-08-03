@@ -143,7 +143,6 @@ namespace ServidorCore
             tramaRespuesta = "";            
             ultimoMensajeAlCliente = "";
             fechaHoraUltimoMensajeAlCliente = DateTime.MaxValue;
-            ultimoMensajeRecibidoCliente = "";
             fechaHoraUltimoMensajeRecibidoCliente = DateTime.MaxValue;
             puertoCliente = 0;
             colaEnvio = new Queue<string>();
@@ -153,7 +152,7 @@ namespace ServidorCore
             ipCliente = "";
             fechaHoraConexionCliente = DateTime.Now;
             socketDeTrabajo = null;
-            segundosDeTO = 20;
+            segundosDeTO = 50;
         }
 
         /// <summary>

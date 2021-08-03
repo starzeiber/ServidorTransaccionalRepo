@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapaNegocio.Clases;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,6 +47,9 @@ namespace CapaNegocio
         private const int LONGITUD_DATOS_ADICIONALES = 20;
         private const int LONGITUD_EXTENSION = 80;
 
+        public ProductoInfo productoInfo;
+
+        public ProveedorInfo proveedorInfo;
 
         /// <summary>
         /// 
@@ -128,7 +132,7 @@ namespace CapaNegocio
                 respuesta.Append(Validaciones.formatoValor(sku, TipoFormato.ANS, 20));
                 respuesta.Append(Validaciones.formatoValor(cuenta, TipoFormato.N, 10));
                 respuesta.Append(Validaciones.formatoValor(numeroTransaccion.ToString(), TipoFormato.N, 5));
-                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
+                respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + monto.ToString().Split('.')[1], TipoFormato.N, 9));
                 respuesta.Append(Validaciones.formatoValor(folio, TipoFormato.N, 20));
                 respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.ANS, 20));
                 respuesta.Append(Validaciones.formatoValor(extension, TipoFormato.ANS, 80));

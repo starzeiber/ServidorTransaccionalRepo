@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapaNegocio.Clases;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,7 @@ namespace CapaNegocio
         private const int LONGITUD_TELEFONO = 10;
         private const int LONGITUD_NUM_TRANS = 5;
 
-
+        public ProductoInfo productoInfo;
         public bool Ingresar(string trama)
         {
             int posicionParseo = 0;
