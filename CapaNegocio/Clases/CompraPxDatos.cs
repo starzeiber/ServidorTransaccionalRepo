@@ -21,7 +21,7 @@ namespace CapaNegocio
         /// <summary>
         /// Monto del paquete
         /// </summary>
-        public Double monto { get; set; }
+        public decimal monto { get; set; }
         /// <summary>
         /// información del paquete
         /// </summary>
@@ -95,7 +95,7 @@ namespace CapaNegocio
                 posicionParseo += LONGITUD_CUENTA;
                 numeroTransaccion = int.Parse(trama.Substring(posicionParseo, LONGITUD_NUM_TRANS));
                 posicionParseo += LONGITUD_NUM_TRANS;
-                monto= double.Parse(trama.Substring(posicionParseo, LONGITUD_MONTO));
+                monto= decimal.Parse(trama.Substring(posicionParseo, LONGITUD_MONTO));
                 posicionParseo += LONGITUD_MONTO;
                 folio= trama.Substring(posicionParseo, LONGITUD_FOLIO);
                 telefono = double.Parse(folio).ToString();

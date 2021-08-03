@@ -27,8 +27,7 @@ namespace ServidorCore
         /// <param name="args"></param>
         /// <returns></returns>
         public virtual string mensajeBienvenida(object args)
-        {
-            //TODO ver si se quita el objeto args que no se utiliza
+        {            
             return "";
         }
 

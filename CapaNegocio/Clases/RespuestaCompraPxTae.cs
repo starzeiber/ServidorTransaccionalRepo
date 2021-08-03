@@ -79,7 +79,7 @@ namespace CapaNegocio
                 region = compraPxTae.region;
                 sku = compraPxTae.sku;
                 telefono = compraPxTae.telefono;
-                numeroTransaccion = compraPxTae.numeroTransaccion;
+                numeroTransaccion = compraPxTae.numeroTransaccion;                
                 return true;
             }
             catch (Exception ex)
@@ -88,6 +88,14 @@ namespace CapaNegocio
                 return false;
             }
 
+        }
+
+        public void Actualizar(CompraPxTae compraPxTae)
+        {
+            monto = compraPxTae.productoInfo.monto;
+            nombreProveedor = compraPxTae.proveedorInfo.nombreProveedor;
+            mensajeTicket1 = compraPxTae.productoInfo.mensajeTicket1;
+            mensajeTicket2 = compraPxTae.productoInfo.mensajeTicket2;
         }
 
         /// <summary>
@@ -115,6 +123,7 @@ namespace CapaNegocio
                 return false;
             }
         }
+
 
         public string ObtenerTrama()
         {

@@ -22,6 +22,8 @@ namespace CapaNegocio
         private const int LONGITUD_NUM_TRANS = 5;
 
         public ProductoInfo productoInfo;
+
+        public ProveedorInfo proveedorInfo;
         public bool Ingresar(string trama)
         {
             int posicionParseo = 0;

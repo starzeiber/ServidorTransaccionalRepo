@@ -99,6 +99,14 @@ namespace CapaNegocio
             }
         }
 
+        public void Actualizar(ConsultaPxDatos consultaPxDatos)
+        {
+            monto = consultaPxDatos.productoInfo.monto;
+            nombreProveedor = consultaPxDatos.proveedorInfo.nombreProveedor;
+            mensajeTicket1 = consultaPxDatos.productoInfo.mensajeTicket1;
+            mensajeTicket2 = consultaPxDatos.productoInfo.mensajeTicket2;
+        }
+
         /// <summary>
         /// Función que obtiene los parámetros de la trama entrante
         /// </summary>

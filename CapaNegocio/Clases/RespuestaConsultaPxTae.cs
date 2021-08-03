@@ -82,6 +82,13 @@ namespace CapaNegocio
             }
         }
 
+        public void Actualizar(ConsultaPxTae consultaPxTae)
+        {
+            monto = consultaPxTae.productoInfo.monto;
+            nombreProveedor = consultaPxTae.proveedorInfo.nombreProveedor;
+            mensajeTicket1 = consultaPxTae.productoInfo.mensajeTicket1;
+            mensajeTicket2 = consultaPxTae.productoInfo.mensajeTicket2;
+        }
 
         /// <summary>
         /// Función que obtiene los parámetros de la trama entrante

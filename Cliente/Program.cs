@@ -56,7 +56,7 @@ namespace Cliente
         {
             //manual.WaitOne();
 
-            IPAddress iPAddress = IPAddress.Parse("10.0.0.70");
+            IPAddress iPAddress = IPAddress.Parse("10.0.0.4");
             //IPAddress iPAddress = IPAddress.Parse("192.168.69.12");
             IPEndPoint endPointProcesa = new IPEndPoint(iPAddress, 8002);
             

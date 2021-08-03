@@ -12,7 +12,7 @@ namespace CapaNegocio
     {
         public CabecerasTrama cabecerasTrama { get; set; }
         public int codigoRespuesta { get; set; }
-        public string trama { get; set; }
+        //public string trama { get; set; }
         public object objPeticionCliente { get; set; }
         public object objRespuestaCliente { get; set; }
         public object objPeticionProveedor { get; set; }
@@ -23,7 +23,7 @@ namespace CapaNegocio
         public RespuestaGenerica()
         {
             codigoRespuesta = 0;
-            trama = string.Empty;
+            //trama = string.Empty;
         }
     }
 }

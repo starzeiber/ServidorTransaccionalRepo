@@ -146,29 +146,30 @@ namespace CapaNegocio
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                                 return;
                             }
-
                             respuestaGenerica.objPeticionCliente = compraPxTae;
                             respuestaGenerica.objRespuestaCliente = respuestaCompraPxTae;
-
 
                             if (ValidarGrupoCadenaTienda(compraPxTae.idGrupo, compraPxTae.idCadena, compraPxTae.idTienda) != true)
                             {
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                return;
                             }
 
                             compraPxTae.productoInfo = ObtenerInfoProducto(compraPxTae.sku);
                             if (compraPxTae.productoInfo is null)
                             {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;                                
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                                return;
                             }
 
                             compraPxTae.proveedorInfo = ObtenerInfoProveedor(compraPxTae.productoInfo.idProveedor);
                             if (compraPxTae.proveedorInfo is null)
                             {
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                                return;
                             }
 
-                            respuestaGenerica.trama = respuestaCompraPxTae.ObtenerTrama();
+                            respuestaCompraPxTae.Actualizar(compraPxTae);
 
                             break;
                         case categoriaProducto.Datos:
@@ -181,7 +182,6 @@ namespace CapaNegocio
                             }
 
                             RespuestaCompraPxDatos respuestaCompraPxDatos = new RespuestaCompraPxDatos();
-
                             if (respuestaCompraPxDatos.Ingresar(compraPxDatos) != true)
                             {
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
@@ -190,7 +190,6 @@ namespace CapaNegocio
 
                             respuestaGenerica.objPeticionCliente = compraPxDatos;
                             respuestaGenerica.objRespuestaCliente = respuestaCompraPxDatos;
-
 
                             if (ValidarGrupoCadenaTienda(compraPxDatos.idGrupo, compraPxDatos.idCadena, compraPxDatos.idTienda) != true)
                             {
@@ -202,16 +201,17 @@ namespace CapaNegocio
                             if (compraPxDatos.productoInfo.idProveedor == 0)
                             {
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                                return;
                             }
 
                             compraPxDatos.proveedorInfo = ObtenerInfoProveedor(compraPxDatos.productoInfo.idProveedor);
                             if (compraPxDatos.proveedorInfo is null)
                             {
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                                return;
                             }
 
-                            respuestaGenerica.trama = respuestaCompraPxDatos.ObtenerTrama();
-
+                            respuestaCompraPxDatos.Actualizar(compraPxDatos);
                             break;
                         default:
                             respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
@@ -245,14 +245,36 @@ namespace CapaNegocio
                             }
 
                             RespuestaConsultaPxTae respuestaConsultaPxTae = new RespuestaConsultaPxTae();
-                            respuestaConsultaPxTae.Ingresar(consultaPxTae);
+                            if (respuestaConsultaPxTae.Ingresar(consultaPxTae) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
 
-                            //TODO todas la validaciones de la trama
-
-                            respuestaGenerica.trama = respuestaConsultaPxTae.ObtenerTrama();
                             respuestaGenerica.objPeticionCliente = consultaPxTae;
                             respuestaGenerica.objRespuestaCliente = respuestaConsultaPxTae;
 
+                            if (ValidarGrupoCadenaTienda(consultaPxTae.idGrupo, consultaPxTae.idCadena, consultaPxTae.idTienda) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                return;
+                            }
+
+                            consultaPxTae.productoInfo = ObtenerInfoProducto(consultaPxTae.sku);
+                            if (consultaPxTae.productoInfo is null)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                                return;
+                            }
+
+                            consultaPxTae.proveedorInfo = ObtenerInfoProveedor(consultaPxTae.productoInfo.idProveedor);
+                            if (consultaPxTae.proveedorInfo is null)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                                return;
+                            }
+
+                            respuestaConsultaPxTae.Actualizar(consultaPxTae);
                             break;
                         case categoriaProducto.Datos:
                             ConsultaPxDatos consultaPxDatos = new ConsultaPxDatos();
@@ -264,13 +286,35 @@ namespace CapaNegocio
                             }
 
                             RespuestaConsultaPxDatos respuestaConsultaPxDatos = new RespuestaConsultaPxDatos();
-                            respuestaConsultaPxDatos.Ingresar(consultaPxDatos);
-                            //TODO todas la validaciones de la trama
+                            if (respuestaConsultaPxDatos.Ingresar(consultaPxDatos) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                return;
+                            }
 
-                            respuestaGenerica.trama = respuestaConsultaPxDatos.ObtenerTrama();
                             respuestaGenerica.objPeticionCliente = consultaPxDatos;
                             respuestaGenerica.objRespuestaCliente = respuestaConsultaPxDatos;
 
+
+                            if (ValidarGrupoCadenaTienda(consultaPxDatos.idGrupo, consultaPxDatos.idCadena, consultaPxDatos.idTienda) != true)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                return;
+                            }
+
+                            consultaPxDatos.productoInfo = ObtenerInfoProducto(consultaPxDatos.sku);
+                            if (consultaPxDatos.productoInfo.idProveedor == 0)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                            }
+
+                            consultaPxDatos.proveedorInfo = ObtenerInfoProveedor(consultaPxDatos.productoInfo.idProveedor);
+                            if (consultaPxDatos.proveedorInfo is null)
+                            {
+                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                            }
+
+                            respuestaConsultaPxDatos.Actualizar(consultaPxDatos);
                             break;
                         default:
                             respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
@@ -285,8 +329,6 @@ namespace CapaNegocio
                     break;
             }
         }
-
-
 
         #endregion
 

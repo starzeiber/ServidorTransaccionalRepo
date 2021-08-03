@@ -97,6 +97,14 @@ namespace CapaNegocio
             }
         }
 
+        public void Actualizar(CompraPxDatos solicitudPxDatos)
+        {
+            monto = solicitudPxDatos.monto;
+            folio = solicitudPxDatos.folio;
+            datosAdicionales = solicitudPxDatos.datosAdicionales;
+            extension = solicitudPxDatos.extension;
+        }
+
         /// <summary>
         /// Divide la trama en los respectivos campos de la clase
         /// </summary>

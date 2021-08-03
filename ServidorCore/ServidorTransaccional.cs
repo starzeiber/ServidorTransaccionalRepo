@@ -863,27 +863,6 @@ namespace ServidorCore
             // se llama a la secuencia de cerrando para tener un flujo de eventos
             estadoDelServidorBase.OnClienteCerrado(estadoDelCliente);
 
-            //// se espera a que un cliente acaba de recibir la última información y se cierra
-            //int tiempoInicial, tiempoFinal;
-            //tiempoInicial = Environment.TickCount;
-            //bool receivedSignal = estadoDelCliente.esperandoEnvio.WaitOne(5000, false);
-            //tiempoFinal = Environment.TickCount;
-            //TODO revisar este tema
-            //// la señal debe ser false si excedió el TO
-            //if (!receivedSignal)
-            //{
-            //    // se mide el tiempo de espera para el envío de la información y si supera el establecido es un error
-            //    if (tiempoFinal - tiempoInicial > maxRetrasoParaEnvio)
-            //    {
-            //        maxRetrasoParaEnvio = tiempoFinal - tiempoInicial;
-            //        EscribirLog("maximo tiempo de espera para el envío de información: " + maxRetrasoParaEnvio + " ms, CerrarSocketCliente", tipoLog.ALERTA);
-            //    }
-            //    EscribirLog("No se puede esperar para terminar el envío de información al cliente, CerrarSocketCliente", tipoLog.ALERTA);
-            //    // como no puedo esperar tanto al envío se deja pendiente, esto para no perder ninguna transacción
-            //    listaClientesPendientesDesconexion.Add(estadoDelCliente);
-            //    return;
-            //}
-
             // se libera la instancia de socket de trabajo para reutilizarlo
             adminEstadosCliente.ingresarUnElemento(estadoDelCliente);
             // se marca el semáforo de que puede aceptar otro cliente
@@ -1445,55 +1424,7 @@ namespace ServidorCore
         #endregion
 
 
-        #region FuncionesDeAyuda
-
-        ///// <summary>
-        ///// Manda el mensaje al cliente sobre el socket de trabajo
-        ///// </summary>
-        ///// <param name="mensaje">Mensaje a enviar por el socket</param>
-        ///// <param name="estadoDelCliente">la información del cliente y su socket de trabajo</param>
-        //public void EnvioInfo(string mensaje, T estadoDelCliente)
-        //{
-        //    int longitudColaEnvio;
-        //    if (mensaje == "")
-        //    {
-        //        EscribirLog("Mensaje vacío, no se puede enviar, envioInfo", tipoLog.ALERTA);
-        //        return;
-        //    }
-        //    // si está desconectado se marca como error
-        //    if (!estadoDelCliente.socketDeTrabajo.Connected)
-        //    {
-        //        EscribirLog("Socket desconectado, envioInfo", tipoLog.ALERTA);
-        //        // se cierra el socket para reutilizarlo
-        //        CerrarSocketCliente(estadoDelCliente);
-        //        return;
-        //    }
-
-        //    // se utiliza un bloqueo sobre la cola de envío al cliente y no
-        //    // choquen procesos de ingreso y obtención
-        //    lock (estadoDelCliente.colaEnvio)
-        //    {
-        //        // se ingresa el mensaje que se enviará al cliente al final de la cola
-        //        estadoDelCliente.colaEnvio.Enqueue(mensaje);
-        //        // se obtiene la longitud de cola de envío
-        //        longitudColaEnvio = estadoDelCliente.colaEnvio.Count();
-        //    }
-
-        //    // TODO: Este límite hasta ahora funciona, en un cambio se podría mejorar para hacerlo dinámico
-        //    // la cola de mensajes no puede ser mayor a 500, es demasiado pero será nuestro límite
-        //    if (longitudColaEnvio > 499)
-        //    {
-        //        EscribirLog("Cola de mensaje superó el límite de 500 elementos, envioInfo", tipoLog.ALERTA);
-        //        // TODO: revisar porque no se puede obtener el GUID del cliente para el log anterior
-        //        //InvokeAppendLog(socketDeTrabajoInfoCliente.user_Guid + " send queue " + longitudColaEnvio + " exceeded limit");
-        //        // es mejor cerrar el socket porque existe un sobre encolamiento de transacciones
-        //        CerrarSocketCliente(estadoDelCliente);
-        //        return;
-        //    }
-
-        //    // se llama la función que procesará la cola de envío
-        //    ColaDeEnvios(estadoDelCliente);
-        //}
+        #region FuncionesDeAyuda       
 
         /// <summary>
         /// Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
