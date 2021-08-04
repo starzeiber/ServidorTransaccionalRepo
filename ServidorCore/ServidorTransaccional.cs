@@ -105,6 +105,15 @@ namespace ServidorCore
         /// </summary>
         public int puertoProveedor { get; set; }
 
+        public int totalDeBytesTransferidos 
+        { 
+            get 
+            {
+                return totalBytesLeidos; 
+            } 
+        }
+
+
         #endregion
 
         #region Propiedades privadas
@@ -567,7 +576,14 @@ namespace ServidorCore
 
             // incrementa el contador de bytes totales recibidos para tener estadísticas nada más
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
-            Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
+            if(totalBytesLeidos== 2147480000)
+            {
+                Interlocked.Exchange(ref this.totalBytesLeidos, 0);
+            }
+            else
+            {
+                Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
+            }           
 
             // se mide el tiempo para saber si se excede el tiempo
             if (SeVencioTO(estadoDelCliente))
@@ -1109,7 +1125,7 @@ namespace ServidorCore
             //EscribirLog(mensajeRecibido.Substring(2), tipoLog.INFORMACION);
             // incrementa el contador de bytes totales recibidos
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
-            Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
+            //Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
 
             // el mensaje recibido llevará un proceso, que no debe ser llevado por el core, se coloca en la función virtual
             // para que se consuma en otra capa, se procese y se entregue una respuesta
@@ -1574,6 +1590,7 @@ namespace ServidorCore
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
             return timeSpan.Seconds > estadoDelProveedor.segundosDeTO;
         }
+
 
         #endregion
 

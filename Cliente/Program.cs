@@ -88,7 +88,7 @@ namespace Cliente
             {
                 for (int i = 0; i < (int)numTrx; i++)
                 {
-                    byte[] msg = Encoding.UTF8.GetBytes("130011000100010001130211150030098469766750482       452170489941665.");
+                    byte[] msg = Encoding.UTF8.GetBytes("130623000100010001130211150030098469766750482       452170489941665");
                     byte[] bytes = new byte[1024];
 
 

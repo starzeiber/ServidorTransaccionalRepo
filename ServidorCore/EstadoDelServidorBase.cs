@@ -44,7 +44,9 @@ namespace ServidorCore
         /// </summary>
         /// <param name="args"></param>
         public virtual void OnClienteCerrado(object args)
-        {
+        {            
+            Trace.TraceInformation("Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() + 
+                ", desde la IP:" + (args as EstadoDelClienteBase).ipCliente);
         }
 
         /// <summary>
@@ -60,8 +62,8 @@ namespace ServidorCore
         /// <param name="args"></param>
         public virtual void OnAceptacion(object args)
         {
-            EstadoDelClienteBase estadoDelCliente = (EstadoDelClienteBase)args;
-            Trace.TraceInformation("Cliente conectado, ip: " + estadoDelCliente.ipCliente);
+            Trace.TraceInformation("Se ha conectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() +
+                ", desde la IP:" + (args as EstadoDelClienteBase).ipCliente);
         }
 
         /// <summary>
