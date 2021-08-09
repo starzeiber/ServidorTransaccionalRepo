@@ -17,3 +17,8 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release\UserverTrx.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release\Userver.exe
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release\Userver.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Release\MetroFramework.Design.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Release\MetroFramework.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Release\MetroFramework.Fonts.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Release\AccesoBaseDatos.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Release\AccesoBaseDatos.pdb

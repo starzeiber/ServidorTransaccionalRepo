@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -48,31 +47,6 @@ namespace ServidorCore
         /// </summary>
         public Int32 puertoCliente { get; set; }
 
-        ///// <summary>
-        ///// Fecha y hora de conexión del cliente
-        ///// </summary>
-        //public DateTime fechaHoraConexionCliente { get; set; }
-
-        ///// <summary>
-        ///// ultimo error en la conexión del cliente, se utiliza como bitácora
-        ///// </summary>
-        //public string ultimoErrorConexionCliente;
-
-        ///// <summary>
-        ///// Ultimo mensaje enviado al cliente
-        ///// </summary>
-        //public string ultimoMensajeAlCliente;
-
-        ///// <summary>
-        ///// Fecha y hora del ultimo mensaje al cliente
-        ///// </summary>
-        //public DateTime fechaHoraUltimoMensajeAlCliente { get; set; }
-        
-        ///// <summary>
-        ///// Fecha y hora del ultimo mensaje recibido del cliente
-        ///// </summary>
-        //public DateTime fechaHoraUltimoMensajeRecibidoCliente { get; set; }
-
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
@@ -88,22 +62,33 @@ namespace ServidorCore
         /// </summary>
         public int codigoAutorizacion { get; set; }
 
-        public int cabeceraMensaje { get; set; }
+        //public int cabeceraMensaje { get; set; }
 
+        /// <summary>
+        /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
+        /// </summary>
         public object objPeticion { get; set; }
 
+        /// <summary>
+        /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
+        /// </summary>
         public object objRespuesta { get; set; }
 
+        /// <summary>
+        /// Fecha marcada como inicio de operaciones con el cliente
+        /// </summary>
         public DateTime fechaInicioTrx { get; set; }
-                
-        public int segundosDeTO { get; set; }
+
+        /// <summary>
+        /// Tiempo de espera general del lado del cliente
+        /// </summary>
+        public int timeOut { get; set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         public EstadoDelClienteBase()
         {
-            // waitSend = new AutoResetEvent(true);
             esperandoEnvio = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InicializarEstadoDelClienteBase();
@@ -116,19 +101,13 @@ namespace ServidorCore
         public virtual void InicializarEstadoDelClienteBase()
         {
             referenciaSocketPrincipal = null;
-            tramaRespuesta = "";            
-            //ultimoMensajeAlCliente = "";
-            //fechaHoraUltimoMensajeAlCliente = DateTime.MaxValue;
-            //fechaHoraUltimoMensajeRecibidoCliente = DateTime.MaxValue;
+            tramaRespuesta = "";
             puertoCliente = 0;
-            //colaEnvio = new Queue<string>();
-            //seEstaEnviandoAlgo = false;
             esperandoEnvio.Set();
             idUnicoCliente = Guid.NewGuid();
             ipCliente = "";
-            //fechaHoraConexionCliente = DateTime.Now;
             socketDeTrabajo = null;
-            segundosDeTO = 50;
+            timeOut = 50;
         }
 
         /// <summary>
@@ -139,15 +118,6 @@ namespace ServidorCore
         public virtual void ProcesarTrama(string mensajeCliente)
         {
         }
-
-        ///// <summary>
-        ///// Función virtual para sobre escribirla, con ella de ingresa a un cliente
-        ///// en la lista de ip bloqueadas por alguna anomalía con un tiempo especifico
-        ///// </summary>
-        ///// <param name="cliente">Objeto sobre la clase clientesBloqueados</param>
-        //public virtual void AgregarClienteListaNegados(ClienteBloqueo cliente)
-        //{
-        //}
 
         /// <summary>
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
@@ -162,7 +132,6 @@ namespace ServidorCore
         /// <summary>
         /// Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
         /// </summary>
-        /// <param name="obj">objeto genérico que pudiera contener cualquier dato auxiliar</param>
         public virtual void ObtenerTramaRespuesta()
         {
 

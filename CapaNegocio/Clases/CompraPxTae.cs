@@ -21,14 +21,19 @@ namespace CapaNegocio
         private const int LONGITUD_TELEFONO = 10;
         private const int LONGITUD_NUM_TRANS = 5;
 
+        /// <summary>
+        /// Instancia que contendrá la información del producto para la compra
+        /// </summary>
         public ProductoInfo productoInfo;
 
+        /// <summary>
+        /// Instancia que contendrá la información del proveedor para la compra
+        /// </summary>
         public ProveedorInfo proveedorInfo;
 
         /// <summary>
         /// Constructor para inicializar el objeto
         /// </summary>
-        /// <param name="solicitudTaeXml">Objeto con los valores entrantes</param>
         public CompraPxTae()
         {
 
@@ -71,7 +76,7 @@ namespace CapaNegocio
             catch (Exception ex)
             {
                 Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama), Utileria.TiposLog.error));
-                
+
                 return false;
             }
         }

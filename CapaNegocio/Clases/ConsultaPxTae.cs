@@ -21,9 +21,21 @@ namespace CapaNegocio
         private const int LONGITUD_TELEFONO = 10;
         private const int LONGITUD_NUM_TRANS = 5;
 
+        /// <summary>
+        /// Instancia que contendrá la información del producto para la consulta
+        /// </summary>
         public ProductoInfo productoInfo;
 
+        /// <summary>
+        /// Instancia que contendrá la información del proveedor para la consulta
+        /// </summary>
         public ProveedorInfo proveedorInfo;
+
+        /// <summary>
+        /// Función que obtiene las propiedades de la trama
+        /// </summary>
+        /// <param name="trama">trama del cliente</param>
+        /// <returns></returns>
         public bool Ingresar(string trama)
         {
             int posicionParseo = 0;
@@ -65,7 +77,7 @@ namespace CapaNegocio
         /// Función para  formar la trama de envío 
         /// </summary>
         /// <returns></returns>
-        public String ObtenerTrama()
+        public string ObtenerTrama()
         {
             StringBuilder respuesta = new StringBuilder();
             try

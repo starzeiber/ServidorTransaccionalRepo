@@ -13,29 +13,64 @@ namespace CapaNegocio
     /// </summary>
     public static class Operaciones
     {
-
         /// <summary>
         /// Listado de cabeceras de trama para identificar el tipo de solicitud
         /// </summary>
         public enum CabecerasTrama
         {
+            /// <summary>
+            /// Compra PX tae
+            /// </summary>
             compraTaePx = 13,
+            /// <summary>
+            /// Consulta PX tae
+            /// </summary>
             consultaTaePx = 17,
+            /// <summary>
+            /// Compra px datos
+            /// </summary>
             compraDatosPx = 21,
+            /// <summary>
+            /// consulta px datos
+            /// </summary>
             consultaDatosPx = 25,
+            /// <summary>
+            /// compra protocoloco tpv
+            /// </summary>
             compraTpv = 200,
+            /// <summary>
+            /// Consulta protocolo tpv
+            /// </summary>
             consultaTpv = 220
         }
 
+        /// <summary>
+        /// Tipo de mensajería que podrá procesar el servidor
+        /// </summary>
         public enum tipoMensajeria
         {
+            /// <summary>
+            /// protocolo PX
+            /// </summary>
             PX = 0,
+            /// <summary>
+            /// Protocolo tenserver
+            /// </summary>
             TenServer = 1
         }
 
+        /// <summary>
+        /// Categorías de productos que manejará el servidor
+        /// </summary>
         public enum categoriaProducto
         {
+            /// <summary>
+            /// Tiempo aire electrónico
+            /// </summary>
             TAE = 0,
+            /// <summary>
+            /// Paquetes de tiempo aire electrónico
+            /// </summary>
             Datos = 1
         }
 
@@ -60,19 +95,19 @@ namespace CapaNegocio
                     switch (encabezado)
                     {
                         case (int)CabecerasTrama.compraTaePx:
-                            respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.compraTaePx;
+                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.compraTaePx;
                             ObtenerParametrosPorCompraCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, categoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.consultaTaePx:
-                            respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.consultaTaePx;
+                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.consultaTaePx;
                             ObtenerParametrosPorConsultaCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, categoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.compraDatosPx:
-                            respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.compraDatosPx;
+                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.compraDatosPx;
                             ObtenerParametrosPorCompraCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, categoriaProducto.Datos);
                             break;
                         case (int)CabecerasTrama.consultaDatosPx:
-                            respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.consultaDatosPx;
+                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.consultaDatosPx;
                             ObtenerParametrosPorConsultaCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, categoriaProducto.Datos);
                             break;
                         default:
@@ -123,7 +158,7 @@ namespace CapaNegocio
         /// <param name="respuestaGenerica">respuesta sobre el proceso</param>
         /// <param name="categoriaProducto">categoría del producto a comprar</param>
         private static void ObtenerParametrosPorCompraCliente(string trama, tipoMensajeria tipoMensajeria, ref RespuestaProcesosCliente respuestaGenerica, categoriaProducto categoriaProducto = categoriaProducto.TAE)
-        {            
+        {
             switch (tipoMensajeria)
             {
                 case tipoMensajeria.PX:
@@ -243,6 +278,13 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Función que divide en sus propiedades la trama de consulta de transacción recibida del cliente
+        /// </summary>
+        /// <param name="trama">Trama del cliente</param>
+        /// <param name="tipoMensajeria">tipo de mensajería de la consulta</param>
+        /// <param name="respuestaGenerica">instancia de RespuestaGenerica</param>
+        /// <param name="categoriaProducto">categoría del producto</param>
         private static void ObtenerParametrosPorConsultaCliente(string trama, tipoMensajeria tipoMensajeria, ref RespuestaProcesosCliente respuestaGenerica, categoriaProducto categoriaProducto = categoriaProducto.TAE)
         {
 
@@ -365,18 +407,24 @@ namespace CapaNegocio
 
         //--------------------------------
         #region Proveedor
-        
+
+        /// <summary>
+        /// Función que procesará la mensajería del proveedor contenida en el objeto genérico
+        /// </summary>
+        /// <param name="objPeticionCliente">Objeto genérico que recibe cualquier clase del sistema</param>
+        /// <returns></returns>
         public static RespuestaProcesosProveedor ProcesarMensajeriaProveedor(object objPeticionCliente)
         {
             RespuestaProcesosProveedor respuestaProcesosProveedor = new RespuestaProcesosProveedor();
 
             try
             {
-                Type tipo = objPeticionCliente.GetType();               
-                if (tipo==typeof(CompraPxTae))
+                Type tipo = objPeticionCliente.GetType();
+                if (tipo == typeof(CompraPxTae))
                 {
                     ObtenerParametrosPorCompraProveedor((objPeticionCliente as CompraPxTae), ref respuestaProcesosProveedor);
-                }else if (tipo == typeof(CompraPxDatos))
+                }
+                else if (tipo == typeof(CompraPxDatos))
                 {
                     ObtenerParametrosPorCompraProveedor((objPeticionCliente as CompraPxDatos), ref respuestaProcesosProveedor);
                 }
@@ -391,20 +439,29 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Función que divide en sus propiedades la trama de respuesta de un proveedor
+        /// </summary>
+        /// <param name="trama">Trama de un proveedor</param>
+        /// <param name="respuestaProcesosProveedor">Instancia de RespuestaProcesosProveedor</param>
         public static void ProcesarTramaProveedor(string trama, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
-        {           
+        {
             RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
             if (respuestaCompraTpvTAE.Ingresar(trama))
             {
                 respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
                 respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
             }
-           
+
         }
 
-
-        public static void ObtenerParametrosPorCompraProveedor(CompraPxTae compraPxTae, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
-        {     
+        /// <summary>
+        /// Función que obtiene las propiedades de una solicitud de compra a un proveedor a partir de la clase de compra del cliente
+        /// </summary>
+        /// <param name="compraPxTae"></param>
+        /// <param name="respuestaProcesosProveedor"></param>
+        private static void ObtenerParametrosPorCompraProveedor(CompraPxTae compraPxTae, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
+        {
             CompraTpvTae compraTpvTae = new CompraTpvTae();
             if (compraTpvTae.Ingresar(compraPxTae) != true)
             {
@@ -423,7 +480,12 @@ namespace CapaNegocio
             respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
         }
 
-        public static void ObtenerParametrosPorCompraProveedor(CompraPxDatos compraPxDatos, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
+        /// <summary>
+        /// Función que obtiene las propiedades de una solicitud de consulta a un proveedor a partir de la clase de compra del cliente
+        /// </summary>
+        /// <param name="compraPxDatos"></param>
+        /// <param name="respuestaProcesosProveedor"></param>
+        private static void ObtenerParametrosPorCompraProveedor(CompraPxDatos compraPxDatos, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
         {
             CompraTpvDatos compraTpvDatos = new CompraTpvDatos();
             if (compraTpvDatos.Ingresar(compraPxDatos) != true)
@@ -448,7 +510,13 @@ namespace CapaNegocio
 
         //-------------------------------
         #region Control del crédito
-
+        /// <summary>
+        /// Función que valida el tipo de control de crédito de una petición de compra
+        /// </summary>
+        /// <param name="idGrupo"></param>
+        /// <param name="idCadena"></param>
+        /// <param name="idTienda"></param>
+        /// <returns></returns>
         public static RespuestaProcesosCliente ValidarControlCredito(int idGrupo, int idCadena, int idTienda)
         {
             RespuestaProcesosCliente respuestaGenerica = new RespuestaProcesosCliente();
@@ -506,6 +574,13 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Funcion que obtendrá el saldo disponible en una petición de compra
+        /// </summary>
+        /// <param name="idGrupo"></param>
+        /// <param name="idCadena"></param>
+        /// <param name="idTienda"></param>
+        /// <returns></returns>
         public static RespuestaProcesosCliente ObtenerSaldoDisponible(int idGrupo, int idCadena, int idTienda)
         {
             RespuestaProcesosCliente respuestaGenerica = new RespuestaProcesosCliente();
@@ -751,10 +826,15 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Función que almacena en base de datos la transacción de compra o consulta
+        /// </summary>
+        /// <param name="respuestaCompraTpvTAE"></param>
+        /// <returns></returns>
         public static RespuestaProcesosCliente GuardarTrx(RespuestaCompraTpvTAE respuestaCompraTpvTAE)
         {
             RespuestaProcesosCliente respuestaGenerica = new RespuestaProcesosCliente();
-            
+
             try
             {
                 //lista de paramatros sobre la consulta
@@ -796,7 +876,7 @@ namespace CapaNegocio
                     //Se revisa si existen resultados
                     if (resultadoBaseDatos.Datos.Tables.Count > 0 && resultadoBaseDatos.Datos.Tables[0].Rows.Count > 0)
                     {
-                        
+
                     }
                     else
                     {

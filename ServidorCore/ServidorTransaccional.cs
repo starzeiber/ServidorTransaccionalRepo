@@ -14,7 +14,9 @@ namespace ServidorCore
     /// </summary>
     /// <typeparam name="T">Instancia sobre la clase que contiene la información de un cliente conectado y su
     /// socket de trabajo una vez asignado desde el pool</typeparam>
-    /// <typeparam name="S">Instancia sobre la clase que contiene el estado de flujo de un socket de trabajo</typeparam>
+    /// <typeparam name="S">Instancia sobre la clase que contiene el estado de flujo de una operación en el servidor</typeparam>
+    /// <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
+    /// socket de trabajo una vez asignado desde el pool</typeparam>
     public class ServidorTransaccional<T, S, X>
         where T : EstadoDelClienteBase, new()
         where S : EstadoDelServidorBase, new()
@@ -56,11 +58,6 @@ namespace ServidorCore
         /// Obtiene o ingresa el número máximo de conexiones simultaneas de una misma IP del cliente (0=ilimitadas)
         /// </summary>
         public int numeroMaximoConexionesPorIpCliente { get; set; }
-
-        /// <summary>
-        /// Obtiene o ingresa el valor de que si el servidor iniciará automaticamente solo con la lista de clientes permitidos
-        /// </summary>
-        public bool inicioAutomaticoPorDefecto { get; set; }
 
         /// <summary>
         /// Obtiene o ingresa el valor de que si el servidor está o no ejecutandose
@@ -124,7 +121,7 @@ namespace ServidorCore
         /// <summary>
         /// Número de conexiones simultaneas que podrá manejar el servidor por defecto
         /// </summary>
-        private int numeroConexionesSimultaneas;
+        private readonly int numeroConexionesSimultaneas;
 
         /// <summary>
         /// Número sockest para lectura y escritura sin asignación de espacio del buffer para aceptar peticiones como default
@@ -135,12 +132,12 @@ namespace ServidorCore
         /// <summary>
         /// instancia al administrador de estados de socket de trabajo
         /// </summary>
-        private AdminEstadosDeCliente<T> adminEstadosCliente;
+        private readonly AdminEstadosDeCliente<T> adminEstadosCliente;
 
         /// <summary>
         /// Instancia del administrador de estados del proveedor
         /// </summary>
-        private AdminEstadosDeProveedor<X> adminEstadosDeProveedor;
+        private readonly AdminEstadosDeProveedor<X> adminEstadosDeProveedor;
 
         /// <summary>
         /// semáforo sobre las peticiones de clientes para controlar el número total que podrá soportar el servidor
@@ -150,7 +147,7 @@ namespace ServidorCore
         /// <summary>
         /// semáforo sobre las peticiones a proveedores para controlar el número total que podrá soportar el servidor
         /// </summary>
-        private SemaphoreSlim semaforoParaAceptarProveedores;
+        private readonly SemaphoreSlim semaforoParaAceptarProveedores;
 
         /// <summary>
         /// Número total de bytes recibido en el servidor, para uso estadístico
@@ -160,7 +157,7 @@ namespace ServidorCore
         /// <summary>
         /// Representa un conjunto enorme de buffer reutilizables entre todos los sockects de trabajo
         /// </summary>
-        private AdminBuffer administradorBuffer;
+        private readonly AdminBuffer administradorBuffer;
 
         /// <summary>
         /// Socket de escucha para las conexiones de clientes
@@ -176,12 +173,12 @@ namespace ServidorCore
         /// Parámetros que  indica el máximo de pedidos que pueden encolarse simultáneamente en caso que el servidor 
         /// esté ocupado atendiendo una nueva conexión.
         /// </summary>
-        private int backLog;
+        private readonly int backLog;
 
         /// <summary>
         /// Tamaño del buffer por petición
         /// </summary>
-        private int tamanoBufferPorPeticion;
+        private readonly int tamanoBufferPorPeticion;
 
         /// <summary>
         /// Retraso en el envío, es para uso en Debug
@@ -493,8 +490,7 @@ namespace ServidorCore
         /// Operación de callBack que se llama cuando se envía o se recibe de un socket de asincrono para completar la operación
         /// </summary>
         /// <param name="sender">Objeto principal para devolver la llamada</param>
-        /// <param name="e">SocketAsyncEventArg asociado a la operación de envío o recepción</param>
-        /// </summary>
+        /// <param name="e">SocketAsyncEventArg asociado a la operación de envío o recepción</param>        
         private void RecepcionEnvioEntranteCallBack(object sender, SocketAsyncEventArgs e)
         {
             // obtengo el estado del socket
@@ -601,7 +597,9 @@ namespace ServidorCore
                 if (SeVencioTO(estadoDelCliente))
                 {
                     EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.idUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
-                    ResponderAlCliente(estadoDelCliente, 6, 0);
+                    estadoDelCliente.codigoRespuesta = 6;
+                    estadoDelCliente.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelCliente);
                     return;
                 }
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
@@ -637,7 +635,9 @@ namespace ServidorCore
                     if (SeVencioTO(estadoDelCliente))
                     {
                         EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
-                        ResponderAlCliente(estadoDelCliente, 6, 0);
+                        estadoDelCliente.codigoRespuesta = 6;
+                        estadoDelCliente.codigoAutorizacion = 0;
+                        ResponderAlCliente(estadoDelCliente);
                         return;
                     }
 
@@ -669,7 +669,9 @@ namespace ServidorCore
                     else // si no se logró conectar el socket en 1 segundo, se responde con error
                     {
                         socketDeTrabajoProveedor.Close();
-                        ResponderAlCliente(estadoDelProveedor, 70, 0);
+                        estadoDelProveedor.codigoRespuesta = 70;
+                        estadoDelProveedor.codigoAutorizacion = 0;
+                        ResponderAlCliente(estadoDelProveedor);
                         // se libera el semaforo por si otra petición está solicitando acceso
                         semaforoParaAceptarProveedores.Release();
                         // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
@@ -680,7 +682,7 @@ namespace ServidorCore
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
                 else if (estadoDelCliente.codigoRespuesta != 30 && estadoDelCliente.codigoRespuesta != 50)
                 {
-                    ResponderAlCliente(estadoDelCliente, estadoDelCliente.codigoRespuesta, 0);
+                    ResponderAlCliente(estadoDelCliente);
                 }
             }
             catch (Exception ex)
@@ -694,9 +696,7 @@ namespace ServidorCore
         /// Función que entrega una respuesta al cliente por medio del socket de conexión
         /// </summary>
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
-        /// <param name="codigoRespuesta">Codigo de respuesta a incluir en el trama</param>
-        /// <param name="codigoAutorizacion">Codigo de autorización de la operación</param>
-        private void ResponderAlCliente(T estadoDelCliente, int codigoRespuesta, int codigoAutorizacion)
+        private void ResponderAlCliente(T estadoDelCliente)
         {
             if (estadoDelCliente == null)
             {
@@ -868,9 +868,6 @@ namespace ServidorCore
             }
             socketDeTrabajoACerrar.Close();
 
-            string tmpIP = estadoDelCliente.ipCliente;
-            Guid tmpGuid = estadoDelCliente.idUnicoCliente;
-
             // se llama a la secuencia de cerrando para tener un flujo de eventos
             estadoDelServidorBase.OnClienteCerrado(estadoDelCliente);
 
@@ -917,12 +914,16 @@ namespace ServidorCore
             {
                 if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
                 {
-                    ResponderAlCliente(estadoDelProveedor, 71, 0);
+                    estadoDelProveedor.codigoRespuesta = 71;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
 
                 }
                 else
                 {
-                    ResponderAlCliente(estadoDelProveedor, 70, 0);
+                    estadoDelProveedor.codigoRespuesta = 70;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
 
                 }
 
@@ -946,13 +947,17 @@ namespace ServidorCore
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
-                ResponderAlCliente(estadoDelProveedor, 71, 0);
+                estadoDelProveedor.codigoRespuesta = 71;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
                 return;
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
-                ResponderAlCliente(estadoDelProveedor, 8, 0);
+                estadoDelProveedor.codigoRespuesta = 8;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
                 return;
             }
@@ -989,7 +994,9 @@ namespace ServidorCore
                 catch (Exception ex)
                 {
                     EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión", tipoLog.ERROR);
-                    ResponderAlCliente(estadoDelProveedor, 50, 0);
+                    estadoDelProveedor.codigoRespuesta = 50;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
                     CerrarSocketProveedor(estadoDelProveedor);
                 }
             }
@@ -1021,9 +1028,8 @@ namespace ServidorCore
         private void RecepcionEnvioSalienteCallBack(object sender, SocketAsyncEventArgs e)
         {
             // obtengo el estado del proveedor
-            X estadoDelProveedor = e.UserToken as X;
             // se comprueba que el estado haya sido obtenido correctamente
-            if (estadoDelProveedor == null)
+            if (!(e.UserToken is X estadoDelProveedor))
             {
                 EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
@@ -1042,7 +1048,9 @@ namespace ServidorCore
                     else
                     {
                         EscribirLog("Error en el envío, RecepcionEnvioSalienteCallBack" + e.SocketError.ToString(), tipoLog.ERROR);
-                        ResponderAlCliente(estadoDelProveedor, 5, 0);
+                        estadoDelProveedor.codigoRespuesta = 5;
+                        estadoDelProveedor.codigoAutorizacion = 0;
+                        ResponderAlCliente(estadoDelProveedor);
                         CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
@@ -1055,15 +1063,17 @@ namespace ServidorCore
                     }
                     else
                     {
-                        // se marca para la bitácora el error dentro del estado
-                        //estadoDelProveedor.ultimoErrorConexion = e.SocketError.ToString();
-                        ResponderAlCliente(estadoDelProveedor, 5, 0);
+                        estadoDelProveedor.codigoRespuesta = 5;
+                        estadoDelProveedor.codigoAutorizacion = 0;
+                        ResponderAlCliente(estadoDelProveedor);
                         //CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
                 default:
                     EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioSalienteCallBack, " + e.LastOperation.ToString(), tipoLog.ALERTA);
-                    ResponderAlCliente(estadoDelProveedor, 5, 0);
+                    estadoDelProveedor.codigoRespuesta = 5;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
                     CerrarSocketProveedor(estadoDelProveedor);
                     break;
             }
@@ -1079,13 +1089,17 @@ namespace ServidorCore
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
-                ResponderAlCliente(estadoDelProveedor, 71, 0);
+                estadoDelProveedor.codigoRespuesta = 71;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
                 return;
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
-                ResponderAlCliente(estadoDelProveedor, 8, 0);
+                estadoDelProveedor.codigoRespuesta = 8;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
                 return;
             }
@@ -1107,7 +1121,9 @@ namespace ServidorCore
                 }
                 catch (Exception)
                 {
-                    ResponderAlCliente(estadoDelProveedor, 5, 0);
+                    estadoDelProveedor.codigoRespuesta = 5;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
                     CerrarSocketProveedor(estadoDelProveedor);
                 }
             }
@@ -1146,17 +1162,21 @@ namespace ServidorCore
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
-                ResponderAlCliente(estadoDelProveedor, 71, 0);
+                estadoDelProveedor.codigoRespuesta = 71;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
-                ResponderAlCliente(estadoDelProveedor, 8, 0);
+                estadoDelProveedor.codigoRespuesta = 8;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
             else
             {
-                ResponderAlCliente(estadoDelProveedor, estadoDelProveedor.codigoRespuesta, estadoDelProveedor.codigoAutorizacion);
+                ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
         }
@@ -1164,7 +1184,6 @@ namespace ServidorCore
         /// <summary>
         /// Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
         /// </summary>
-        /// <param name="e">SocketAsyncEventArg asociado en la operacion de envío y recepción con el cliente</param>
         public void CerrarSocketProveedor(X estadoDelProveedor)
         {
             // Se comprueba que la información del socket de trabajo sea null, ya que podría ser invocado como resultado 
@@ -1184,9 +1203,6 @@ namespace ServidorCore
                 EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown el socket de trabajo", tipoLog.ERROR);
             }
             socketDeTrabajoACerrar.Close();
-
-            string tmpIP = estadoDelProveedor.ipProveedor;
-            Guid tmpGuid = estadoDelProveedor.idUnicoProveedor;
 
             // se espera a que un cliente acaba de recibir la última información y se cierra
             int tiempoInicial, tiempoFinal;
@@ -1215,16 +1231,15 @@ namespace ServidorCore
             this.semaforoParaAceptarProveedores.Release();
         }
 
-        private void ResponderAlCliente(X estadoDelProveedor, int codigoRespuesta, int codigoAutorizacion)
+        private void ResponderAlCliente(X estadoDelProveedor)
         {
             T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;
             if (estadoDelCliente == null)
             {
                 return;
             }
-
-            estadoDelCliente.codigoAutorizacion = codigoAutorizacion;
-            estadoDelCliente.codigoRespuesta = codigoRespuesta;
+            estadoDelCliente.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
+            estadoDelCliente.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
 
             // trato de obtener la trama que se le responderá al cliente
             estadoDelCliente.ObtenerTramaRespuesta();
@@ -1588,13 +1603,13 @@ namespace ServidorCore
         private bool SeVencioTO(T estadoDelCliente)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
-            return timeSpan.Seconds > estadoDelCliente.segundosDeTO;
+            return timeSpan.Seconds > estadoDelCliente.timeOut;
         }
 
         private bool SeVencioTO(X estadoDelProveedor)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
-            return timeSpan.Seconds > estadoDelProveedor.segundosDeTO;
+            return timeSpan.Seconds > estadoDelProveedor.timeOut;
         }
 
 

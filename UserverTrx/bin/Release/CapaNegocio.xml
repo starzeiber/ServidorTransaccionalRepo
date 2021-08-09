@@ -88,9 +88,34 @@
             
             </summary>
         </member>
+        <member name="T:CapaNegocio.Clases.RespuestaCompraTpvBase">
+            <summary>
+            Clase que contiene todas las propiedades de una respueta a una compra del protocolo TPV
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.encabezado">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.pCode">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.monto">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.fechaHora">
             <summary>
             MMDDHHmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.systemTrace">
+            <summary>
+            
             </summary>
         </member>
         <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.horaTerminal">
@@ -111,6 +136,61 @@
         <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.fechaCapturaTerminal">
             <summary>
             MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.adquiriente">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.issuer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.referencia">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.autorizacion">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.codigoRespuesta">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.TerminalId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.merchantData">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.codigoMoneda">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.datosAdicionales">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.telefono">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvBase.#ctor">
+            <summary>
+            
             </summary>
         </member>
         <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaHora">
@@ -597,11 +677,23 @@
             </summary>
             <param name="solicitudTaeXml">Objeto con los valores entrantes</param>
         </member>
+        <member name="M:CapaNegocio.CompraPxTae.Ingresar(System.String)">
+            <summary>
+            Se divide la trama en sus propiedades
+            </summary>
+            <param name="trama">Trama a dividir</param>
+            <returns></returns>
+        </member>
         <member name="M:CapaNegocio.CompraPxTae.Obtener">
             <summary>
             Función para  formar la trama de envío 
             </summary>
             <returns></returns>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosProveedor.objetoAux">
+            <summary>
+            Objeto que se utilizará como respuesta genérica de cualquier función
+            </summary>
         </member>
         <member name="T:CapaNegocio.Operaciones">
             <summary>
@@ -613,143 +705,309 @@
             Listado de cabeceras de trama para identificar el tipo de solicitud
             </summary>
         </member>
-        <member name="T:CapaNegocio.UtileriaVariablesGlobales">
+        <member name="F:CapaNegocio.Operaciones.CabecerasTrama.compraTaePx">
+            <summary>
+            Compra PX tae
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.CabecerasTrama.consultaTaePx">
+            <summary>
+            Consulta PX tae
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.CabecerasTrama.compraDatosPx">
+            <summary>
+            Compra px datos
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.CabecerasTrama.consultaDatosPx">
+            <summary>
+            consulta px datos
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.CabecerasTrama.compraTpv">
+            <summary>
+            compra protocoloco tpv
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.CabecerasTrama.consultaTpv">
+            <summary>
+            Consulta protocolo tpv
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Operaciones.tipoMensajeria">
+            <summary>
+            Tipo de mensajería que podrá procesar el servidor
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.tipoMensajeria.PX">
+            <summary>
+            protocolo PX
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.tipoMensajeria.TenServer">
+            <summary>
+            Protocolo tenserver
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Operaciones.categoriaProducto">
+            <summary>
+            Categorías de productos que manejará el servidor
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.categoriaProducto.TAE">
+            <summary>
+            Tiempo aire electrónico
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.categoriaProducto.Datos">
+            <summary>
+            Paquetes de tiempo aire electrónico
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ProcesarMensajeriaCliente(System.String)">
+            <summary>
+            Funcion que recibe la trama del cliente, identifica de que tipo es y la particiona en sus propiedades
+            </summary>
+            <param name="trama">trama del cliente</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraCliente(System.String,CapaNegocio.Operaciones.tipoMensajeria,CapaNegocio.RespuestaProcesosCliente@,CapaNegocio.Operaciones.categoriaProducto)">
+            <summary>
+            Función que validará la mensajería que sea acorde a una compra dependiendo de su formato y petición
+            </summary>
+            <param name="trama">trama del cliente</param>
+            <param name="tipoMensajeria">tipo de mensajería</param>
+            <param name="respuestaGenerica">respuesta sobre el proceso</param>
+            <param name="categoriaProducto">categoría del producto a comprar</param>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorConsultaCliente(System.String,CapaNegocio.Operaciones.tipoMensajeria,CapaNegocio.RespuestaProcesosCliente@,CapaNegocio.Operaciones.categoriaProducto)">
+            <summary>
+            Función que divide en sus propiedades la trama de consulta de transacción recibida del cliente
+            </summary>
+            <param name="trama">Trama del cliente</param>
+            <param name="tipoMensajeria">tipo de mensajería de la consulta</param>
+            <param name="respuestaGenerica">instancia de RespuestaGenerica</param>
+            <param name="categoriaProducto">categoría del producto</param>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ProcesarMensajeriaProveedor(System.Object)">
+            <summary>
+            Función que procesará la mensajería del proveedor contenida en el objeto genérico
+            </summary>
+            <param name="objPeticionCliente">Objeto genérico que recibe cualquier clase del sistema</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ProcesarTramaProveedor(System.String,CapaNegocio.RespuestaProcesosProveedor@)">
+            <summary>
+            Función que divide en sus propiedades la trama de respuesta de un proveedor
+            </summary>
+            <param name="trama">Trama de un proveedor</param>
+            <param name="respuestaProcesosProveedor">Instancia de RespuestaProcesosProveedor</param>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraProveedor(CapaNegocio.CompraPxTae,CapaNegocio.RespuestaProcesosProveedor@)">
+            <summary>
+            Función que obtiene las propiedades de una solicitud de compra a un proveedor a partir de la clase de compra del cliente
+            </summary>
+            <param name="compraPxTae"></param>
+            <param name="respuestaProcesosProveedor"></param>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraProveedor(CapaNegocio.CompraPxDatos,CapaNegocio.RespuestaProcesosProveedor@)">
+            <summary>
+            Función que obtiene las propiedades de una solicitud de consulta a un proveedor a partir de la clase de compra del cliente
+            </summary>
+            <param name="compraPxDatos"></param>
+            <param name="respuestaProcesosProveedor"></param>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ValidarControlCredito(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Función que valida el tipo de control de crédito de una petición de compra
+            </summary>
+            <param name="idGrupo"></param>
+            <param name="idCadena"></param>
+            <param name="idTienda"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerSaldoDisponible(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Funcion que obtendrá el saldo disponible en una petición de compra
+            </summary>
+            <param name="idGrupo"></param>
+            <param name="idCadena"></param>
+            <param name="idTienda"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ValidarGrupoCadenaTienda(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Función que realiza la validación de los datos del punto de venta que realiza una compra
+            </summary>
+            <param name="idGrupo">identificador del grupo</param>
+            <param name="idCadena">identificador de la cadena</param>
+            <param name="idTienda">identificador de la tienda</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerInfoProducto(System.String)">
+            <summary>
+            Función que obtiene toda la información del producto que se solicita comprar
+            </summary>
+            <param name="sku">SKU único del producto</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerInfoProveedor(System.Int32)">
+            <summary>
+            Función que obtiene la información de un proveedor
+            </summary>
+            <param name="idProveedor">identificador de un proveedor</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.GuardarTrx(CapaNegocio.Clases.RespuestaCompraTpvTAE)">
+            <summary>
+            Función que almacena en base de datos la transacción de compra o consulta
+            </summary>
+            <param name="respuestaCompraTpvTAE"></param>
+            <returns></returns>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosCliente.objetoAux">
+            <summary>
+            Objeto que se utilizará genericamente en cualquier función de forma auxiliar en las operaciones
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Utileria">
             <summary>
             Clase que contiene varias funciones y variables que se pueden utilizar en todo el proyecto
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_TAE_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_SOLICITUD_TAE_PX">
             <summary>
             Encabezado de un mensaje 13
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_TAE_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_RESPUESTA_TAE_PX">
             <summary>
             Encabezado de un mensaje 14
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_TAE_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_CONSULTA_TAE_PX">
             <summary>
             Encabezado de un mensaje 17
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_TAE_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_RESPUESTA_CONSULTA_TAE_PX">
             <summary>
             Encabezado de un mensaje 18
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_SOLICITUD_DATOS_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_SOLICITUD_DATOS_PX">
             <summary>
             Encabezado de un mensaje 25
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_DATOS_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_RESPUESTA_DATOS_PX">
             <summary>
             Encabezado de un mensaje 26
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_CONSULTA_DATOS_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_CONSULTA_DATOS_PX">
             <summary>
             Encabezado de un mensaje 27
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX">
+        <member name="F:CapaNegocio.Utileria.ENCABEZADO_RESPUESTA_CONSULTA_DATOS_PX">
             <summary>
             Encabezado de un mensaje 28
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.timeOut">
+        <member name="F:CapaNegocio.Utileria.timeOut">
             <summary>
             Valor del timeout sobre una compra
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.cadenaConexionBO">
+        <member name="F:CapaNegocio.Utileria.cadenaConexionBO">
             <summary>
             cadena de conexión al BO
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.cadenaConexionTrx">
+        <member name="F:CapaNegocio.Utileria.cadenaConexionTrx">
             <summary>
             Cadena de conexión a la base administrativa del ws
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.peformancePeticionesEntrantes">
+        <member name="F:CapaNegocio.Utileria.peformancePeticionesEntrantes">
             <summary>
             Instancias del performance counter de peticiones entrantes
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.peformancePeticionesSalientes">
+        <member name="F:CapaNegocio.Utileria.peformancePeticionesSalientes">
             <summary>
             Instancias del performance counter de peticiones entrantes
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.logListener">
+        <member name="F:CapaNegocio.Utileria.logListener">
             <summary>
             Log del sistema
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.ipProveedor">
+        <member name="F:CapaNegocio.Utileria.ipProveedor">
             <summary>
             ip del switch del proveedor
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.puertoProveedor">
+        <member name="F:CapaNegocio.Utileria.puertoProveedor">
             <summary>
             puerto del switch del proveedor
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.random">
+        <member name="F:CapaNegocio.Utileria.random">
             <summary>
             Número aleatorio para seleccionar un puerto disponible
             </summary>
         </member>
-        <member name="T:CapaNegocio.UtileriaVariablesGlobales.codigosRespuesta">
+        <member name="T:CapaNegocio.Utileria.CodigosRespuesta">
             <summary>
             listado de códigos de respuesta del sistema
             </summary>
         </member>
-        <member name="T:CapaNegocio.UtileriaVariablesGlobales.TiposLog">
+        <member name="T:CapaNegocio.Utileria.TiposLog">
             <summary>
             Enumerado con los tipos de log
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.TiposLog.info">
+        <member name="F:CapaNegocio.Utileria.TiposLog.info">
             <summary>
             Informativo
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.TiposLog.warnning">
+        <member name="F:CapaNegocio.Utileria.TiposLog.warnning">
             <summary>
             Alerta
             </summary>
         </member>
-        <member name="F:CapaNegocio.UtileriaVariablesGlobales.TiposLog.error">
+        <member name="F:CapaNegocio.Utileria.TiposLog.error">
             <summary>
             Error
             </summary>
         </member>
-        <member name="M:CapaNegocio.UtileriaVariablesGlobales.Log(System.String,CapaNegocio.UtileriaVariablesGlobales.TiposLog)">
+        <member name="M:CapaNegocio.Utileria.Log(System.String,CapaNegocio.Utileria.TiposLog)">
             <summary>
             Función que graba en un log interno desde afuera de la capa de negocio
             </summary>
             <param name="mensaje"></param>
             <param name="tipoLog"></param>
         </member>
-        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerDescripcionCodigoRespuesta(System.Int32)">
+        <member name="M:CapaNegocio.Utileria.ObtenerDescripcionCodigoRespuesta(System.Int32)">
             <summary>
             Obtiene la descripción sobre un código del sistema
             </summary>
             <param name="codigo">código del sistema</param>
             <returns></returns>
         </member>
-        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerNombreFuncion(System.String)">
+        <member name="M:CapaNegocio.Utileria.ObtenerNombreFuncion(System.String)">
             <summary>
             Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
             </summary>
             <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
             <returns></returns>
         </member>
-        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerNombreFuncion(System.String,System.String)">
+        <member name="M:CapaNegocio.Utileria.ObtenerNombreFuncion(System.String,System.String)">
             <summary>
             Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
             </summary>
@@ -757,10 +1015,33 @@
             <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
             <returns></returns>
         </member>
-        <member name="M:CapaNegocio.UtileriaVariablesGlobales.ObtenerNumeroResultadoAleatorio(System.Int32)">
+        <member name="M:CapaNegocio.Utileria.ObtenerNumeroResultadoAleatorio(System.Int32)">
             <summary>
             Función para obtener un número aleatorio confiable
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Utileria.formatoValor(System.String,CapaNegocio.TipoFormato,System.Int32)">
+            <summary>
+            Función que realiza la adecuación de una cadena de caracteres dependiendo el tipo de formato establecido
+            </summary>
+            <param name="cadena">Cadena de caracteres a realizar un formato</param>
+            <param name="tipoFormato">Tipo de formato a otorgar</param>
+            <param name="longitud">Longitud final de la cadena</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Utileria.RevisionCaracteresEspeciales(System.String)">
+            <summary>
+            función que valida si la entrada tiene carateres especiales
+            </summary>
+            <param name="valor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Utileria.ConvertirBytesFormato(System.Int32)">
+            <summary>
+            Funciona para convertir los bytes a kb, gb etc en formato string
+            </summary>
+            <param name="bytes">cantidad de bytes a formatear</param>
             <returns></returns>
         </member>
         <member name="T:CapaNegocio.TipoFormato">

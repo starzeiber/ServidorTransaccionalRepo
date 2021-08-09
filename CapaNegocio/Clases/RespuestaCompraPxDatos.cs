@@ -58,7 +58,9 @@ namespace CapaNegocio
         /// </summary>
         public String extension { get; set; }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public RespuestaCompraPxDatos()
         {
             encabezado = int.Parse(Utileria.ENCABEZADO_RESPUESTA_TAE_PX);
@@ -69,24 +71,28 @@ namespace CapaNegocio
             mensajeTicket2 = "";
 
         }
-
-        public bool Ingresar(CompraPxDatos solicitudPxDatos)
+        /// <summary>
+        /// Divide en sus propiedades a partir de la instancia CompraPxDatos
+        /// </summary>
+        /// <param name="compraPxDatos">Instancia de CompraPxDatos</param>
+        /// <returns></returns>
+        public bool Ingresar(CompraPxDatos compraPxDatos)
         {
             try
             {
-                idCadena = solicitudPxDatos.idCadena;
-                idTienda = solicitudPxDatos.idTienda;
-                idPos = solicitudPxDatos.idPos;
-                fecha = solicitudPxDatos.fecha;
-                hora = solicitudPxDatos.hora;
-                region = solicitudPxDatos.region;
-                sku = solicitudPxDatos.sku;
-                cuenta = solicitudPxDatos.cuenta;
-                numeroTransaccion = solicitudPxDatos.numeroTransaccion;
-                monto = solicitudPxDatos.monto;
-                folio = solicitudPxDatos.folio;
-                datosAdicionales = solicitudPxDatos.datosAdicionales;
-                extension = solicitudPxDatos.extension;
+                idCadena = compraPxDatos.idCadena;
+                idTienda = compraPxDatos.idTienda;
+                idPos = compraPxDatos.idPos;
+                fecha = compraPxDatos.fecha;
+                hora = compraPxDatos.hora;
+                region = compraPxDatos.region;
+                sku = compraPxDatos.sku;
+                cuenta = compraPxDatos.cuenta;
+                numeroTransaccion = compraPxDatos.numeroTransaccion;
+                monto = compraPxDatos.monto;
+                folio = compraPxDatos.folio;
+                datosAdicionales = compraPxDatos.datosAdicionales;
+                extension = compraPxDatos.extension;
                 return true;
             }
             catch (Exception ex)
@@ -97,12 +103,16 @@ namespace CapaNegocio
             }
         }
 
-        public void Actualizar(CompraPxDatos solicitudPxDatos)
+        /// <summary>
+        /// Actualiza cierta parte de información de una respuesta a una compra de datos en protocolo PX
+        /// </summary>
+        /// <param name="compraPxDatos">Instancia CompraPxDatos</param>
+        public void Actualizar(CompraPxDatos compraPxDatos)
         {
-            monto = solicitudPxDatos.monto;
-            folio = solicitudPxDatos.folio;
-            datosAdicionales = solicitudPxDatos.datosAdicionales;
-            extension = solicitudPxDatos.extension;
+            monto = compraPxDatos.monto;
+            folio = compraPxDatos.folio;
+            datosAdicionales = compraPxDatos.datosAdicionales;
+            extension = compraPxDatos.extension;
         }
 
         /// <summary>
@@ -132,6 +142,10 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Obtiene la trama en protocolo px
+        /// </summary>
+        /// <returns></returns>
         public string ObtenerTrama()
         {
             StringBuilder respuesta = new StringBuilder();

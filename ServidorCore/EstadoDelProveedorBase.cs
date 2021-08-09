@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServidorCore
 {
+    /// <summary>
+    /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
+    /// </summary>
     public class EstadoDelProveedorBase
     {
-        /// <summary>
-        /// Identificador único para un proveedor
-        /// </summary>
-        public Guid idUnicoProveedor { get; set; }
 
         /// <summary>
         /// Referencia al servidor de socket principal
@@ -35,36 +29,6 @@ namespace ServidorCore
         /// </summary>
         public Int32 puertoProveedor { get; set; }
 
-        ///// <summary>
-        ///// Fecha y hora de conexión al proveedor
-        ///// </summary>
-        //public DateTime fechaHoraConexionProveedor { get; set; }
-
-        ///// <summary>
-        ///// ultimo error en la conexión al proveedor, se utiliza como bitácora
-        ///// </summary>
-        //public string ultimoErrorConexion;
-
-        ///// <summary>
-        ///// Ultimo mensaje enviado al cliente
-        ///// </summary>
-        //public string ultimoMensajeAlProveedor;
-
-        ///// <summary>
-        ///// Fecha y hora del ultimo mensaje al Proveedor
-        ///// </summary>
-        //public DateTime fechaHoraUltimoMensajeAlProveedor { get; set; }
-
-        ///// <summary>
-        ///// Ultimo mensaje recibido del Proveedor
-        ///// </summary>
-        //public string ultimoMensajeRecibido;
-
-        ///// <summary>
-        ///// Fecha y hora del ultimo mensaje recibido del Proveedor
-        ///// </summary>
-        //public DateTime fechaHoraUltimoMensajeRecibido { get; set; }
-
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
@@ -80,17 +44,39 @@ namespace ServidorCore
         /// </summary>
         public int codigoAutorizacion { get; set; }
 
+        /// <summary>
+        /// Estado del cliente desde donde proviene la petición para un retorno
+        /// </summary>
         public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
 
+        /// <summary>
+        /// Trama de petición a un proveedor
+        /// </summary>
         public string tramaSolicitud { get; set; }
 
+        /// <summary>
+        /// Trama de respuesta de un proveedor
+        /// </summary>
         public string tramaRespuesta { get; set; }
 
+        /// <summary>
+        /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
+        /// </summary>
         public object objPeticion { get; set; }
+
+        /// <summary>
+        /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
+        /// </summary>
         public object objRespuesta { get; set; }
 
-        public int segundosDeTO { get; set; }
+        /// <summary>
+        /// Tiempo de espera general del lado del proveedor
+        /// </summary>
+        public int timeOut { get; set; }
 
+        /// <summary>
+        /// Fecha marcada como inicio de operaciones con el proveedor
+        /// </summary>
         public DateTime fechaInicioTrx { get; set; }
 
 
@@ -112,23 +98,17 @@ namespace ServidorCore
         public virtual void InicializarEstadoDelProveedorBase()
         {
             referenciaSocketPrincipal = null;
-            //ultimoErrorConexion = "";
-            //ultimoMensajeAlProveedor = "";
-            //fechaHoraUltimoMensajeAlProveedor = DateTime.MaxValue;
-            //ultimoMensajeRecibido = "";
-            //fechaHoraUltimoMensajeRecibido = DateTime.MaxValue;
             puertoProveedor = 0;
-            //colaEnvio = new Queue<string>();
-            //seEstaEnviandoAlgo = false;
-            //esperandoEnvio.Set();            
-            idUnicoProveedor= Guid.NewGuid();
             ipProveedor = "";
-            //fechaHoraConexionProveedor = DateTime.Now;
             socketDeTrabajo = null;
             estadoDelClienteOrigen = null;
-            segundosDeTO = 25;
+            timeOut = 25;
         }
 
+        /// <summary>
+        /// Ingresa de forma segura el valor de la instancia de socket principal para un retorno de flujo
+        /// </summary>
+        /// <param name="obj"></param>
         public virtual void IngresarObjetoPeticionCliente(object obj)
         {
 
@@ -138,11 +118,10 @@ namespace ServidorCore
         /// Función virtual para poder sobre escribirla, en esta se controla
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
-        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
         public virtual void ProcesarTramaDelProveeedor(string trama)
         {
         }
-                
+
         /// <summary>
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
         /// se inició toda la operación
@@ -153,16 +132,26 @@ namespace ServidorCore
             this.referenciaSocketPrincipal = socketPrincipal;
         }
 
+        /// <summary>
+        /// Función que obtiene la trama de petición al proveedor
+        /// </summary>
         public virtual void ObtenerTramaPeticion()
         {
 
         }
 
+        /// <summary>
+        /// Función que obtiene la trama de respuesta de una proveedor
+        /// </summary>
         public virtual void ObtenerTramaRespuesta()
         {
 
         }
 
+        /// <summary>
+        /// Función que guardará la operación con el proveedor
+        /// </summary>
+        /// <param name="obj"></param>
         public virtual void GuardarTransaccion(object obj)
         {
 

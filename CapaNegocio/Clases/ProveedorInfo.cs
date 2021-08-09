@@ -1,19 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CapaNegocio.Clases
+﻿namespace CapaNegocio.Clases
 {
+    /// <summary>
+    /// Contiene todas las propiedades de un producto
+    /// </summary>
     public class ProveedorInfo
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int idProveedor { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string nombreProveedor { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string marca { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string issuer { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int idMaster { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ProveedorInfo()
         {
             nombreProveedor = "";

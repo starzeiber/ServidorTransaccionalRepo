@@ -4,8 +4,16 @@ using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
+    /// <summary>
+    /// Clase que contiene todas las propiedades de una compra TPV
+    /// </summary>
     public class CompraTpvTae : CompraTpvBase
     {
+        /// <summary>
+        /// Función que obtiene las propiedades a partir de la instancia CompraPxTae
+        /// </summary>
+        /// <param name="compraPxTae">Instancia CompraPxTae</param>
+        /// <returns></returns>
         public bool Ingresar(CompraPxTae compraPxTae)
         {
             try
@@ -35,6 +43,11 @@ namespace CapaNegocio.Clases
             }
 
         }
+
+        /// <summary>
+        /// Obtiene la trama en procotolo TPV
+        /// </summary>
+        /// <returns></returns>
         public string Obtener()
         {
             StringBuilder respuesta = new StringBuilder();

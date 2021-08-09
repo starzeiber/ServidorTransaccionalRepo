@@ -1,6 +1,6 @@
 ﻿using CapaNegocio;
-using CapaNegocio.Clases;
 using ServidorCore;
+using System;
 
 namespace Userver
 {
@@ -13,7 +13,7 @@ namespace Userver
         /// <summary>
         /// Instancia que contendrá la respuesta y parametros necesarios sobre la evaluación de la mensajería
         /// </summary>
-        RespuestaProcesosCliente respuestaProcesosCliente;
+        private RespuestaProcesosCliente respuestaProcesosCliente;
 
         /// <summary>
         /// Función que realiza todo el procesamiento de particionar la trama y evaluarla
@@ -28,13 +28,10 @@ namespace Userver
             // el proceso de evaluación de la mensajería entrega un codigo de respuesta
             codigoRespuesta = respuestaProcesosCliente.codigoRespuesta;
             // también la cabecera que identifica que tipo de mensajería fue
-            cabeceraMensaje = (int)respuestaProcesosCliente.cabeceraTrama;
+            //cabeceraMensaje = (int)respuestaProcesosCliente.cabeceraTrama;
             // y los objetos genéricos de petición y respuesta pre seteados
             objPeticion = respuestaProcesosCliente.objPeticionCliente;
             objRespuesta = respuestaProcesosCliente.objRespuestaCliente;
-            //TODO para pruebas
-            //codigoRespuesta = 0;
-
         }
 
         /// <summary>
@@ -43,66 +40,123 @@ namespace Userver
         /// <param name="codigoRespuesta"></param>
         /// <param name="codigoAutorizacion"></param>
         public override void ObtenerTramaRespuesta()
-        {            
-            switch (respuestaProcesosCliente.cabeceraTrama)
+        {
+            Type tipo = objRespuesta.GetType();
+
+            if (tipo == typeof(RespuestaCompraPxTae))
             {
-                case Operaciones.CabecerasTrama.compraTaePx:
-                    RespuestaCompraPxTae respuestaCompraPxTae = objRespuesta as RespuestaCompraPxTae;
-                    if (codigoRespuesta != 0)
-                    {
-                        respuestaCompraPxTae.nombreProveedor = "";
-                        respuestaCompraPxTae.mensajeTicket1 = "";
-                        respuestaCompraPxTae.mensajeTicket2 = "";
-                    }
-                    respuestaCompraPxTae.codigoRespuesta = codigoRespuesta;
-                    respuestaCompraPxTae.autorizacion = codigoAutorizacion;
-                    tramaRespuesta = respuestaCompraPxTae.ObtenerTrama();
-                    break;
-                case Operaciones.CabecerasTrama.consultaTaePx:                    
-                    RespuestaConsultaPxTae respuestaConsultaPxTae = objRespuesta as RespuestaConsultaPxTae;
-                    if (codigoRespuesta != 0)
-                    {
-                        respuestaConsultaPxTae.nombreProveedor = "";
-                        respuestaConsultaPxTae.mensajeTicket1 = "";
-                        respuestaConsultaPxTae.mensajeTicket2 = "";
-                    }
-                    respuestaConsultaPxTae.codigoRespuesta = codigoRespuesta;
-                    respuestaConsultaPxTae.autorizacion = codigoAutorizacion;
-                    tramaRespuesta = respuestaConsultaPxTae.ObtenerTrama();
-                    break;
-                case Operaciones.CabecerasTrama.compraDatosPx:
-                    RespuestaCompraPxDatos respuestaCompraPxDatos = objRespuesta as RespuestaCompraPxDatos;
-                    if (codigoRespuesta != 0)
-                    {
-                        respuestaCompraPxDatos.nombreProveedor = "";
-                        respuestaCompraPxDatos.mensajeTicket1 = "";
-                        respuestaCompraPxDatos.mensajeTicket2 = "";
-                    }
-                    respuestaCompraPxDatos.codigoRespuesta = codigoRespuesta;
-                    respuestaCompraPxDatos.autorizacion = codigoAutorizacion;
-                    tramaRespuesta = respuestaCompraPxDatos.ObtenerTrama();
-                    break;
-                case Operaciones.CabecerasTrama.consultaDatosPx:
-                    RespuestaConsultaPxDatos respuestaConsultaPxDatos = objRespuesta as RespuestaConsultaPxDatos;
-                    if (codigoRespuesta != 0)
-                    {
-                        respuestaConsultaPxDatos.nombreProveedor = "";
-                        respuestaConsultaPxDatos.mensajeTicket1 = "";
-                        respuestaConsultaPxDatos.mensajeTicket2 = "";
-                    }
-                    respuestaConsultaPxDatos.codigoRespuesta = codigoRespuesta;
-                    respuestaConsultaPxDatos.autorizacion = codigoAutorizacion;
-                    tramaRespuesta = respuestaConsultaPxDatos.ObtenerTrama();
-                    break;
-                case Operaciones.CabecerasTrama.compraTpv:
-                    //TODO obtener la trama TPV
-                    break;
-                case Operaciones.CabecerasTrama.consultaTpv:
-                    //TODO obtener la trama TPV
-                    break;
-                default:
-                    break;
+                RespuestaCompraPxTae respuestaCompraPxTae = objRespuesta as RespuestaCompraPxTae;
+                if (codigoRespuesta != 0)
+                {
+                    respuestaCompraPxTae.nombreProveedor = "";
+                    respuestaCompraPxTae.mensajeTicket1 = "";
+                    respuestaCompraPxTae.mensajeTicket2 = "";
+                }
+                respuestaCompraPxTae.codigoRespuesta = codigoRespuesta;
+                respuestaCompraPxTae.autorizacion = codigoAutorizacion;
+                tramaRespuesta = respuestaCompraPxTae.ObtenerTrama();
             }
+            else if (tipo == typeof(RespuestaConsultaPxTae))
+            {
+                RespuestaConsultaPxTae respuestaConsultaPxTae = objRespuesta as RespuestaConsultaPxTae;
+                if (codigoRespuesta != 0)
+                {
+                    respuestaConsultaPxTae.nombreProveedor = "";
+                    respuestaConsultaPxTae.mensajeTicket1 = "";
+                    respuestaConsultaPxTae.mensajeTicket2 = "";
+                }
+                respuestaConsultaPxTae.codigoRespuesta = codigoRespuesta;
+                respuestaConsultaPxTae.autorizacion = codigoAutorizacion;
+                tramaRespuesta = respuestaConsultaPxTae.ObtenerTrama();
+            }
+            else if (tipo == typeof(RespuestaCompraPxDatos))
+            {
+                RespuestaCompraPxDatos respuestaCompraPxDatos = objRespuesta as RespuestaCompraPxDatos;
+                if (codigoRespuesta != 0)
+                {
+                    respuestaCompraPxDatos.nombreProveedor = "";
+                    respuestaCompraPxDatos.mensajeTicket1 = "";
+                    respuestaCompraPxDatos.mensajeTicket2 = "";
+                }
+                respuestaCompraPxDatos.codigoRespuesta = codigoRespuesta;
+                respuestaCompraPxDatos.autorizacion = codigoAutorizacion;
+                tramaRespuesta = respuestaCompraPxDatos.ObtenerTrama();
+            }
+            else if (tipo == typeof(RespuestaConsultaPxDatos))
+            {
+                RespuestaConsultaPxDatos respuestaConsultaPxDatos = objRespuesta as RespuestaConsultaPxDatos;
+                if (codigoRespuesta != 0)
+                {
+                    respuestaConsultaPxDatos.nombreProveedor = "";
+                    respuestaConsultaPxDatos.mensajeTicket1 = "";
+                    respuestaConsultaPxDatos.mensajeTicket2 = "";
+                }
+                respuestaConsultaPxDatos.codigoRespuesta = codigoRespuesta;
+                respuestaConsultaPxDatos.autorizacion = codigoAutorizacion;
+                tramaRespuesta = respuestaConsultaPxDatos.ObtenerTrama();
+            }
+
+
+            //switch (respuestaProcesosCliente.cabeceraTrama)
+            //{
+            //    case Operaciones.CabecerasTrama.compraTaePx:
+            //        RespuestaCompraPxTae respuestaCompraPxTae = objRespuesta as RespuestaCompraPxTae;
+            //        if (codigoRespuesta != 0)
+            //        {
+            //            respuestaCompraPxTae.nombreProveedor = "";
+            //            respuestaCompraPxTae.mensajeTicket1 = "";
+            //            respuestaCompraPxTae.mensajeTicket2 = "";
+            //        }
+            //        respuestaCompraPxTae.codigoRespuesta = codigoRespuesta;
+            //        respuestaCompraPxTae.autorizacion = codigoAutorizacion;
+            //        tramaRespuesta = respuestaCompraPxTae.ObtenerTrama();
+            //        break;
+            //    case Operaciones.CabecerasTrama.consultaTaePx:
+            //        RespuestaConsultaPxTae respuestaConsultaPxTae = objRespuesta as RespuestaConsultaPxTae;
+            //        if (codigoRespuesta != 0)
+            //        {
+            //            respuestaConsultaPxTae.nombreProveedor = "";
+            //            respuestaConsultaPxTae.mensajeTicket1 = "";
+            //            respuestaConsultaPxTae.mensajeTicket2 = "";
+            //        }
+            //        respuestaConsultaPxTae.codigoRespuesta = codigoRespuesta;
+            //        respuestaConsultaPxTae.autorizacion = codigoAutorizacion;
+            //        tramaRespuesta = respuestaConsultaPxTae.ObtenerTrama();
+            //        break;
+            //    case Operaciones.CabecerasTrama.compraDatosPx:
+            //        RespuestaCompraPxDatos respuestaCompraPxDatos = objRespuesta as RespuestaCompraPxDatos;
+            //        if (codigoRespuesta != 0)
+            //        {
+            //            respuestaCompraPxDatos.nombreProveedor = "";
+            //            respuestaCompraPxDatos.mensajeTicket1 = "";
+            //            respuestaCompraPxDatos.mensajeTicket2 = "";
+            //        }
+            //        respuestaCompraPxDatos.codigoRespuesta = codigoRespuesta;
+            //        respuestaCompraPxDatos.autorizacion = codigoAutorizacion;
+            //        tramaRespuesta = respuestaCompraPxDatos.ObtenerTrama();
+            //        break;
+            //    case Operaciones.CabecerasTrama.consultaDatosPx:
+            //        RespuestaConsultaPxDatos respuestaConsultaPxDatos = objRespuesta as RespuestaConsultaPxDatos;
+            //        if (codigoRespuesta != 0)
+            //        {
+            //            respuestaConsultaPxDatos.nombreProveedor = "";
+            //            respuestaConsultaPxDatos.mensajeTicket1 = "";
+            //            respuestaConsultaPxDatos.mensajeTicket2 = "";
+            //        }
+            //        respuestaConsultaPxDatos.codigoRespuesta = codigoRespuesta;
+            //        respuestaConsultaPxDatos.autorizacion = codigoAutorizacion;
+            //        tramaRespuesta = respuestaConsultaPxDatos.ObtenerTrama();
+            //        break;
+            //    case Operaciones.CabecerasTrama.compraTpv:
+            //        //TODO obtener la trama TPV
+            //        break;
+            //    case Operaciones.CabecerasTrama.consultaTpv:
+            //        //TODO obtener la trama TPV
+            //        break;
+            //    default:
+            //        break;
+            //}
         }
+
     }
 }

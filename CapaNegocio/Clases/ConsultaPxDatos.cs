@@ -46,8 +46,14 @@ namespace CapaNegocio
         private const int LONGITUD_DATOS_ADICIONALES = 20;
         private const int LONGITUD_EXTENSION = 80;
 
+        /// <summary>
+        /// Instancia que contendrá la información del producto para la compra
+        /// </summary>
         public ProductoInfo productoInfo;
 
+        /// <summary>
+        /// Instancia que contendrá la información del proveedor para la compra
+        /// </summary>
         public ProveedorInfo proveedorInfo;
 
         /// <summary>

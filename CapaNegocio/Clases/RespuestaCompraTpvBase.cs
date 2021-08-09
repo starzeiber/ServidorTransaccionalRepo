@@ -6,15 +6,30 @@ using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
+    /// <summary>
+    /// Clase que contiene todas las propiedades de una respueta a una compra del protocolo TPV
+    /// </summary>
     public class RespuestaCompraTpvBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int encabezado { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int pCode { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public decimal monto { get; set; }
         /// <summary>
         /// MMDDHHmmss
         /// </summary>
         public string fechaHora { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int systemTrace { get; set; }
         /// <summary>
         /// hhmmss
@@ -32,17 +47,50 @@ namespace CapaNegocio.Clases
         /// MMDD
         /// </summary>
         public string fechaCapturaTerminal { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string adquiriente { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string issuer { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public double referencia { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int autorizacion { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int codigoRespuesta { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string TerminalId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string merchantData { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public int codigoMoneda { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string datosAdicionales { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string telefono { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public RespuestaCompraTpvBase()
         {
             encabezado = 210;

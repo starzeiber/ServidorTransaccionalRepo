@@ -13,9 +13,8 @@ namespace Userver
             respuestaProcesosProveedor = Operaciones.ProcesarMensajeriaProveedor(obj);
 
             codigoRespuesta = respuestaProcesosProveedor.codigoRespuesta;
-            this.objPeticion = respuestaProcesosProveedor.objPeticionProveedor;
-            this.objRespuesta = respuestaProcesosProveedor.objRespuestaProveedor;
-
+            objPeticion = respuestaProcesosProveedor.objPeticionProveedor;
+            objRespuesta = respuestaProcesosProveedor.objRespuestaProveedor;
         }
 
         public override void ObtenerTramaPeticion()

@@ -47,8 +47,14 @@ namespace CapaNegocio
         private const int LONGITUD_DATOS_ADICIONALES = 20;
         private const int LONGITUD_EXTENSION = 80;
 
+        /// <summary>
+        /// Instancia que contendrá la información del producto para la compra
+        /// </summary>
         public ProductoInfo productoInfo;
 
+        /// <summary>
+        /// Instancia que contendrá la información del proveedor para la compra
+        /// </summary>
         public ProveedorInfo proveedorInfo;
 
         /// <summary>
@@ -95,14 +101,14 @@ namespace CapaNegocio
                 posicionParseo += LONGITUD_CUENTA;
                 numeroTransaccion = int.Parse(trama.Substring(posicionParseo, LONGITUD_NUM_TRANS));
                 posicionParseo += LONGITUD_NUM_TRANS;
-                monto= decimal.Parse(trama.Substring(posicionParseo, LONGITUD_MONTO));
+                monto = decimal.Parse(trama.Substring(posicionParseo, LONGITUD_MONTO));
                 posicionParseo += LONGITUD_MONTO;
-                folio= trama.Substring(posicionParseo, LONGITUD_FOLIO);
+                folio = trama.Substring(posicionParseo, LONGITUD_FOLIO);
                 telefono = double.Parse(folio).ToString();
                 posicionParseo += LONGITUD_FOLIO;
-                datosAdicionales= trama.Substring(posicionParseo, LONGITUD_DATOS_ADICIONALES);
+                datosAdicionales = trama.Substring(posicionParseo, LONGITUD_DATOS_ADICIONALES);
                 posicionParseo += LONGITUD_DATOS_ADICIONALES;
-                extension= trama.Substring(posicionParseo, LONGITUD_EXTENSION);
+                extension = trama.Substring(posicionParseo, LONGITUD_EXTENSION);
 
                 return true;
             }

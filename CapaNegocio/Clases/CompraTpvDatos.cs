@@ -1,41 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
-    public class CompraTpvDatos:CompraTpvBase
+    /// <summary>
+    /// Clase que contiene todas las propiedades de una compra de paquetes de datos TPV
+    /// </summary>
+    public class CompraTpvDatos : CompraTpvBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string idPaquete { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public CompraTpvDatos()
         {
             idPaquete = "";
         }
 
-
-        public bool Ingresar(CompraPxDatos solicitudPxDatos)
+        /// <summary>
+        /// Función para dividir en las propiedades de la clase
+        /// </summary>
+        /// <param name="compraPxDatos">Instancia de CompraPxDatos</param>
+        /// <returns></returns>
+        public bool Ingresar(CompraPxDatos compraPxDatos)
         {
             try
             {
                 pCode = 650101;
-                systemTrace = solicitudPxDatos.numeroTransaccion;
-                issuer = solicitudPxDatos.proveedorInfo.issuer.Length + solicitudPxDatos.proveedorInfo.issuer;
+                systemTrace = compraPxDatos.numeroTransaccion;
+                issuer = compraPxDatos.proveedorInfo.issuer.Length + compraPxDatos.proveedorInfo.issuer;
                 referencia = Task.Run(() => Utileria.ObtenerNumeroResultadoAleatorio(6)).Result;
                 TerminalId = "STTN" +
-                    Validaciones.formatoValor(solicitudPxDatos.idGrupo.ToString(), TipoFormato.N, 3) +
-                    Validaciones.formatoValor(solicitudPxDatos.idCadena.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(solicitudPxDatos.idTienda.ToString(), TipoFormato.N, 4);
+                    Validaciones.formatoValor(compraPxDatos.idGrupo.ToString(), TipoFormato.N, 3) +
+                    Validaciones.formatoValor(compraPxDatos.idCadena.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxDatos.idTienda.ToString(), TipoFormato.N, 4);
                 merchantData = "TARJETASN      " +
-                    Validaciones.formatoValor(solicitudPxDatos.idGrupo.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(solicitudPxDatos.idCadena.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(solicitudPxDatos.idTienda.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(solicitudPxDatos.idPos.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxDatos.idGrupo.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxDatos.idCadena.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxDatos.idTienda.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(compraPxDatos.idPos.ToString(), TipoFormato.N, 5) +
                     "DF MX";
-                telefono = "01500000" + solicitudPxDatos.telefono;
-                idPaquete = solicitudPxDatos.datosAdicionales.Substring(0, 10);
+                telefono = "01500000" + compraPxDatos.telefono;
+                idPaquete = compraPxDatos.datosAdicionales.Substring(0, 10);
 
                 return true;
             }
@@ -44,8 +55,13 @@ namespace CapaNegocio.Clases
                 Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
-            
+
         }
+
+        /// <summary>
+        /// Función para obtener la trama TPV de compra
+        /// </summary>
+        /// <returns></returns>
         public string Obtener()
         {
             StringBuilder respuesta = new StringBuilder();
@@ -68,7 +84,7 @@ namespace CapaNegocio.Clases
                 respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.N, 15));
                 respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 18));
                 respuesta.Append(Validaciones.formatoValor(idPaquete, TipoFormato.ANS, 10));
-                
+
 
                 return respuesta.ToString();
             }
