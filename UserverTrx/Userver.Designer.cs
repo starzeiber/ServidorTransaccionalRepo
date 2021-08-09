@@ -51,7 +51,7 @@
             // metroLabel_ClientesConectados
             // 
             this.metroLabel_ClientesConectados.AutoSize = true;
-            this.metroLabel_ClientesConectados.Location = new System.Drawing.Point(66, 137);
+            this.metroLabel_ClientesConectados.Location = new System.Drawing.Point(49, 137);
             this.metroLabel_ClientesConectados.Name = "metroLabel_ClientesConectados";
             this.metroLabel_ClientesConectados.Size = new System.Drawing.Size(124, 19);
             this.metroLabel_ClientesConectados.TabIndex = 2;
@@ -64,7 +64,7 @@
             // metroLabel_TotalBytesLeidos
             // 
             this.metroLabel_TotalBytesLeidos.AutoSize = true;
-            this.metroLabel_TotalBytesLeidos.Location = new System.Drawing.Point(258, 136);
+            this.metroLabel_TotalBytesLeidos.Location = new System.Drawing.Point(199, 137);
             this.metroLabel_TotalBytesLeidos.Name = "metroLabel_TotalBytesLeidos";
             this.metroLabel_TotalBytesLeidos.Size = new System.Drawing.Size(130, 19);
             this.metroLabel_TotalBytesLeidos.TabIndex = 3;
@@ -77,7 +77,7 @@
             this.metroListView_Eventos.Location = new System.Drawing.Point(49, 183);
             this.metroListView_Eventos.Name = "metroListView_Eventos";
             this.metroListView_Eventos.OwnerDraw = true;
-            this.metroListView_Eventos.Size = new System.Drawing.Size(332, 248);
+            this.metroListView_Eventos.Size = new System.Drawing.Size(332, 181);
             this.metroListView_Eventos.TabIndex = 4;
             this.metroListView_Eventos.UseCompatibleStateImageBehavior = false;
             this.metroListView_Eventos.UseSelectable = true;
@@ -88,7 +88,7 @@
             this.metroLabel_Saturacion.AutoSize = true;
             this.metroLabel_Saturacion.FontSize = MetroFramework.MetroLabelSize.Tall;
             this.metroLabel_Saturacion.ForeColor = System.Drawing.Color.Yellow;
-            this.metroLabel_Saturacion.Location = new System.Drawing.Point(95, 447);
+            this.metroLabel_Saturacion.Location = new System.Drawing.Point(82, 376);
             this.metroLabel_Saturacion.Name = "metroLabel_Saturacion";
             this.metroLabel_Saturacion.Size = new System.Drawing.Size(259, 25);
             this.metroLabel_Saturacion.TabIndex = 5;
@@ -98,7 +98,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(431, 506);
+            this.ClientSize = new System.Drawing.Size(431, 415);
             this.Controls.Add(this.metroLabel_Saturacion);
             this.Controls.Add(this.metroListView_Eventos);
             this.Controls.Add(this.metroLabel_TotalBytesLeidos);

@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Guia.txt" />
+    <Content Include="Mejoras.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Dll\" />

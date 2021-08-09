@@ -10,7 +10,7 @@ namespace CapaNegocio.Clases
     {
         public int encabezado { get; set; }
         public int pCode { get; set; }
-        public double monto { get; set; }
+        public decimal monto { get; set; }
         /// <summary>
         /// MMDDHHmmss
         /// </summary>

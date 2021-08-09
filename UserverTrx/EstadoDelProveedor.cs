@@ -2,52 +2,25 @@
 using CapaNegocio.Clases;
 using ServidorCore;
 using System;
-using System.Threading.Tasks;
 
 namespace Userver
 {
     public class EstadoDelProveedor : EstadoDelProveedorBase
     {
-        RespuestaGenerica respuestaGenerica = new RespuestaGenerica();
-        public override void IngresarDatos(int cabeceraMensaje, object objPeticion)
+        RespuestaProcesosProveedor respuestaProcesosProveedor;
+        public override void IngresarObjetoPeticionCliente(object obj)
         {
-            try
-            {
-                switch (cabeceraMensaje)
-                {
-                    case (int)Operaciones.CabecerasTrama.compraTaePx:
-                        CompraPxTae compraPxTae = objPeticion as CompraPxTae;
-                        respuestaGenerica=Operaciones.CompraTpv(compraPxTae);
-                        
-                        codigoRespuesta = respuestaGenerica.codigoRespuesta;
-                        this.objPeticion = respuestaGenerica.objPeticionProveedor;
-                        this.objRespuesta = respuestaGenerica.objRespuestaProveedor;
-                        break;
-                    case (int)Operaciones.CabecerasTrama.compraDatosPx:
-                        break;
-                    case (int)Operaciones.CabecerasTrama.consultaTaePx:
-                        break;
-                    case (int)Operaciones.CabecerasTrama.consultaDatosPx:
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception)
-            {
+            respuestaProcesosProveedor = Operaciones.ProcesarMensajeriaProveedor(obj);
 
-                throw;
-            }
-        }
-
-        public override void ProcesarTramaDelProveeedor(string mensaje)
-        {
+            codigoRespuesta = respuestaProcesosProveedor.codigoRespuesta;
+            this.objPeticion = respuestaProcesosProveedor.objPeticionProveedor;
+            this.objRespuesta = respuestaProcesosProveedor.objRespuestaProveedor;
 
         }
 
         public override void ObtenerTramaPeticion()
         {
-            switch (respuestaGenerica.categoriaProducto)
+            switch (respuestaProcesosProveedor.categoriaProducto)
             {
                 case Operaciones.categoriaProducto.TAE:
                     CompraTpvTae compraTpvTae = objPeticion as CompraTpvTae;
@@ -62,25 +35,57 @@ namespace Userver
             }
         }
 
-        public override void ObtenerTramaRespuesta(int codigoRespuesta, int codigoAutorizacion)
+        public override void ProcesarTramaDelProveeedor(string trama)
         {
-            switch (respuestaGenerica.categoriaProducto)
+            Operaciones.ProcesarTramaProveedor(trama, ref respuestaProcesosProveedor);
+
+            // el proceso de evaluación de la mensajería entrega un codigo de respuesta
+            codigoRespuesta = respuestaProcesosProveedor.codigoRespuesta;
+            // y los objetos genéricos de petición y respuesta pre seteados
+            objPeticion = respuestaProcesosProveedor.objPeticionProveedor;
+            objRespuesta = respuestaProcesosProveedor.objRespuestaProveedor;
+
+        }
+
+        public override void ObtenerTramaRespuesta()
+        {
+            switch (respuestaProcesosProveedor.categoriaProducto)
             {
                 case Operaciones.categoriaProducto.TAE:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
                     CompraTpvTae compraTpvTae = objPeticion as CompraTpvTae;
-                    RespuestaCompraTpvTAE respuestaCompraTpvTAE = objRespuesta as RespuestaCompraTpvTAE;
+                    RespuestaCompraTpvTAE respuestaCompraTpvTAE = objRespuesta as RespuestaCompraTpvTAE;                    
                     respuestaCompraTpvTAE.Ingresar(compraTpvTae);
-                    respuestaCompraTpvTAE.codigoRespuesta = codigoRespuesta;
-                    respuestaCompraTpvTAE.autorizacion = codigoAutorizacion;
                     tramaRespuesta = respuestaCompraTpvTAE.Obtener();
+                    codigoAutorizacion = respuestaCompraTpvTAE.autorizacion;
                     break;
                 case Operaciones.categoriaProducto.Datos:
                     break;
                 default:
                     break;
             }
+        }
+
+        public override void GuardarTransaccion(object obj)
+        {
+            try
+            {
+                Type tipo = obj.GetType();
+                if (tipo == typeof(RespuestaCompraTpvTAE))
+                {
+                    RespuestaCompraTpvTAE respuestaCompraTpvTAE = obj as RespuestaCompraTpvTAE;
+                    Operaciones.GuardarTrx(respuestaCompraTpvTAE);
+                }else if (tipo == typeof(RespuestaCompraTpvTAE))
+                {
+                    RespuestaCompraTpvDatos respuestaCompraTpvDatos = obj as RespuestaCompraTpvDatos;
+                    Operaciones.GuardarTrx(null);
+                }
+
+
+            }
+            catch (Exception)
+            {
+            }
+
         }
     }
 }

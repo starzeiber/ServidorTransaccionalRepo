@@ -27,30 +27,10 @@ namespace ServidorCore
         /// </summary>
         internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
 
-        ///// <summary>
-        ///// SocketAsyncEventArgs que se utilizará en el envío
-        ///// </summary>
-        //internal SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
-
         /// <summary>        
-        /// Secuencia de respuestas (Respuesta1\r\Respuesta2\r\n...RespuestaN\r\n)
+        /// trama de respuesta al cliente
         /// </summary>
         public string tramaRespuesta;
-
-        /// <summary>
-        /// como unicamente debo y puedo mandar un paquete a la vez, si existen muchos se debe tener una cola de envío
-        /// </summary>
-        public Queue<string> colaEnvio;
-
-        /// <summary>
-        /// Objeto para sincronizar envíos
-        /// </summary>
-        public object sincronizarEnvio = new object();
-
-        /// <summary>
-        /// bandera para indicar que se está realizando un envío
-        /// </summary>
-        public bool seEstaEnviandoAlgo;
 
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
@@ -68,30 +48,30 @@ namespace ServidorCore
         /// </summary>
         public Int32 puertoCliente { get; set; }
 
-        /// <summary>
-        /// Fecha y hora de conexión del cliente
-        /// </summary>
-        public DateTime fechaHoraConexionCliente { get; set; }
+        ///// <summary>
+        ///// Fecha y hora de conexión del cliente
+        ///// </summary>
+        //public DateTime fechaHoraConexionCliente { get; set; }
 
         ///// <summary>
         ///// ultimo error en la conexión del cliente, se utiliza como bitácora
         ///// </summary>
         //public string ultimoErrorConexionCliente;
 
-        /// <summary>
-        /// Ultimo mensaje enviado al cliente
-        /// </summary>
-        public string ultimoMensajeAlCliente;
+        ///// <summary>
+        ///// Ultimo mensaje enviado al cliente
+        ///// </summary>
+        //public string ultimoMensajeAlCliente;
 
-        /// <summary>
-        /// Fecha y hora del ultimo mensaje al cliente
-        /// </summary>
-        public DateTime fechaHoraUltimoMensajeAlCliente { get; set; }
+        ///// <summary>
+        ///// Fecha y hora del ultimo mensaje al cliente
+        ///// </summary>
+        //public DateTime fechaHoraUltimoMensajeAlCliente { get; set; }
         
-        /// <summary>
-        /// Fecha y hora del ultimo mensaje recibido del cliente
-        /// </summary>
-        public DateTime fechaHoraUltimoMensajeRecibidoCliente { get; set; }
+        ///// <summary>
+        ///// Fecha y hora del ultimo mensaje recibido del cliente
+        ///// </summary>
+        //public DateTime fechaHoraUltimoMensajeRecibidoCliente { get; set; }
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
@@ -115,11 +95,7 @@ namespace ServidorCore
         public object objRespuesta { get; set; }
 
         public DateTime fechaInicioTrx { get; set; }
-
-        //public bool seVencioElTimeOut { get; set; }
-
-        //public bool seRespondioAlgoAlCliente { get; set; }
-
+                
         public int segundosDeTO { get; set; }
 
         /// <summary>
@@ -141,16 +117,16 @@ namespace ServidorCore
         {
             referenciaSocketPrincipal = null;
             tramaRespuesta = "";            
-            ultimoMensajeAlCliente = "";
-            fechaHoraUltimoMensajeAlCliente = DateTime.MaxValue;
-            fechaHoraUltimoMensajeRecibidoCliente = DateTime.MaxValue;
+            //ultimoMensajeAlCliente = "";
+            //fechaHoraUltimoMensajeAlCliente = DateTime.MaxValue;
+            //fechaHoraUltimoMensajeRecibidoCliente = DateTime.MaxValue;
             puertoCliente = 0;
-            colaEnvio = new Queue<string>();
-            seEstaEnviandoAlgo = false;
+            //colaEnvio = new Queue<string>();
+            //seEstaEnviandoAlgo = false;
             esperandoEnvio.Set();
             idUnicoCliente = Guid.NewGuid();
             ipCliente = "";
-            fechaHoraConexionCliente = DateTime.Now;
+            //fechaHoraConexionCliente = DateTime.Now;
             socketDeTrabajo = null;
             segundosDeTO = 50;
         }
@@ -164,14 +140,14 @@ namespace ServidorCore
         {
         }
 
-        /// <summary>
-        /// Función virtual para sobre escribirla, con ella de ingresa a un cliente
-        /// en la lista de ip bloqueadas por alguna anomalía con un tiempo especifico
-        /// </summary>
-        /// <param name="cliente">Objeto sobre la clase clientesBloqueados</param>
-        public virtual void AgregarClienteListaNegados(ClienteBloqueo cliente)
-        {
-        }
+        ///// <summary>
+        ///// Función virtual para sobre escribirla, con ella de ingresa a un cliente
+        ///// en la lista de ip bloqueadas por alguna anomalía con un tiempo especifico
+        ///// </summary>
+        ///// <param name="cliente">Objeto sobre la clase clientesBloqueados</param>
+        //public virtual void AgregarClienteListaNegados(ClienteBloqueo cliente)
+        //{
+        //}
 
         /// <summary>
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
@@ -186,9 +162,8 @@ namespace ServidorCore
         /// <summary>
         /// Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
         /// </summary>
-        /// <param name="codigoRespuesta">código de respuesta a ingresar en la trama</param>
-        /// <param name="codigoAutorizacion">código de autorización a ingresar en la trama</param>
-        public virtual void ObtenerTrama(int codigoRespuesta, int codigoAutorizacion)
+        /// <param name="obj">objeto genérico que pudiera contener cualquier dato auxiliar</param>
+        public virtual void ObtenerTramaRespuesta()
         {
 
         }

@@ -54,6 +54,7 @@
     <Compile Include="Clases\DatosConexion.cs" />
     <Compile Include="Clases\ProductoInfo.cs" />
     <Compile Include="Clases\ProveedorInfo.cs" />
+    <Compile Include="Clases\RespuestaCompraTpvDatos.cs" />
     <Compile Include="Clases\RespuestaCompraTpvTAE.cs" />
     <Compile Include="Clases\RespuestaConsultaPxDatos.cs" />
     <Compile Include="Clases\RespuestaConsultaPxTae.cs" />
@@ -67,9 +68,10 @@
     <Compile Include="Clases\CompraTpvDatos.cs" />
     <Compile Include="Clases\CompraTpvTae.cs" />
     <Compile Include="Clases\CompraTpvBase.cs" />
+    <Compile Include="Clases\RespuestaProcesosProveedor.cs" />
     <Compile Include="Operaciones.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Clases\RespuestaGenerica.cs" />
+    <Compile Include="Clases\RespuestaProcesosCliente.cs" />
     <Compile Include="Utileria.cs" />
     <Compile Include="Validaciones.cs" />
   </ItemGroup>

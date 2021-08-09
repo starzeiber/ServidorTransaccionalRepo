@@ -8,23 +8,21 @@ namespace CapaNegocio.Clases
 {
     public class CompraTpvDatos:CompraTpvBase
     {
-        public string codigoProducto { get; set; }
-        public string referencia2 { get; set; }
+        public string idPaquete { get; set; }
 
         public CompraTpvDatos()
         {
-            codigoProducto = "";
-            referencia2 = "";
+            idPaquete = "";
         }
 
 
-        public bool DividirTrama(CompraPxDatos solicitudPxDatos)
+        public bool Ingresar(CompraPxDatos solicitudPxDatos)
         {
             try
             {
-                pCode = 650000;                            
-                systemTrace = solicitudPxDatos.numeroTransaccion;                
-                issuer = "106800000001";
+                pCode = 650101;
+                systemTrace = solicitudPxDatos.numeroTransaccion;
+                issuer = solicitudPxDatos.proveedorInfo.issuer.Length + solicitudPxDatos.proveedorInfo.issuer;
                 referencia = Task.Run(() => Utileria.ObtenerNumeroResultadoAleatorio(6)).Result;
                 TerminalId = "STTN" +
                     Validaciones.formatoValor(solicitudPxDatos.idGrupo.ToString(), TipoFormato.N, 3) +
@@ -36,9 +34,9 @@ namespace CapaNegocio.Clases
                     Validaciones.formatoValor(solicitudPxDatos.idTienda.ToString(), TipoFormato.N, 5) +
                     Validaciones.formatoValor(solicitudPxDatos.idPos.ToString(), TipoFormato.N, 5) +
                     "DF MX";
-                codigoProducto = solicitudPxDatos.datosAdicionales.Substring(0, 10);                
-                telefono = solicitudPxDatos.telefono;
-                referencia2 = telefono;
+                telefono = "01500000" + solicitudPxDatos.telefono;
+                idPaquete = solicitudPxDatos.datosAdicionales.Substring(0, 10);
+
                 return true;
             }
             catch (Exception ex)
@@ -48,7 +46,7 @@ namespace CapaNegocio.Clases
             }
             
         }
-        public string ObtenerTrama()
+        public string Obtener()
         {
             StringBuilder respuesta = new StringBuilder();
             try
@@ -68,8 +66,9 @@ namespace CapaNegocio.Clases
                 respuesta.Append(Validaciones.formatoValor(merchantData, TipoFormato.ANS, 40));
                 respuesta.Append(Validaciones.formatoValor(codigoMoneda.ToString(), TipoFormato.N, 3));
                 respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.N, 15));
-                respuesta.Append(Validaciones.formatoValor(codigoProducto, TipoFormato.N, 18));
-                respuesta.Append(Validaciones.formatoValor(referencia2, TipoFormato.ANS, 100));
+                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 18));
+                respuesta.Append(Validaciones.formatoValor(idPaquete, TipoFormato.ANS, 10));
+                
 
                 return respuesta.ToString();
             }

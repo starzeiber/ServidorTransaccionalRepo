@@ -77,7 +77,7 @@ namespace Userver
         private void timer_Refresh_Tick(object sender, EventArgs e)
         {
             metroLabel_ClientesConectados.Text = "Clientes conectados: " + servidor.numeroclientesConectados;
-            metroLabel_TotalBytesLeidos.Text = "Total De Gb Leidos: " + (servidor.totalDeBytesTransferidos / 1024);
+            metroLabel_TotalBytesLeidos.Text = "Total " + Utileria.ConvertirBytesFormato(servidor.totalDeBytesTransferidos) + " transferidos";
             int saturacion = (maxNumDeClientesSimultaneos * 90) / 100;
             if (servidor.numeroclientesConectados >= saturacion)
             {
@@ -108,8 +108,9 @@ namespace Userver
             }
             else
             {
-                Size = new System.Drawing.Size(431, 506);
+                Size = new System.Drawing.Size(431, 415);
             }
         }
+        
     }
 }

@@ -105,12 +105,15 @@ namespace ServidorCore
         /// </summary>
         public int puertoProveedor { get; set; }
 
-        public int totalDeBytesTransferidos 
-        { 
-            get 
+        /// <summary>
+        /// Bytes que se han transmitido desde el inicio de la aplicación
+        /// </summary>
+        public int totalDeBytesTransferidos
+        {
+            get
             {
-                return totalBytesLeidos; 
-            } 
+                return totalBytesLeidos;
+            }
         }
 
 
@@ -576,20 +579,13 @@ namespace ServidorCore
 
             // incrementa el contador de bytes totales recibidos para tener estadísticas nada más
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
-            if(totalBytesLeidos== 2147480000)
+            if (totalBytesLeidos == 2147480000)
             {
                 Interlocked.Exchange(ref this.totalBytesLeidos, 0);
             }
             else
             {
                 Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
-            }           
-
-            // se mide el tiempo para saber si se excede el tiempo
-            if (SeVencioTO(estadoDelCliente))
-            {
-                EscribirLog("Se venció el TimeOut para el cliente: " + estadoDelCliente.idUnicoCliente.ToString() + " Recibiendo el mensaje", tipoLog.ALERTA);
-                ResponderAlCliente(estadoDelCliente, 6, 0);
             }
 
             // el mensaje recibido llevará un proceso, que no debe ser llevado por el core, se coloca en la función virtual
@@ -606,23 +602,27 @@ namespace ServidorCore
                 {
                     EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.idUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente, 6, 0);
+                    return;
                 }
-
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == 0)
                 {
+                    //TODO validar si tiene saldo
+
                     // me espero a ver si tengo disponibilidad de SAEA para un proveedor
                     semaforoParaAceptarProveedores.Wait();
 
                     //Se prepara el estado del proveedor que servirá como operador de envío y recepción de trama
                     SocketAsyncEventArgs saeaProveedor = new SocketAsyncEventArgs();
                     saeaProveedor.Completed += new EventHandler<SocketAsyncEventArgs>(ConexionProveedorCallBack);
-                    X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
 
+                    X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
                     // ingreso la información de peticion para llenar las clases al proveedor
-                    estadoDelProveedor.IngresarDatos(estadoDelCliente.cabeceraMensaje, estadoDelCliente.objPeticion);
+                    estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objPeticion);
                     estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
+                    // Para medir el inicio del proceso y tener control de time out
                     estadoDelProveedor.fechaInicioTrx = DateTime.Now;
+
 
                     saeaProveedor.UserToken = estadoDelProveedor;
 
@@ -638,6 +638,7 @@ namespace ServidorCore
                     {
                         EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
                         ResponderAlCliente(estadoDelCliente, 6, 0);
+                        return;
                     }
 
                     // como todo en asyncrono, no hay forma de verificar con un Time Out si la conexión es efectiva, por lo tanto
@@ -652,27 +653,23 @@ namespace ServidorCore
                         socketDeTrabajoProveedor.EndConnect(conectar);
                         socketDeTrabajoProveedor.Shutdown(SocketShutdown.Both);
 
-                        //socketDeTrabajoProveedor = new Socket(endPointProcesa.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                        //saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
-                        ////Inicio el proceso de conexión                    
-                        //bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
-                        //if (!seHizoSync)
-                        //    // se llama a la función que completa el flujo de envío, 
-                        //    // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-                        //    // en su evento callback                    
-                        //    ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
+                        socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                        saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
+                        //Inicio el proceso de conexión                    
+                        bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
+                        if (!seHizoSync)
+                            // se llama a la función que completa el flujo de envío, 
+                            // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
+                            // en su evento callback                    
+                            ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
 
-                        //TODO pruebas
-                        ResponderAlCliente(estadoDelProveedor, 0, 123456);
-                        semaforoParaAceptarProveedores.Release();
-                        adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                        //semaforoParaAceptarProveedores.Release();
+                        //adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                     }
                     else // si no se logró conectar el socket en 1 segundo, se responde con error
                     {
                         socketDeTrabajoProveedor.Close();
-                        //TODO pruebas
-                        ResponderAlCliente(estadoDelProveedor, 0, 123456);
-                        //ResponderAlCliente(estadoDelProveedor, 70, 0);
+                        ResponderAlCliente(estadoDelProveedor, 70, 0);
                         // se libera el semaforo por si otra petición está solicitando acceso
                         semaforoParaAceptarProveedores.Release();
                         // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
@@ -683,14 +680,13 @@ namespace ServidorCore
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
                 else if (estadoDelCliente.codigoRespuesta != 30 && estadoDelCliente.codigoRespuesta != 50)
                 {
-                    ResponderAlCliente(estadoDelCliente, estadoDelCliente.codigoRespuesta, estadoDelCliente.codigoAutorizacion);
+                    ResponderAlCliente(estadoDelCliente, estadoDelCliente.codigoRespuesta, 0);
                 }
             }
             catch (Exception ex)
             {
                 CerrarSocketCliente(estadoDelCliente);
                 EscribirLog(ex.Message + ", ProcesarRecepcion", tipoLog.ERROR);
-                return;
             }
         }
 
@@ -709,7 +705,7 @@ namespace ServidorCore
             }
 
             // trato de obtener la trama que se le responderá al cliente
-            estadoDelCliente.ObtenerTrama(codigoRespuesta, codigoAutorizacion);
+            estadoDelCliente.ObtenerTramaRespuesta();
 
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
@@ -787,8 +783,7 @@ namespace ServidorCore
         /// <param name="estadoDelCliente">Objeto con la información y socket de trabajo de cliente</param>
         private void ProcesarRecepcionEnvioCiclicoCliente(T estadoDelCliente)
         {
-            estadoDelCliente.fechaHoraUltimoMensajeAlCliente = DateTime.Now;
-
+            //estadoDelCliente.fechaHoraUltimoMensajeAlCliente = DateTime.Now;
 
             // Una vez terminado el envio, se continua escuchando por el Socket de trabajo
             try
@@ -854,10 +849,10 @@ namespace ServidorCore
             }
 
             // se limpia la cola de envío de datos para cada socket, para así forzar la detención de respuestas
-            lock (estadoDelCliente.colaEnvio)
-            {
-                estadoDelCliente.colaEnvio.Clear();
-            }
+            //lock (estadoDelCliente.colaEnvio)
+            //{
+            //    estadoDelCliente.colaEnvio.Clear();
+            //}
 
             // se obtiene el socket específico del cliente en cuestión
             Socket socketDeTrabajoACerrar = estadoDelCliente.socketDeTrabajo;
@@ -923,10 +918,12 @@ namespace ServidorCore
                 if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
                 {
                     ResponderAlCliente(estadoDelProveedor, 71, 0);
+
                 }
                 else
                 {
                     ResponderAlCliente(estadoDelProveedor, 70, 0);
+
                 }
 
                 adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
@@ -940,19 +937,24 @@ namespace ServidorCore
             estadoDelProveedor.socketDeTrabajo = e.AcceptSocket;
             estadoDelProveedor.saeaDeEnvioRecepcion.UserToken = estadoDelProveedor;
 
-            // obtengo las tramas para tenerlas listas
+            // obtengo las tramas para considerar cualquier evento antes de enviar la petición al proveedor.
+            // se puede actualizar más adelante
             estadoDelProveedor.ObtenerTramaPeticion();
-            estadoDelProveedor.ObtenerTramaRespuesta(0, 0);
+            estadoDelProveedor.codigoRespuesta = 0;
+            estadoDelProveedor.codigoAutorizacion = 0;
+            estadoDelProveedor.ObtenerTramaRespuesta();
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
                 ResponderAlCliente(estadoDelProveedor, 71, 0);
                 CerrarSocketProveedor(estadoDelProveedor);
+                return;
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
                 ResponderAlCliente(estadoDelProveedor, 8, 0);
                 CerrarSocketProveedor(estadoDelProveedor);
+                return;
             }
 
             if (estadoDelProveedor.socketDeTrabajo.Connected)
@@ -1054,7 +1056,7 @@ namespace ServidorCore
                     else
                     {
                         // se marca para la bitácora el error dentro del estado
-                        estadoDelProveedor.ultimoErrorConexion = e.SocketError.ToString();
+                        //estadoDelProveedor.ultimoErrorConexion = e.SocketError.ToString();
                         ResponderAlCliente(estadoDelProveedor, 5, 0);
                         //CerrarSocketProveedor(estadoDelProveedor);
                     }
@@ -1073,17 +1075,19 @@ namespace ServidorCore
         /// <param name="estadoDelProveedor">Estado del proveedor con la información de conexión</param>
         private void ProcesarRecepcionEnvioCiclicoProveedor(X estadoDelProveedor)
         {
-            estadoDelProveedor.fechaHoraUltimoMensajeAlProveedor = DateTime.Now;
+            //estadoDelProveedor.fechaHoraUltimoMensajeAlProveedor = DateTime.Now;
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
                 ResponderAlCliente(estadoDelProveedor, 71, 0);
                 CerrarSocketProveedor(estadoDelProveedor);
+                return;
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
                 ResponderAlCliente(estadoDelProveedor, 8, 0);
                 CerrarSocketProveedor(estadoDelProveedor);
+                return;
             }
             else
             {
@@ -1132,14 +1136,13 @@ namespace ServidorCore
             try
             {
                 estadoDelProveedor.ProcesarTramaDelProveeedor(mensajeRecibido);
-                estadoDelProveedor.ObtenerTramaRespuesta(estadoDelProveedor.codigoRespuesta, estadoDelProveedor.codigoAutorizacion);
+                estadoDelProveedor.ObtenerTramaRespuesta();
             }
             catch (Exception ex)
             {
                 EscribirLog(ex.Message + ", procesando trama del proveedor, ProcesarRecepcion", tipoLog.ERROR);
                 return;
             }
-
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
@@ -1220,8 +1223,11 @@ namespace ServidorCore
                 return;
             }
 
+            estadoDelCliente.codigoAutorizacion = codigoAutorizacion;
+            estadoDelCliente.codigoRespuesta = codigoRespuesta;
+
             // trato de obtener la trama que se le responderá al cliente
-            estadoDelCliente.ObtenerTrama(codigoRespuesta, codigoAutorizacion);
+            estadoDelCliente.ObtenerTramaRespuesta();
 
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")

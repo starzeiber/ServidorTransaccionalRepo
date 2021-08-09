@@ -1,4 +1,5 @@
 ﻿using CapaNegocio;
+using CapaNegocio.Clases;
 using ServidorCore;
 
 namespace Userver
@@ -12,7 +13,7 @@ namespace Userver
         /// <summary>
         /// Instancia que contendrá la respuesta y parametros necesarios sobre la evaluación de la mensajería
         /// </summary>
-        RespuestaGenerica respuestaGenerica;
+        RespuestaProcesosCliente respuestaProcesosCliente;
 
         /// <summary>
         /// Función que realiza todo el procesamiento de particionar la trama y evaluarla
@@ -22,17 +23,17 @@ namespace Userver
         {
 
             // se envía la mensajería a la capa de negocio para su evaluación
-            respuestaGenerica = Operaciones.ProcesarMensajeria(mensajeCliente);
+            respuestaProcesosCliente = Operaciones.ProcesarMensajeriaCliente(mensajeCliente);
 
             // el proceso de evaluación de la mensajería entrega un codigo de respuesta
-            codigoRespuesta = respuestaGenerica.codigoRespuesta;
+            codigoRespuesta = respuestaProcesosCliente.codigoRespuesta;
             // también la cabecera que identifica que tipo de mensajería fue
-            cabeceraMensaje = (int)respuestaGenerica.cabecerasTrama;
+            cabeceraMensaje = (int)respuestaProcesosCliente.cabeceraTrama;
             // y los objetos genéricos de petición y respuesta pre seteados
-            objPeticion = respuestaGenerica.objPeticionCliente;
-            objRespuesta = respuestaGenerica.objRespuestaCliente;
+            objPeticion = respuestaProcesosCliente.objPeticionCliente;
+            objRespuesta = respuestaProcesosCliente.objRespuestaCliente;
             //TODO para pruebas
-            //codigoRespuesta = 02;
+            //codigoRespuesta = 0;
 
         }
 
@@ -41,78 +42,62 @@ namespace Userver
         /// </summary>
         /// <param name="codigoRespuesta"></param>
         /// <param name="codigoAutorizacion"></param>
-        public override void ObtenerTrama(int codigoRespuesta, int codigoAutorizacion)
-        {
-            switch (respuestaGenerica.cabecerasTrama)
+        public override void ObtenerTramaRespuesta()
+        {            
+            switch (respuestaProcesosCliente.cabeceraTrama)
             {
                 case Operaciones.CabecerasTrama.compraTaePx:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
                     RespuestaCompraPxTae respuestaCompraPxTae = objRespuesta as RespuestaCompraPxTae;
-                    if (codigoRespuesta == 0 && codigoAutorizacion > 0)
+                    if (codigoRespuesta != 0)
                     {
-                        respuestaCompraPxTae.monto = (objPeticion as CompraPxTae).productoInfo.monto;
-                        respuestaCompraPxTae.nombreProveedor = (objPeticion as CompraPxTae).productoInfo.nombreProveedor;
-                        respuestaCompraPxTae.mensajeTicket1 = (objPeticion as CompraPxTae).productoInfo.mensajeTicket1;
-                        respuestaCompraPxTae.mensajeTicket2 = (objPeticion as CompraPxTae).productoInfo.mensajeTicket2;
+                        respuestaCompraPxTae.nombreProveedor = "";
+                        respuestaCompraPxTae.mensajeTicket1 = "";
+                        respuestaCompraPxTae.mensajeTicket2 = "";
                     }
                     respuestaCompraPxTae.codigoRespuesta = codigoRespuesta;
                     respuestaCompraPxTae.autorizacion = codigoAutorizacion;
                     tramaRespuesta = respuestaCompraPxTae.ObtenerTrama();
                     break;
-                case Operaciones.CabecerasTrama.consultaTaePx:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
+                case Operaciones.CabecerasTrama.consultaTaePx:                    
                     RespuestaConsultaPxTae respuestaConsultaPxTae = objRespuesta as RespuestaConsultaPxTae;
-                    if (codigoRespuesta == 0 && codigoAutorizacion > 0)
+                    if (codigoRespuesta != 0)
                     {
-                        respuestaConsultaPxTae.monto = (objPeticion as ConsultaPxTae).productoInfo.monto;
-                        respuestaConsultaPxTae.nombreProveedor = (objPeticion as ConsultaPxTae).productoInfo.nombreProveedor;
-                        respuestaConsultaPxTae.mensajeTicket1 = (objPeticion as ConsultaPxTae).productoInfo.mensajeTicket1;
-                        respuestaConsultaPxTae.mensajeTicket2 = (objPeticion as ConsultaPxTae).productoInfo.mensajeTicket2;
+                        respuestaConsultaPxTae.nombreProveedor = "";
+                        respuestaConsultaPxTae.mensajeTicket1 = "";
+                        respuestaConsultaPxTae.mensajeTicket2 = "";
                     }
                     respuestaConsultaPxTae.codigoRespuesta = codigoRespuesta;
                     respuestaConsultaPxTae.autorizacion = codigoAutorizacion;
                     tramaRespuesta = respuestaConsultaPxTae.ObtenerTrama();
                     break;
                 case Operaciones.CabecerasTrama.compraDatosPx:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
                     RespuestaCompraPxDatos respuestaCompraPxDatos = objRespuesta as RespuestaCompraPxDatos;
-                    if (codigoRespuesta == 0 && codigoAutorizacion > 0)
+                    if (codigoRespuesta != 0)
                     {
-                        respuestaCompraPxDatos.monto = (objPeticion as CompraPxDatos).productoInfo.monto;
-                        respuestaCompraPxDatos.nombreProveedor = (objPeticion as CompraPxDatos).productoInfo.nombreProveedor;
-                        respuestaCompraPxDatos.mensajeTicket1 = (objPeticion as CompraPxDatos).productoInfo.mensajeTicket1;
-                        respuestaCompraPxDatos.mensajeTicket2 = (objPeticion as CompraPxDatos).productoInfo.mensajeTicket2;
+                        respuestaCompraPxDatos.nombreProveedor = "";
+                        respuestaCompraPxDatos.mensajeTicket1 = "";
+                        respuestaCompraPxDatos.mensajeTicket2 = "";
                     }
                     respuestaCompraPxDatos.codigoRespuesta = codigoRespuesta;
                     respuestaCompraPxDatos.autorizacion = codigoAutorizacion;
                     tramaRespuesta = respuestaCompraPxDatos.ObtenerTrama();
                     break;
                 case Operaciones.CabecerasTrama.consultaDatosPx:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
                     RespuestaConsultaPxDatos respuestaConsultaPxDatos = objRespuesta as RespuestaConsultaPxDatos;
-                    if (codigoRespuesta == 0 && codigoAutorizacion > 0)
+                    if (codigoRespuesta != 0)
                     {
-                        respuestaConsultaPxDatos.monto = (objPeticion as ConsultaPxDatos).productoInfo.monto;
-                        respuestaConsultaPxDatos.nombreProveedor = (objPeticion as ConsultaPxDatos).productoInfo.nombreProveedor;
-                        respuestaConsultaPxDatos.mensajeTicket1 = (objPeticion as ConsultaPxDatos).productoInfo.mensajeTicket1;
-                        respuestaConsultaPxDatos.mensajeTicket2 = (objPeticion as ConsultaPxDatos).productoInfo.mensajeTicket2;
+                        respuestaConsultaPxDatos.nombreProveedor = "";
+                        respuestaConsultaPxDatos.mensajeTicket1 = "";
+                        respuestaConsultaPxDatos.mensajeTicket2 = "";
                     }
                     respuestaConsultaPxDatos.codigoRespuesta = codigoRespuesta;
                     respuestaConsultaPxDatos.autorizacion = codigoAutorizacion;
                     tramaRespuesta = respuestaConsultaPxDatos.ObtenerTrama();
                     break;
                 case Operaciones.CabecerasTrama.compraTpv:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
                     //TODO obtener la trama TPV
                     break;
                 case Operaciones.CabecerasTrama.consultaTpv:
-                    this.codigoRespuesta = codigoRespuesta;
-                    this.codigoAutorizacion = codigoAutorizacion;
                     //TODO obtener la trama TPV
                     break;
                 default:

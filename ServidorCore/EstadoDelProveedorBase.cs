@@ -26,27 +26,6 @@ namespace ServidorCore
         internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
 
         /// <summary>
-        /// como unicamente debo y puedo mandar un paquete a la vez, si existen muchos se debe tener una cola de envío
-        /// </summary>
-        public Queue<string> colaEnvio;
-
-        /// <summary>
-        /// Objeto para sincronizar envíos
-        /// </summary>
-        public object sincronizarEnvio = new object();
-
-        /// <summary>
-        /// bandera para indicar que se está realizando un envío
-        /// </summary>
-        public bool seEstaEnviandoAlgo;
-
-        ///// <summary>        
-        ///// evento para sincronización de procesos, con este manejador de evento controlo
-        ///// el flujo cuando el fin de un envío ocurre
-        ///// </summary>
-        //internal EventWaitHandle esperandoEnvio;
-
-        /// <summary>
         /// Ip del proveedor
         /// </summary>
         public string ipProveedor { get; set; }
@@ -56,35 +35,35 @@ namespace ServidorCore
         /// </summary>
         public Int32 puertoProveedor { get; set; }
 
-        /// <summary>
-        /// Fecha y hora de conexión al proveedor
-        /// </summary>
-        public DateTime fechaHoraConexionProveedor { get; set; }
+        ///// <summary>
+        ///// Fecha y hora de conexión al proveedor
+        ///// </summary>
+        //public DateTime fechaHoraConexionProveedor { get; set; }
 
-        /// <summary>
-        /// ultimo error en la conexión al proveedor, se utiliza como bitácora
-        /// </summary>
-        public string ultimoErrorConexion;
+        ///// <summary>
+        ///// ultimo error en la conexión al proveedor, se utiliza como bitácora
+        ///// </summary>
+        //public string ultimoErrorConexion;
 
-        /// <summary>
-        /// Ultimo mensaje enviado al cliente
-        /// </summary>
-        public string ultimoMensajeAlProveedor;
+        ///// <summary>
+        ///// Ultimo mensaje enviado al cliente
+        ///// </summary>
+        //public string ultimoMensajeAlProveedor;
 
-        /// <summary>
-        /// Fecha y hora del ultimo mensaje al Proveedor
-        /// </summary>
-        public DateTime fechaHoraUltimoMensajeAlProveedor { get; set; }
+        ///// <summary>
+        ///// Fecha y hora del ultimo mensaje al Proveedor
+        ///// </summary>
+        //public DateTime fechaHoraUltimoMensajeAlProveedor { get; set; }
 
-        /// <summary>
-        /// Ultimo mensaje recibido del Proveedor
-        /// </summary>
-        public string ultimoMensajeRecibido;
+        ///// <summary>
+        ///// Ultimo mensaje recibido del Proveedor
+        ///// </summary>
+        //public string ultimoMensajeRecibido;
 
-        /// <summary>
-        /// Fecha y hora del ultimo mensaje recibido del Proveedor
-        /// </summary>
-        public DateTime fechaHoraUltimoMensajeRecibido { get; set; }
+        ///// <summary>
+        ///// Fecha y hora del ultimo mensaje recibido del Proveedor
+        ///// </summary>
+        //public DateTime fechaHoraUltimoMensajeRecibido { get; set; }
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
@@ -110,11 +89,10 @@ namespace ServidorCore
         public object objPeticion { get; set; }
         public object objRespuesta { get; set; }
 
-        public DateTime fechaInicioTrx { get; set; }
-
         public int segundosDeTO { get; set; }
 
-        //public AutoResetEvent autoResetConexionProveedor;
+        public DateTime fechaInicioTrx { get; set; }
+
 
         /// <summary>
         /// Constructor
@@ -134,24 +112,24 @@ namespace ServidorCore
         public virtual void InicializarEstadoDelProveedorBase()
         {
             referenciaSocketPrincipal = null;
-            ultimoErrorConexion = "";
-            ultimoMensajeAlProveedor = "";
-            fechaHoraUltimoMensajeAlProveedor = DateTime.MaxValue;
-            ultimoMensajeRecibido = "";
-            fechaHoraUltimoMensajeRecibido = DateTime.MaxValue;
+            //ultimoErrorConexion = "";
+            //ultimoMensajeAlProveedor = "";
+            //fechaHoraUltimoMensajeAlProveedor = DateTime.MaxValue;
+            //ultimoMensajeRecibido = "";
+            //fechaHoraUltimoMensajeRecibido = DateTime.MaxValue;
             puertoProveedor = 0;
-            colaEnvio = new Queue<string>();
-            seEstaEnviandoAlgo = false;
+            //colaEnvio = new Queue<string>();
+            //seEstaEnviandoAlgo = false;
             //esperandoEnvio.Set();            
             idUnicoProveedor= Guid.NewGuid();
             ipProveedor = "";
-            fechaHoraConexionProveedor = DateTime.Now;
+            //fechaHoraConexionProveedor = DateTime.Now;
             socketDeTrabajo = null;
             estadoDelClienteOrigen = null;
             segundosDeTO = 25;
         }
 
-        public virtual void IngresarDatos(int cabeceraMensaje, object objeto)
+        public virtual void IngresarObjetoPeticionCliente(object obj)
         {
 
         }
@@ -161,7 +139,7 @@ namespace ServidorCore
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void ProcesarTramaDelProveeedor(string mensaje)
+        public virtual void ProcesarTramaDelProveeedor(string trama)
         {
         }
                 
@@ -180,7 +158,12 @@ namespace ServidorCore
 
         }
 
-        public virtual void ObtenerTramaRespuesta(int codigoRespuesta, int codigoAutorizacion)
+        public virtual void ObtenerTramaRespuesta()
+        {
+
+        }
+
+        public virtual void GuardarTransaccion(object obj)
         {
 
         }
