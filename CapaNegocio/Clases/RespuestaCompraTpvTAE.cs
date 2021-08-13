@@ -1,21 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
-    public class RespuestaCompraTpvTAE: RespuestaCompraTpvBase
+    /// <summary>
+    /// Contiene todas las propiedades de una respuesta en protocolo TPV
+    /// </summary>
+    public class RespuestaCompraTpvTAE : RespuestaCompraTpvBase
     {
-        public string sku { get; set; }
+        /// <summary>
+        /// Ingresa la información en las propiedades de la clase a partir de la compra
+        /// </summary>
+        /// <param name="compraTpvTae">Instancia de CompraTpvTae</param>
+        /// <returns></returns>
         public bool Ingresar(CompraTpvTae compraTpvTae)
         {
             try
             {
                 pCode = compraTpvTae.pCode;
                 monto = compraTpvTae.monto;
-                systemTrace = compraTpvTae.systemTrace;                
+                systemTrace = compraTpvTae.systemTrace;
                 issuer = compraTpvTae.issuer;
                 referencia = compraTpvTae.referencia;
                 TerminalId = compraTpvTae.TerminalId;
@@ -30,12 +35,17 @@ namespace CapaNegocio.Clases
             }
         }
 
+        /// <summary>
+        /// Ingresa la información en las propiedades de la clase a partir de la trama de respuesta
+        /// </summary>
+        /// <param name="trama"></param>
+        /// <returns></returns>
         public bool Ingresar(string trama)
         {
             try
             {
-                autorizacion=int.Parse(trama.Substring(91,6));
-                codigoRespuesta= int.Parse(trama.Substring(97, 2));
+                autorizacion = int.Parse(trama.Substring(91, 6));
+                codigoRespuesta = int.Parse(trama.Substring(97, 2));
                 return true;
             }
             catch (Exception ex)
@@ -45,6 +55,10 @@ namespace CapaNegocio.Clases
             }
         }
 
+        /// <summary>
+        /// Obtiene la trama de respuesta a partir de las propiedades de la clase
+        /// </summary>
+        /// <returns></returns>
         public string Obtener()
         {
             StringBuilder respuesta = new StringBuilder();

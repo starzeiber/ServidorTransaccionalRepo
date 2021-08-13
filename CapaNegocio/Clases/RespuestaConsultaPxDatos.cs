@@ -72,6 +72,11 @@ namespace CapaNegocio
 
         }
 
+        /// <summary>
+        /// Ingresa la información de la compra en las propiedades de la clase de respuesta
+        /// </summary>
+        /// <param name="consultaPxDatos"></param>
+        /// <returns></returns>
         public bool Ingresar(ConsultaPxDatos consultaPxDatos)
         {
             try
@@ -99,6 +104,10 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Actualiza la información de las propiedades de la clase con la información de la consulta más reciente
+        /// </summary>
+        /// <param name="consultaPxDatos"></param>
         public void Actualizar(ConsultaPxDatos consultaPxDatos)
         {
             monto = consultaPxDatos.productoInfo.monto;
@@ -134,6 +143,10 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Obtiene la trama a partir de las propiedades de la clase
+        /// </summary>
+        /// <returns></returns>
         public string ObtenerTrama()
         {
             StringBuilder respuesta = new StringBuilder();

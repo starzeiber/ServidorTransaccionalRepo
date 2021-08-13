@@ -1,20 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
-    public class RespuestaCompraTpvDatos: RespuestaCompraTpvBase
+    /// <summary>
+    /// Clase que contiene todas las propiedades de una respuesta para la compra de datos en protocolo tpv
+    /// </summary>
+    public class RespuestaCompraTpvDatos : RespuestaCompraTpvBase
     {
+        /// <summary>
+        /// Ingresa la información de la compra en las propiedades de la respuesta
+        /// </summary>
+        /// <param name="compraTpvDatos"></param>
+        /// <returns></returns>
         public bool Ingresar(CompraTpvDatos compraTpvDatos)
         {
             try
             {
                 pCode = compraTpvDatos.pCode;
                 monto = compraTpvDatos.monto;
-                systemTrace = compraTpvDatos.systemTrace;                
+                systemTrace = compraTpvDatos.systemTrace;
                 issuer = compraTpvDatos.issuer;
                 referencia = compraTpvDatos.referencia;
                 TerminalId = compraTpvDatos.TerminalId;
@@ -29,6 +35,10 @@ namespace CapaNegocio.Clases
             }
         }
 
+        /// <summary>
+        /// Obtiene una trama a partir de las propiedades de la clase
+        /// </summary>
+        /// <returns></returns>
         public string Obtener()
         {
             StringBuilder respuesta = new StringBuilder();

@@ -10,8 +10,17 @@ namespace CapaNegocio
     /// </summary>
     public enum TipoFormato
     {
+        /// <summary>
+        /// Se rellena con cero a la izquiera
+        /// </summary>
         N = 0,
+        /// <summary>
+        /// Se rellena con cero a la derecha
+        /// </summary>
         AN,
+        /// <summary>
+        /// Se rellena con espacio a la derecha
+        /// </summary>
         ANS
     };
 

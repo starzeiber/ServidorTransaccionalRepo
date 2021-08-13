@@ -1,25 +1,34 @@
-﻿using System;
-using static CapaNegocio.Operaciones;
+﻿using static CapaNegocio.Operaciones;
 
 namespace CapaNegocio
 {
-
+    /// <summary>
+    /// Contiene todas las propiedades que se utilizan como respuesta entre los procesos internos
+    /// </summary>
     public class RespuestaProcesosProveedor
     {
-        public CabecerasTrama cabeceraTrama { get; set; }
-        public int codigoRespuesta { get; set; }
-        public object objPeticionProveedor { get; set; }
-        public object objRespuestaProveedor { get; set; }
-        public categoriaProducto categoriaProducto { get; set; }
-
+        //public CabecerasTrama cabeceraTrama { get; set; }
         /// <summary>
-        /// Objeto que se utilizará como respuesta genérica de cualquier función
+        /// Codigo de respuesta del proceso
         /// </summary>
-        public object objetoAux { get; set; }
+        public int codigoRespuesta { get; set; }
+        /// <summary>
+        /// Objeto que recibe la clase que contiene las propiedades de una petición
+        /// </summary>
+        public object objPeticionProveedor { get; set; }
+        /// <summary>
+        /// Objeto que recibe la clase que contiene las propiedades de una respuesta
+        /// </summary>
+        public object objRespuestaProveedor { get; set; }
+        /// <summary>
+        /// Instancia de CategoriaProducto
+        /// </summary>
+        public CategoriaProducto categoriaProducto { get; set; }
 
-        public static implicit operator RespuestaProcesosProveedor(RespuestaProcesosCliente v)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// Objeto que se utilizará como respuesta genérica de cualquier función
+        ///// </summary>
+        //public object objetoAux { get; set; }
+
     }
 }

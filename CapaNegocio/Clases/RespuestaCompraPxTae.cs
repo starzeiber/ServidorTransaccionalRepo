@@ -79,7 +79,7 @@ namespace CapaNegocio
                 region = compraPxTae.region;
                 sku = compraPxTae.sku;
                 telefono = compraPxTae.telefono;
-                numeroTransaccion = compraPxTae.numeroTransaccion;                
+                numeroTransaccion = compraPxTae.numeroTransaccion;
                 return true;
             }
             catch (Exception ex)
@@ -90,6 +90,10 @@ namespace CapaNegocio
 
         }
 
+        /// <summary>
+        /// Actualiza las propiedades de la clase con la información de compra más reciente
+        /// </summary>
+        /// <param name="compraPxTae"></param>
         public void Actualizar(CompraPxTae compraPxTae)
         {
             monto = compraPxTae.productoInfo.monto;
@@ -124,7 +128,10 @@ namespace CapaNegocio
             }
         }
 
-
+        /// <summary>
+        /// Obtiene la trama a partir de las propiedades de la clase
+        /// </summary>
+        /// <returns></returns>
         public string ObtenerTrama()
         {
             StringBuilder respuesta = new StringBuilder();

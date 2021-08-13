@@ -643,8 +643,10 @@ namespace ServidorCore
 
                     // como todo en asyncrono, no hay forma de verificar con un Time Out si la conexión es efectiva, por lo tanto
                     // utilizo una conexión con AsyncResult y le doy un tiempo de 1 segundo para conectarse, de lo contrario, considero error
-                    IAsyncResult conectar = socketDeTrabajoProveedor.BeginConnect(endPointProveedor, null, null);
-                    bool success = conectar.AsyncWaitHandle.WaitOne(1000, true);
+                    //TODO pruebas
+                    IAsyncResult conectar = null;
+                    //IAsyncResult conectar = socketDeTrabajoProveedor.BeginConnect(endPointProveedor, null, null);
+                    //bool success = conectar.AsyncWaitHandle.WaitOne(1000, true);
 
                     //se logró conectar el socket
                     if (socketDeTrabajoProveedor.Connected)
@@ -1141,7 +1143,10 @@ namespace ServidorCore
             Int32 bytesTransferred = saeaRecepcion.BytesTransferred;
 
             // se obtiene el mensaje y se decodifica
-            String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
+            //String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
+            //TODO pruebas
+            String mensajeRecibido = "210650101000000010000082614283100069514282908260826082610690000000110680000001600000000178400063200TNDL003000010001TN      00037000010000100001DF MX484012B999PRO1+000015 00000551234567890BAJO1H";
+
             //EscribirLog(mensajeRecibido.Substring(2), tipoLog.INFORMACION);
             // incrementa el contador de bytes totales recibidos
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
@@ -1230,7 +1235,10 @@ namespace ServidorCore
             // se marca el semáforo de que puede aceptar otro cliente
             this.semaforoParaAceptarProveedores.Release();
         }
-
+        /// <summary>
+        /// Función que realiza el envío de la trama de respuesta al cliente desde los estado del proveedor
+        /// </summary>
+        /// <param name="estadoDelProveedor">EstadoDelProveedor</param>
         private void ResponderAlCliente(X estadoDelProveedor)
         {
             T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;
@@ -1247,6 +1255,9 @@ namespace ServidorCore
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
             {
+                // se guarda la transacción sin importar si pudiera existir un error porque al cliente siempre se le debe responder
+                estadoDelProveedor.GuardarTransaccion();
+
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
                 // se obtiene la cantidad de bytes de la trama completa
@@ -1315,147 +1326,7 @@ namespace ServidorCore
 
         }
 
-        //private void ProcesarEnvio(X estadoDelProveedor)
-        //{
-        //    try
-        //    {
-        //        // Se actualiza la fecha y hora del ultimo envío para controlar por si requerimos bitácora
-        //        estadoDelProveedor.fechaHoraUltimoMensajeAlProveedor = DateTime.Now;
-
-        //        // se envía un elemento al cliente, revisando que está conectado
-        //        if (estadoDelProveedor.socketDeTrabajo.Connected)
-        //        {
-        //            // se genera un bloqueo con el objeto que destinamos para ello
-        //            lock (estadoDelProveedor.sincronizarEnvio)
-        //            {
-        //                // se coloca la bandera de que no se está enviando algo, esto lo cambiaré cuando procese el envío asincrono
-        //                estadoDelProveedor.seEstaEnviandoAlgo = false;
-        //            }
-        //            // se coloca el objeto de trabajo en la cola de envío para procesarlo en su momento
-        //            ColaDeEnvios(estadoDelProveedor);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        EscribirLog(ex.Message + "error fuera de excepcion, puede suceder por muchas cosas, se tratará de continuar operando, ProcesarEnvio", tipoLog.ERROR);
-        //    }
-        //}
-
-        //private void ColaDeEnvios(X estadoDelProveedor)
-        //{
-        //    // genero dos matrices, una para ingresar el mensaje
-        //    byte[] bytes;
-        //    // y otra como buffer para su envío y así reutilizar de la pila de buffers
-        //    byte[] bufferLocal = new byte[tamanoBufferPorPeticion];
-
-        //    int contadorBytes = 0;
-        //    int numMensajesEnvio = 0;
-
-
-        //    if (!estadoDelProveedor.socketDeTrabajo.Connected)
-        //    {
-        //        EscribirLog("Socket desconectado, ColaEnvio", tipoLog.ALERTA);
-        //        CerrarConexionForzadaProveedor(estadoDelProveedor.socketDeTrabajo);
-        //        return;
-        //    }
-
-        //    // se sincroniza el envío con el objeto que se destinó para ello en cada objeto de estado
-        //    lock (estadoDelProveedor.sincronizarEnvio)
-        //    {
-        //        // si ya se está enviando algo no se puede enviar al menos en este momento
-        //        if (estadoDelProveedor.seEstaEnviandoAlgo) return;
-
-        //        string mensajeAEnviar = "";
-        //        // también hago un bloqueo sobre la cola de envío mientras realizo una extracción y envío para que no exista choque de operaciones
-        //        lock (estadoDelProveedor.colaEnvio)
-        //        {
-        //            // si hay en cola mensajes a enviar, se procede
-        //            if (estadoDelProveedor.colaEnvio.Count > 0)
-        //            {
-        //                do
-        //                {
-        //                    // se obtiene el primer elemento de la cola
-        //                    mensajeAEnviar = estadoDelProveedor.colaEnvio.First();
-        //                    // se revisa que el mensaje quepa en el buffer
-        //                    if (mensajeAEnviar.Length > tamanoBufferPorPeticion)
-        //                        throw new Exception("Mensaje demasiado grande para el buffer");
-
-        //                    // si existen varios mensajes, el acumulado se tiene que estar validando si cabe en el buffer
-        //                    if (contadorBytes + mensajeAEnviar.Length < tamanoBufferPorPeticion)
-        //                    {
-        //                        // obtiene el objeto al principio de la cola y luego lo elimina
-        //                        estadoDelProveedor.colaEnvio.Dequeue();
-        //                        // se codifica
-        //                        bytes = Encoding.ASCII.GetBytes(mensajeAEnviar);
-        //                        try
-        //                        {
-        //                            // se realiza la copia al buffer que será el de trabajo en el envío
-        //                            Buffer.BlockCopy(bytes, 0, bufferLocal, contadorBytes, bytes.Length);
-        //                        }
-        //                        catch (Exception ex)
-        //                        {
-        //                            EscribirLog("1st Block Copy error: " + ex.Message, tipoLog.ERROR);
-        //                        }
-
-        //                        // se incrementa el contador de bytes
-        //                        contadorBytes += bytes.Length;
-        //                        // se incrementa el contador de mensajes a enviar
-        //                        numMensajesEnvio++;
-        //                    }
-        //                    else
-        //                    {
-        //                        break;
-        //                    }
-        //                } while (estadoDelProveedor.colaEnvio.Count > 0);
-        //            }
-        //        }
-
-        //        // siempre y cuando exista por lo menos un mensaje a enviar se procede con este bloque
-        //        if (numMensajesEnvio > 0)
-        //        {
-        //            try
-        //            {
-        //                // se copia al buffer de envío el mensaje codificado
-        //                Buffer.BlockCopy(bufferLocal, 0, estadoDelProveedor.saeaDeEnvioRecepcion.Buffer, estadoDelProveedor.saeaDeEnvioRecepcion.Offset, contadorBytes);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                EscribirLog(ex.Message + " segundo bloque de copiado, ColadeEnvio", tipoLog.ERROR);
-        //            }
-
-        //            // se establece que parte del buffer se utilizará en este envío
-        //            estadoDelProveedor.saeaDeEnvioRecepcion.SetBuffer(estadoDelProveedor.saeaDeEnvioRecepcion.Offset, contadorBytes);
-        //            // se indica que se está enviando
-        //            estadoDelProveedor.seEstaEnviandoAlgo = true;
-
-        //            try
-        //            {
-        //                // Se realiza el proceso de envío asincrono, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
-        //                // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
-        //                bool seHizoAsync = estadoDelProveedor.socketDeTrabajo.SendAsync(estadoDelProveedor.saeaDeEnvioRecepcion);
-        //                if (!seHizoAsync)
-        //                    // si la operación asincrona está pendiente, se completa el flujo,
-        //                    // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-        //                    // en su evento callback
-        //                    RecepcionEnvioEntranteCallBack(estadoDelProveedor.socketDeTrabajo, estadoDelProveedor.saeaDeEnvioRecepcion);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                EscribirLog(ex.Message + "Desconectado al cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", ColaEnvios", tipoLog.ERROR);
-        //                //InvokeAppendLog("Disconnecting client (ProcessQueue) " + infoYSocketDeTrabajo.user_Guid + "\r\nConn: " + infoYSocketDeTrabajo.fechaHoraConexionCliente + ", Offset: " +
-        //                //    infoYSocketDeTrabajo.saeaDeEnvio.Offset.ToString() + " Sent: [" + infoYSocketDeTrabajo.ultimoMensajeAlCliente + "], Recv: [" + infoYSocketDeTrabajo.ultimoMensajeRecibidoCliente + "]\r\nError: " + ex.Message);
-        //                // se marca el evento manual en señalado para que otros proceso puedan continuar
-        //                estadoDelProveedor.esperandoEnvio.Set();
-        //                // se cierra la conexión
-        //                CerrarConexionForzadaProveedor(estadoDelProveedor.socketDeTrabajo);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return;
-        //        }
-        //    }
-        //}
+       
 
 
         #endregion

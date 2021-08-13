@@ -5,6 +5,7 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Releas
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Release\CheaderTPV.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Release\AccesoBaseDatos.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\bin\Release\CheaderTPV.xml
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Release\CapaNegocio.csproj.AssemblyReference.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Release\CapaNegocio.csproj.CoreCompileInputs.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Release\CapaNegocio.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\CapaNegocio\obj\Release\CapaNegocio.dll

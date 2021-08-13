@@ -17,6 +17,26 @@ namespace CapaNegocio.Clases
         /// <summary>
         /// 
         /// </summary>
+        public string sku { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int idProveedor { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int idMaster { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal saldoActual { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public CompraTpvDatos()
         {
             idPaquete = "";
@@ -47,6 +67,10 @@ namespace CapaNegocio.Clases
                     "DF MX";
                 telefono = "01500000" + compraPxDatos.telefono;
                 idPaquete = compraPxDatos.datosAdicionales.Substring(0, 10);
+
+                sku = compraPxDatos.productoInfo.sku;
+                idProveedor = compraPxDatos.proveedorInfo.idProveedor;
+                idMaster = compraPxDatos.proveedorInfo.idMaster;
 
                 return true;
             }

@@ -88,6 +88,8 @@ namespace CapaNegocio.Clases
         /// </summary>
         public string telefono { get; set; }
 
+        public decimal saldoActual { get; set; }   
+
         /// <summary>
         /// 
         /// </summary>

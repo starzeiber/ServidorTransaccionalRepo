@@ -56,8 +56,8 @@ namespace Cliente
         {
             //manual.WaitOne();
 
-            IPAddress iPAddress = IPAddress.Parse("10.0.0.4");
-            //IPAddress iPAddress = IPAddress.Parse("192.168.69.12");
+            //IPAddress iPAddress = IPAddress.Parse("10.0.0.3");
+            IPAddress iPAddress = IPAddress.Parse("192.168.69.12");
             IPEndPoint endPointProcesa = new IPEndPoint(iPAddress, 8002);
             
             semaforo.Wait();

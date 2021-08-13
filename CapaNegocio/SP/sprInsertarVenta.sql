@@ -20,15 +20,15 @@ GO
 -- =============================================
 ALTER PROCEDURE sprInsertarVenta
 	@fechaHora datetime,
-	@fecha varchar(30),
-	@hora varchar(30),
+	@fecha varchar(10),
+	@hora varchar(10),
 	@encabezado int,
 	@pCode int,
-	@issuer varchar(20),
+	@issuer varchar(10),
 	@sku varchar(20),
 	@folio varchar(50),
-	@numeroReferencia varchar(20),
-	@telefono varchar(20),
+	@numeroReferencia varchar(12),
+	@telefono varchar(15),
 	@monto decimal,	
 	@idGrupo int,
 	@idCadena int,
@@ -55,10 +55,12 @@ BEGIN
 		MSG230=@mensaje230
 		SELECT @@ROWCOUNT AS filas	
 	END
-
-	INSERT INTO TransactionSales
-	(DATE_TIME,LOCAL_DATE,LOCAL_TIME,MSG_TYPE,PCODE,ISSUER,SKU,FOLIO,REFERENCE_NUMBER,NRO_TELEFONICO,AMOUNT,ID_GROUP,ID_CHAIN,ID_MERCHANT,ID_POS,ID_TELLER,ID_PROVIDER,ID_MASTER,SYSTEMTRACE,[AUTHORIZATION],RESPONSE_CODE,SALDOACTUAL,STATUS,STATUSPLAT,MSG200,MSG210,TypeTRX) values
-	(@fechaHora,@fecha,@hora,@encabezado,@pCode,@issuer,@sku,@folio,@numeroReferencia,@telefono,@monto,@idGrupo,@idCadena,@idTienda,1,0,@idProveedor,@idMaster,@numTransaccion,@autorizacion,@codigoRespuesta,@saldoActual,1,0,@mensaje200,@mensaje210,@tipoTrx)
-	SELECT @@ROWCOUNT AS filas	
+	ElSE
+	BEGIN
+		INSERT INTO TransactionSales
+		(DATE_TIME,LOCAL_DATE,LOCAL_TIME,MSG_TYPE,PCODE,ISSUER,SKU,FOLIO,REFERENCE_NUMBER,NRO_TELEFONICO,AMOUNT,ID_GROUP,ID_CHAIN,ID_MERCHANT,ID_POS,ID_TELLER,ID_PROVIDER,ID_MASTER,SYSTEMTRACE,[AUTHORIZATION],RESPONSE_CODE,SALDOACTUAL,STATUS,STATUSPLAT,MSG200,MSG210,TypeTRX) values
+		(@fechaHora,@fecha,@hora,@encabezado,@pCode,@issuer,@sku,@folio,@numeroReferencia,@telefono,@monto,@idGrupo,@idCadena,@idTienda,1,0,@idProveedor,@idMaster,@numTransaccion,@autorizacion,@codigoRespuesta,@saldoActual,1,0,@mensaje200,@mensaje210,@tipoTrx)
+		SELECT @@ROWCOUNT AS filas	
+	END
 END
 GO

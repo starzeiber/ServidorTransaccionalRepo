@@ -34,6 +34,16 @@
             Extensión del protocolo para información varia
             </summary>
         </member>
+        <member name="F:CapaNegocio.ConsultaPxDatos.productoInfo">
+            <summary>
+            Instancia que contendrá la información del producto para la compra
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.ConsultaPxDatos.proveedorInfo">
+            <summary>
+            Instancia que contendrá la información del proveedor para la compra
+            </summary>
+        </member>
         <member name="M:CapaNegocio.ConsultaPxDatos.Ingresar(System.String)">
             <summary>
             Divide la trama en los campos de la clase
@@ -51,6 +61,23 @@
             <summary>
             clase que contiene todas las propiedades de una solicitud TAE al px
             </summary>
+        </member>
+        <member name="F:CapaNegocio.ConsultaPxTae.productoInfo">
+            <summary>
+            Instancia que contendrá la información del producto para la consulta
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.ConsultaPxTae.proveedorInfo">
+            <summary>
+            Instancia que contendrá la información del proveedor para la consulta
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.ConsultaPxTae.Ingresar(System.String)">
+            <summary>
+            Función que obtiene las propiedades de la trama
+            </summary>
+            <param name="trama">trama del cliente</param>
+            <returns></returns>
         </member>
         <member name="M:CapaNegocio.ConsultaPxTae.ObtenerTrama">
             <summary>
@@ -87,6 +114,134 @@
             <summary>
             
             </summary>
+        </member>
+        <member name="T:CapaNegocio.Clases.ProductoInfo">
+            <summary>
+            Contiene todas las propiedades de un producto
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.sku">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.idProveedor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.nombreProveedor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.monto">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.mensajeTicket1">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.mensajeTicket2">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProductoInfo.idPaquete">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.ProductoInfo.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Clases.ProveedorInfo">
+            <summary>
+            Contiene todas las propiedades de un producto
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProveedorInfo.idProveedor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProveedorInfo.nombreProveedor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProveedorInfo.marca">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProveedorInfo.issuer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.ProveedorInfo.idMaster">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.ProveedorInfo.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:CapaNegocio.Clases.RespuestaCompraTpvDatos">
+            <summary>
+            Clase que contiene todas las propiedades de una respuesta para la compra de datos en protocolo tpv
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvDatos.Ingresar(CapaNegocio.Clases.CompraTpvDatos)">
+            <summary>
+            Ingresa la información de la compra en las propiedades de la respuesta
+            </summary>
+            <param name="compraTpvDatos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvDatos.Obtener">
+            <summary>
+            Obtiene una trama a partir de las propiedades de la clase
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.Clases.RespuestaCompraTpvTAE">
+            <summary>
+            Contiene todas las propiedades de una respuesta en protocolo TPV
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvTAE.sku">
+            <summary>
+            codigo del producto
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvTAE.Ingresar(CapaNegocio.Clases.CompraTpvTae)">
+            <summary>
+            Ingresa la información en las propiedades de la clase a partir de la compra
+            </summary>
+            <param name="compraTpvTae">Instancia de CompraTpvTae</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvTAE.Ingresar(System.String)">
+            <summary>
+            Ingresa la información en las propiedades de la clase a partir de la trama de respuesta
+            </summary>
+            <param name="trama"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvTAE.Obtener">
+            <summary>
+            Obtiene la trama de respuesta a partir de las propiedades de la clase
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:CapaNegocio.Clases.RespuestaCompraTpvBase">
             <summary>
@@ -193,9 +348,80 @@
             
             </summary>
         </member>
+        <member name="T:CapaNegocio.Clases.CompraTpvDatos">
+            <summary>
+            Clase que contiene todas las propiedades de una compra de paquetes de datos TPV
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvDatos.idPaquete">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvDatos.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvDatos.Ingresar(CapaNegocio.CompraPxDatos)">
+            <summary>
+            Función para dividir en las propiedades de la clase
+            </summary>
+            <param name="compraPxDatos">Instancia de CompraPxDatos</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvDatos.Obtener">
+            <summary>
+            Función para obtener la trama TPV de compra
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.Clases.CompraTpvTae">
+            <summary>
+            Clase que contiene todas las propiedades de una compra TPV
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvTae.Ingresar(CapaNegocio.CompraPxTae)">
+            <summary>
+            Función que obtiene las propiedades a partir de la instancia CompraPxTae
+            </summary>
+            <param name="compraPxTae">Instancia CompraPxTae</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvTae.Obtener">
+            <summary>
+            Obtiene la trama en procotolo TPV
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CapaNegocio.Clases.CompraTpvBase">
+            <summary>
+            Clase que contiene todas las propiedades de una compra TPV usada como base
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.encabezado">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.pCode">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.monto">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaHora">
             <summary>
             MMDDHHmmss
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.systemTrace">
+            <summary>
+            
             </summary>
         </member>
         <member name="P:CapaNegocio.Clases.CompraTpvBase.horaTerminal">
@@ -216,6 +442,51 @@
         <member name="P:CapaNegocio.Clases.CompraTpvBase.fechaCapturaTerminal">
             <summary>
             MMDD
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.adquiriente">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.issuer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.referencia">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.TerminalId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.merchantData">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.codigoMoneda">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.datosAdicionales">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvBase.telefono">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvBase.#ctor">
+            <summary>
+            
             </summary>
         </member>
         <member name="T:CapaNegocio.RespuestaConsultaPxDatos">
@@ -288,11 +559,30 @@
             Constructor del objeto
             </summary>
         </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxDatos.Ingresar(CapaNegocio.ConsultaPxDatos)">
+            <summary>
+            Ingresa la información de la compra en las propiedades de la clase de respuesta
+            </summary>
+            <param name="consultaPxDatos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxDatos.Actualizar(CapaNegocio.ConsultaPxDatos)">
+            <summary>
+            Actualiza la información de las propiedades de la clase con la información de la consulta más reciente
+            </summary>
+            <param name="consultaPxDatos"></param>
+        </member>
         <member name="M:CapaNegocio.RespuestaConsultaPxDatos.ObtenerParametrosTrama(System.String)">
             <summary>
             Función que obtiene los parámetros de la trama entrante
             </summary>
             <param name="tramaRecibida">Trama de respuesta para poder dividirla</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxDatos.ObtenerTrama">
+            <summary>
+            Obtiene la trama a partir de las propiedades de la clase
+            </summary>
             <returns></returns>
         </member>
         <member name="T:CapaNegocio.RespuestaConsultaPxTae">
@@ -350,11 +640,30 @@
             Constructor del objeto
             </summary>
         </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxTae.Ingresar(CapaNegocio.ConsultaPxTae)">
+            <summary>
+            Ingresa la información de consulta en las propiedades de la clase
+            </summary>
+            <param name="consultaPxTae">Instancia de ConsultaPxTae</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxTae.Actualizar(CapaNegocio.ConsultaPxTae)">
+            <summary>
+            Actualiza la información de algunas propiedades de la clase a partir de la información de la consulta más reciente
+            </summary>
+            <param name="consultaPxTae">Instancia de ConsultaPxTae</param>
+        </member>
         <member name="M:CapaNegocio.RespuestaConsultaPxTae.ObtenerParametrosTrama(System.String)">
             <summary>
             Función que obtiene los parámetros de la trama entrante
             </summary>
             <param name="tramaRecibida">Trama de respuesta para poder dividirla</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaConsultaPxTae.ObtenerTrama">
+            <summary>
+            Obtiene la trama de respuesta a partir de las propiedades de la clase
+            </summary>
             <returns></returns>
         </member>
         <member name="T:CapaNegocio.RespuestaCompraPxBase">
@@ -482,11 +791,35 @@
             Extensión del protocolo para información varia
             </summary>
         </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxDatos.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxDatos.Ingresar(CapaNegocio.CompraPxDatos)">
+            <summary>
+            Divide en sus propiedades a partir de la instancia CompraPxDatos
+            </summary>
+            <param name="compraPxDatos">Instancia de CompraPxDatos</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxDatos.Actualizar(CapaNegocio.CompraPxDatos)">
+            <summary>
+            Actualiza cierta parte de información de una respuesta a una compra de datos en protocolo PX
+            </summary>
+            <param name="compraPxDatos">Instancia CompraPxDatos</param>
+        </member>
         <member name="M:CapaNegocio.RespuestaCompraPxDatos.Ingresar(System.String)">
             <summary>
             Divide la trama en los respectivos campos de la clase
             </summary>
             <param name="tramaRecibida">trama en formato PX encabezado 25</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxDatos.ObtenerTrama">
+            <summary>
+            Obtiene la trama en protocolo px
+            </summary>
             <returns></returns>
         </member>
         <member name="T:CapaNegocio.RespuestaCompraPxTae">
@@ -551,11 +884,23 @@
             <param name="compraPxTae">Instancia de CompraPxTae</param>
             <returns></returns>
         </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxTae.Actualizar(CapaNegocio.CompraPxTae)">
+            <summary>
+            Actualiza las propiedades de la clase con la información de compra más reciente
+            </summary>
+            <param name="compraPxTae"></param>
+        </member>
         <member name="M:CapaNegocio.RespuestaCompraPxTae.Ingresar(System.String)">
             <summary>
             Obtiene todos los parámetros de una trama tae de PX
             </summary>
             <param name="tramaRecibida">trama recibida desde el px</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.RespuestaCompraPxTae.ObtenerTrama">
+            <summary>
+            Obtiene la trama a partir de las propiedades de la clase
+            </summary>
             <returns></returns>
         </member>
         <member name="T:CapaNegocio.CompraPxBase">
@@ -648,6 +993,16 @@
             Extensión del protocolo para información varia
             </summary>
         </member>
+        <member name="F:CapaNegocio.CompraPxDatos.productoInfo">
+            <summary>
+            Instancia que contendrá la información del producto para la compra
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.CompraPxDatos.proveedorInfo">
+            <summary>
+            Instancia que contendrá la información del proveedor para la compra
+            </summary>
+        </member>
         <member name="M:CapaNegocio.CompraPxDatos.#ctor">
             <summary>
             
@@ -671,11 +1026,20 @@
             clase que contiene todas las propiedades de una solicitud TAE al px
             </summary>
         </member>
+        <member name="F:CapaNegocio.CompraPxTae.productoInfo">
+            <summary>
+            Instancia que contendrá la información del producto para la compra
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.CompraPxTae.proveedorInfo">
+            <summary>
+            Instancia que contendrá la información del proveedor para la compra
+            </summary>
+        </member>
         <member name="M:CapaNegocio.CompraPxTae.#ctor">
             <summary>
             Constructor para inicializar el objeto
             </summary>
-            <param name="solicitudTaeXml">Objeto con los valores entrantes</param>
         </member>
         <member name="M:CapaNegocio.CompraPxTae.Ingresar(System.String)">
             <summary>
@@ -690,9 +1054,29 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:CapaNegocio.RespuestaProcesosProveedor.objetoAux">
+        <member name="T:CapaNegocio.RespuestaProcesosProveedor">
             <summary>
-            Objeto que se utilizará como respuesta genérica de cualquier función
+            Contiene todas las propiedades que se utilizan como respuesta entre los procesos internos
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosProveedor.codigoRespuesta">
+            <summary>
+            Codigo de respuesta del proceso
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosProveedor.objPeticionProveedor">
+            <summary>
+            Objeto que recibe la clase que contiene las propiedades de una petición
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosProveedor.objRespuestaProveedor">
+            <summary>
+            Objeto que recibe la clase que contiene las propiedades de una respuesta
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosProveedor.categoriaProducto">
+            <summary>
+            Instancia de CategoriaProducto
             </summary>
         </member>
         <member name="T:CapaNegocio.Operaciones">
@@ -750,17 +1134,17 @@
             Protocolo tenserver
             </summary>
         </member>
-        <member name="T:CapaNegocio.Operaciones.categoriaProducto">
+        <member name="T:CapaNegocio.Operaciones.CategoriaProducto">
             <summary>
             Categorías de productos que manejará el servidor
             </summary>
         </member>
-        <member name="F:CapaNegocio.Operaciones.categoriaProducto.TAE">
+        <member name="F:CapaNegocio.Operaciones.CategoriaProducto.TAE">
             <summary>
             Tiempo aire electrónico
             </summary>
         </member>
-        <member name="F:CapaNegocio.Operaciones.categoriaProducto.Datos">
+        <member name="F:CapaNegocio.Operaciones.CategoriaProducto.Datos">
             <summary>
             Paquetes de tiempo aire electrónico
             </summary>
@@ -772,7 +1156,7 @@
             <param name="trama">trama del cliente</param>
             <returns></returns>
         </member>
-        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraCliente(System.String,CapaNegocio.Operaciones.tipoMensajeria,CapaNegocio.RespuestaProcesosCliente@,CapaNegocio.Operaciones.categoriaProducto)">
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraCliente(System.String,CapaNegocio.Operaciones.tipoMensajeria,CapaNegocio.RespuestaProcesosCliente@,CapaNegocio.Operaciones.CategoriaProducto)">
             <summary>
             Función que validará la mensajería que sea acorde a una compra dependiendo de su formato y petición
             </summary>
@@ -781,7 +1165,7 @@
             <param name="respuestaGenerica">respuesta sobre el proceso</param>
             <param name="categoriaProducto">categoría del producto a comprar</param>
         </member>
-        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorConsultaCliente(System.String,CapaNegocio.Operaciones.tipoMensajeria,CapaNegocio.RespuestaProcesosCliente@,CapaNegocio.Operaciones.categoriaProducto)">
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorConsultaCliente(System.String,CapaNegocio.Operaciones.tipoMensajeria,CapaNegocio.RespuestaProcesosCliente@,CapaNegocio.Operaciones.CategoriaProducto)">
             <summary>
             Función que divide en sus propiedades la trama de consulta de transacción recibida del cliente
             </summary>
@@ -866,6 +1250,26 @@
             <param name="respuestaCompraTpvTAE"></param>
             <returns></returns>
         </member>
+        <member name="T:CapaNegocio.RespuestaProcesosCliente">
+            <summary>
+            Contiene todas las propiedades que se utilizan como respuesta entre los procesos internos
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosCliente.codigoRespuesta">
+            <summary>
+            Codigo de respuesta del proceso
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosCliente.objPeticionCliente">
+            <summary>
+            Objeto que recibe la clase que contiene las propiedades de una petición
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.RespuestaProcesosCliente.objRespuestaCliente">
+            <summary>
+            Objeto que recibe la clase que contiene las propiedades de una respuesta
+            </summary>
+        </member>
         <member name="P:CapaNegocio.RespuestaProcesosCliente.objetoAux">
             <summary>
             Objeto que se utilizará genericamente en cualquier función de forma auxiliar en las operaciones
@@ -921,6 +1325,11 @@
             Valor del timeout sobre una compra
             </summary>
         </member>
+        <member name="F:CapaNegocio.Utileria.nombreLog">
+            <summary>
+            Nombre del log en el sistema
+            </summary>
+        </member>
         <member name="F:CapaNegocio.Utileria.cadenaConexionBO">
             <summary>
             cadena de conexión al BO
@@ -946,6 +1355,11 @@
             Log del sistema
             </summary>
         </member>
+        <member name="F:CapaNegocio.Utileria.puertoLocal">
+            <summary>
+            Puerto local asignado al servidor
+            </summary>
+        </member>
         <member name="F:CapaNegocio.Utileria.ipProveedor">
             <summary>
             ip del switch del proveedor
@@ -966,6 +1380,101 @@
             listado de códigos de respuesta del sistema
             </summary>
         </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.TransaccionExitosa">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.TerminalInvalida">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.Denegada">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorEnRed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.TimeOutInterno">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorGuardandoDB">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.NoExisteOriginal">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorTELCELTablaLLena">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorAccesoDB">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorFormato">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.NumeroTelefono">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorProceso">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ClienteBloqueado">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.SinCreditoDisponible">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorObteniendoCredito">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.ErrorConexionServer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.SinRespuestaCarrier">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.CarrierAbajo">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.CodigosRespuesta.MontoInvalido">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:CapaNegocio.Utileria.TiposLog">
             <summary>
             Enumerado con los tipos de log
@@ -984,6 +1493,11 @@
         <member name="F:CapaNegocio.Utileria.TiposLog.error">
             <summary>
             Error
+            </summary>
+        </member>
+        <member name="M:CapaNegocio.Utileria.InstanciarLog">
+            <summary>
+            Configura e inicializa el log del sistema
             </summary>
         </member>
         <member name="M:CapaNegocio.Utileria.Log(System.String,CapaNegocio.Utileria.TiposLog)">
@@ -1047,6 +1561,21 @@
         <member name="T:CapaNegocio.TipoFormato">
             <summary>
             Enumerado para indicar el tipo de formato a otorgar a una cadena de caracteres
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.TipoFormato.N">
+            <summary>
+            Se rellena con cero a la izquiera
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.TipoFormato.AN">
+            <summary>
+            Se rellena con cero a la derecha
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.TipoFormato.ANS">
+            <summary>
+            Se rellena con espacio a la derecha
             </summary>
         </member>
         <member name="T:CapaNegocio.Validaciones">

@@ -10,6 +10,27 @@ namespace CapaNegocio.Clases
     public class CompraTpvTae : CompraTpvBase
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public string sku { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int idProveedor { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int idMaster { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal saldoActual { get; set; }
+
+
+        /// <summary>
         /// Función que obtiene las propiedades a partir de la instancia CompraPxTae
         /// </summary>
         /// <param name="compraPxTae">Instancia CompraPxTae</param>
@@ -34,6 +55,10 @@ namespace CapaNegocio.Clases
                     Validaciones.formatoValor(compraPxTae.idPos.ToString(), TipoFormato.N, 5) +
                     "DF MX";
                 telefono = compraPxTae.telefono;
+
+                sku = compraPxTae.productoInfo.sku;
+                idProveedor = compraPxTae.proveedorInfo.idProveedor;
+                idMaster = compraPxTae.proveedorInfo.idMaster;
                 return true;
             }
             catch (Exception ex)

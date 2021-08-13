@@ -60,6 +60,11 @@ namespace CapaNegocio
             mensajeTicket2 = "";
         }
 
+        /// <summary>
+        /// Ingresa la información de consulta en las propiedades de la clase
+        /// </summary>
+        /// <param name="consultaPxTae">Instancia de ConsultaPxTae</param>
+        /// <returns></returns>
         public bool Ingresar(ConsultaPxTae consultaPxTae)
         {
             try
@@ -82,6 +87,10 @@ namespace CapaNegocio
             }
         }
 
+        /// <summary>
+        /// Actualiza la información de algunas propiedades de la clase a partir de la información de la consulta más reciente
+        /// </summary>
+        /// <param name="consultaPxTae">Instancia de ConsultaPxTae</param>
         public void Actualizar(ConsultaPxTae consultaPxTae)
         {
             monto = consultaPxTae.productoInfo.monto;
@@ -116,7 +125,10 @@ namespace CapaNegocio
             }
 
         }
-
+        /// <summary>
+        /// Obtiene la trama de respuesta a partir de las propiedades de la clase
+        /// </summary>
+        /// <returns></returns>
         public string ObtenerTrama()
         {
             StringBuilder respuesta = new StringBuilder();

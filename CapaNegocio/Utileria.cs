@@ -56,6 +56,9 @@ namespace CapaNegocio
         /// </summary>
         public static int timeOut;
 
+        /// <summary>
+        /// Nombre del log en el sistema
+        /// </summary>
         public static string nombreLog;
 
         /// <summary>
@@ -82,6 +85,9 @@ namespace CapaNegocio
         /// </summary>
         private static EventLogTraceListener logListener;
 
+        /// <summary>
+        /// Puerto local asignado al servidor
+        /// </summary>
         public static int puertoLocal;
 
         /// <summary>
@@ -106,24 +112,81 @@ namespace CapaNegocio
         /// </summary>
         public enum CodigosRespuesta
         {
+            /// <summary>
+            /// 
+            /// </summary>
             TransaccionExitosa = 0,
+            /// <summary>
+            /// 
+            /// </summary>
             TerminalInvalida = 2,
+            /// <summary>
+            /// 
+            /// </summary>
             Denegada = 4,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorEnRed = 5,
+            /// <summary>
+            /// 
+            /// </summary>
             TimeOutInterno = 6,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorGuardandoDB = 7,
+            /// <summary>
+            /// 
+            /// </summary>
             NoExisteOriginal = 9,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorTELCELTablaLLena = 15,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorAccesoDB = 16,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorFormato = 30,
+            /// <summary>
+            /// 
+            /// </summary>
             NumeroTelefono = 35,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorProceso = 50,
+            /// <summary>
+            /// 
+            /// </summary>
             ClienteBloqueado = 65,
+            /// <summary>
+            /// 
+            /// </summary>
             SinCreditoDisponible = 66,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorObteniendoCredito = 67,
+            /// <summary>
+            /// 
+            /// </summary>
             ErrorConexionServer = 70,
+            /// <summary>
+            /// 
+            /// </summary>
             SinRespuestaCarrier = 71,
+            /// <summary>
+            /// 
+            /// </summary>
             CarrierAbajo = 73,
+            /// <summary>
+            /// 
+            /// </summary>
             MontoInvalido = 88
         }
 
@@ -145,7 +208,10 @@ namespace CapaNegocio
             /// </summary>
             error
         }
-                
+
+        /// <summary>
+        /// Configura e inicializa el log del sistema
+        /// </summary>
         public static void InstanciarLog()
         {
             logListener = new EventLogTraceListener(nombreLog);
@@ -310,7 +376,7 @@ namespace CapaNegocio
                 semillaAleatorio = (int)DateTime.Now.Ticks & 0x0000FFFF;
                 random = new Random(semillaAleatorio);
                 Monitor.Enter(random);
-                int aleatorio = random.Next(1,numElementos);
+                int aleatorio = random.Next(1, numElementos);
                 Monitor.Exit(random);
                 return Task.FromResult(aleatorio);
             }
@@ -320,7 +386,7 @@ namespace CapaNegocio
                 return Task.FromResult(0);
             }
         }
-                
+
         /// <summary>
         /// Función que realiza la adecuación de una cadena de caracteres dependiendo el tipo de formato establecido
         /// </summary>
@@ -356,7 +422,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Log(ObtenerNombreFuncion(ex.Message), TiposLog.error);                
+                Log(ObtenerNombreFuncion(ex.Message), TiposLog.error);
                 return String.Empty;
             }
             return cadena;

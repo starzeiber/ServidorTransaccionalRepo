@@ -24,4 +24,3 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.AssemblyReference.cache
