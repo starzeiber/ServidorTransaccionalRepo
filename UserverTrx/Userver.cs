@@ -37,10 +37,7 @@ namespace Userver
                     Environment.Exit(666);
                 }
 
-                metroListView_Eventos.Items.Add("Se ha cargado la configuración correctamente");
-                metroListView_Eventos.Items.Add("Puerto de escucha: " + Utileria.puertoLocal.ToString());
-                metroListView_Eventos.Items.Add("Base de datos local en la ip:" + Utileria.cadenaConexionTrx.Substring((Utileria.cadenaConexionTrx.IndexOf("Source=") + 7), 13));
-                metroListView_Eventos.Items.Add("Base de datos BO en la ip:" + Utileria.cadenaConexionBO.Substring((Utileria.cadenaConexionTrx.IndexOf("Source=") + 7), 13));
+                metroListView_Eventos.Items.Add("Se ha cargado la configuración correctamente");               
 
                 servidor = new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(maxNumDeClientesSimultaneos, 1024, 100);
                 servidor.ConfigInicioServidor();
@@ -49,6 +46,11 @@ namespace Userver
                     Utileria.ipProveedor,
                     Utileria.puertoProveedor
                     );
+                Utileria.ipLocal = servidor.ipLocal;
+                metroListView_Eventos.Items.Add("IP/Puerto de escucha: " + Utileria.ipLocal + ":" + Utileria.puertoLocal.ToString());
+                metroListView_Eventos.Items.Add("Base de datos local en la ip:" + Utileria.cadenaConexionTrx.Substring((Utileria.cadenaConexionTrx.IndexOf("Source=") + 7), 13));
+                metroListView_Eventos.Items.Add("Base de datos BO en la ip:" + Utileria.cadenaConexionBO.Substring((Utileria.cadenaConexionTrx.IndexOf("Source=") + 7), 13));
+
                 metroButton_Iniciar.Text = "Detener";
 
                 metroListView_Eventos.Items.Add("Todas las instancias comprobadas");
@@ -81,7 +83,7 @@ namespace Userver
             int saturacion = (maxNumDeClientesSimultaneos * 90) / 100;
             if (servidor.numeroclientesConectados >= saturacion)
             {
-                metroLabel_Saturacion.Text="SERVIDOR AL 90% DE SATURACIÓN!!!";
+                metroLabel_Saturacion.Text = "SERVIDOR AL 90% DE SATURACIÓN!!!";
             }
             else
             {
@@ -102,7 +104,7 @@ namespace Userver
 
         private void Userver_Resize(object sender, EventArgs e)
         {
-            if (WindowState==FormWindowState.Maximized)
+            if (WindowState == FormWindowState.Maximized)
             {
                 WindowState = FormWindowState.Normal;
             }
@@ -111,6 +113,6 @@ namespace Userver
                 Size = new System.Drawing.Size(431, 415);
             }
         }
-        
+
     }
 }

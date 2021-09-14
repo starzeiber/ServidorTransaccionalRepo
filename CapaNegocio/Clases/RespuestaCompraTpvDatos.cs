@@ -9,6 +9,21 @@ namespace CapaNegocio.Clases
     /// </summary>
     public class RespuestaCompraTpvDatos : RespuestaCompraTpvBase
     {
+        public bool Ingresar(string trama)
+        {
+            try
+            {
+                autorizacion = int.Parse(trama.Substring(91, 6));
+                codigoRespuesta = int.Parse(trama.Substring(97, 2));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                return false;
+            }
+        }
+
         /// <summary>
         /// Ingresa la información de la compra en las propiedades de la respuesta
         /// </summary>
@@ -26,6 +41,11 @@ namespace CapaNegocio.Clases
                 TerminalId = compraTpvDatos.TerminalId;
                 merchantData = compraTpvDatos.merchantData;
                 telefono = compraTpvDatos.telefono;
+                fechaHora = compraTpvDatos.fechaHora;
+                horaTerminal = compraTpvDatos.horaTerminal;
+                fechaTerminal = compraTpvDatos.fechaTerminal;
+                fechaCapturaTerminal = compraTpvDatos.fechaCapturaTerminal;
+                fechaContableTerminal = compraTpvDatos.fechaContableTerminal;
                 return true;
             }
             catch (Exception ex)

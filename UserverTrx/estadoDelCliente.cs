@@ -27,11 +27,24 @@ namespace Userver
 
             // el proceso de evaluación de la mensajería entrega un codigo de respuesta
             codigoRespuesta = respuestaProcesosCliente.codigoRespuesta;
-            // también la cabecera que identifica que tipo de mensajería fue
-            //cabeceraMensaje = (int)respuestaProcesosCliente.cabeceraTrama;
-            // y los objetos genéricos de petición y respuesta pre seteados
-            objPeticion = respuestaProcesosCliente.objPeticionCliente;
-            objRespuesta = respuestaProcesosCliente.objRespuestaCliente;
+
+            if (codigoRespuesta == 0)
+            {
+                // y los objetos genéricos de petición y respuesta pre seteados
+                objPeticion = respuestaProcesosCliente.objPeticionCliente;
+                objRespuesta = respuestaProcesosCliente.objRespuestaCliente;
+
+                if (objPeticion.GetType() == typeof(ConsultaPxTae) || objPeticion.GetType() == typeof(ConsultaPxDatos))
+                {
+                    esConsulta = true;
+                    respuestaProcesosCliente = Operaciones.ConsultaTrxBaseTransaccional(objPeticion);
+                    codigoRespuesta = respuestaProcesosCliente.codigoRespuesta;
+                    if (respuestaProcesosCliente.objetoAux != null)
+                        codigoAutorizacion = (int)respuestaProcesosCliente.objetoAux;
+                }
+            }
+
+
         }
 
         /// <summary>

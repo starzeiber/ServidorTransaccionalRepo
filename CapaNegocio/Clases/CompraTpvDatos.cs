@@ -34,6 +34,8 @@ namespace CapaNegocio.Clases
         /// </summary>
         public decimal saldoActual { get; set; }
 
+        public DateTime fechaHoraCompleta { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -52,10 +54,17 @@ namespace CapaNegocio.Clases
             try
             {
                 pCode = 650101;
+                monto = compraPxDatos.productoInfo.monto;
+                fechaHora = compraPxDatos.fecha.Substring(2) + compraPxDatos.hora;
+                fechaHoraCompleta = DateTime.Now;
                 systemTrace = compraPxDatos.numeroTransaccion;
+                horaTerminal = compraPxDatos.hora;
+                fechaTerminal = compraPxDatos.fecha.Substring(2);
+                fechaContableTerminal = fechaTerminal;
+                fechaCapturaTerminal = fechaTerminal;
                 issuer = compraPxDatos.proveedorInfo.issuer.Length + compraPxDatos.proveedorInfo.issuer;
                 referencia = Task.Run(() => Utileria.ObtenerNumeroResultadoAleatorio(6)).Result;
-                TerminalId = "STTN" +
+                TerminalId = "4TTN" +
                     Validaciones.formatoValor(compraPxDatos.idGrupo.ToString(), TipoFormato.N, 3) +
                     Validaciones.formatoValor(compraPxDatos.idCadena.ToString(), TipoFormato.N, 5) +
                     Validaciones.formatoValor(compraPxDatos.idTienda.ToString(), TipoFormato.N, 4);
@@ -65,7 +74,7 @@ namespace CapaNegocio.Clases
                     Validaciones.formatoValor(compraPxDatos.idTienda.ToString(), TipoFormato.N, 5) +
                     Validaciones.formatoValor(compraPxDatos.idPos.ToString(), TipoFormato.N, 5) +
                     "DF MX";
-                telefono = "01500000" + compraPxDatos.telefono;
+                telefono = compraPxDatos.telefono;
                 idPaquete = compraPxDatos.datosAdicionales.Substring(0, 10);
 
                 sku = compraPxDatos.productoInfo.sku;
@@ -93,7 +102,8 @@ namespace CapaNegocio.Clases
             {
                 respuesta.Append(encabezado.ToString());
                 respuesta.Append(Validaciones.formatoValor(pCode.ToString(), TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 12));
+                int dosDecimales = (int)(((decimal)monto % 1) * 100);
+                respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + dosDecimales.ToString("00"), TipoFormato.N, 12));
                 respuesta.Append(Validaciones.formatoValor(fechaHora.ToString(), TipoFormato.N, 10));
                 respuesta.Append(Validaciones.formatoValor(systemTrace.ToString(), TipoFormato.N, 6));
                 respuesta.Append(Validaciones.formatoValor(horaTerminal, TipoFormato.N, 6));
@@ -102,11 +112,12 @@ namespace CapaNegocio.Clases
                 respuesta.Append(Validaciones.formatoValor(fechaCapturaTerminal.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(adquiriente, TipoFormato.N, 12));
                 respuesta.Append(Validaciones.formatoValor(issuer, TipoFormato.N, 11));
+                respuesta.Append(Validaciones.formatoValor(referencia.ToString(), TipoFormato.N, 12));
                 respuesta.Append(Validaciones.formatoValor(TerminalId, TipoFormato.ANS, 16));
                 respuesta.Append(Validaciones.formatoValor(merchantData, TipoFormato.ANS, 40));
                 respuesta.Append(Validaciones.formatoValor(codigoMoneda.ToString(), TipoFormato.N, 3));
                 respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.N, 15));
-                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 18));
+                respuesta.Append("015" + Validaciones.formatoValor(telefono, TipoFormato.N, 15));
                 respuesta.Append(Validaciones.formatoValor(idPaquete, TipoFormato.ANS, 10));
 
 

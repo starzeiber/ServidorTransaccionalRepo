@@ -63,7 +63,7 @@ namespace CapaNegocio
         /// </summary>
         public RespuestaCompraPxDatos()
         {
-            encabezado = int.Parse(Utileria.ENCABEZADO_RESPUESTA_TAE_PX);
+            encabezado = int.Parse(Utileria.ENCABEZADO_RESPUESTA_DATOS_PX);
             PIN = "";
             fechaExpiracion = "";
             nombreProveedor = "";
@@ -71,6 +71,7 @@ namespace CapaNegocio
             mensajeTicket2 = "";
 
         }
+
         /// <summary>
         /// Divide en sus propiedades a partir de la instancia CompraPxDatos
         /// </summary>
@@ -80,6 +81,7 @@ namespace CapaNegocio
         {
             try
             {
+                idGrupo = compraPxDatos.idGrupo;
                 idCadena = compraPxDatos.idCadena;
                 idTienda = compraPxDatos.idTienda;
                 idPos = compraPxDatos.idPos;

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CapaNegocio.Clases
 {
@@ -88,7 +84,7 @@ namespace CapaNegocio.Clases
         /// </summary>
         public string telefono { get; set; }
 
-        public decimal saldoActual { get; set; }   
+        public decimal saldoActual { get; set; }
 
         /// <summary>
         /// 

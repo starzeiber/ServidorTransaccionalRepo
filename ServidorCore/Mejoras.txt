@@ -1,3 +1,6 @@
 ﻿obtener la ip del proveedor a donde se enviará la petición por base de datos
 agregar columna en alguna tabla para el pcode
 responder mensajes de ticket solo cuando sea exitosa
+
+
+falta probar la consulta de datos

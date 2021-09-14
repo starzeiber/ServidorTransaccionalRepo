@@ -29,11 +29,11 @@ namespace CapaNegocio
             /// <summary>
             /// Compra px datos
             /// </summary>
-            compraDatosPx = 21,
+            compraDatosPx = 25,
             /// <summary>
             /// consulta px datos
             /// </summary>
-            consultaDatosPx = 25,
+            consultaDatosPx = 27,
             /// <summary>
             /// compra protocoloco tpv
             /// </summary>
@@ -337,7 +337,7 @@ namespace CapaNegocio
                             }
                             else
                             {
-                                consultaPxTae.productoInfo = respuestaGenerica.objetoAux as ProductoInfo;
+                                consultaPxTae.productoInfo = respuestaGenericaTmp.objetoAux as ProductoInfo;
                             }
 
                             respuestaGenericaTmp = ObtenerInfoProveedor(consultaPxTae.productoInfo.idProveedor);
@@ -435,10 +435,23 @@ namespace CapaNegocio
                 if (tipo == typeof(CompraPxTae))
                 {
                     ObtenerParametrosPorCompraProveedor((objPeticionCliente as CompraPxTae), ref respuestaProcesosProveedor);
+                    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.TAE;
+                }
+                else if (tipo == typeof(ConsultaPxTae))
+                {
+                    ObtenerParametrosPorCompraProveedor((objPeticionCliente as ConsultaPxTae), ref respuestaProcesosProveedor);
+                    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.TAE;
                 }
                 else if (tipo == typeof(CompraPxDatos))
                 {
                     ObtenerParametrosPorCompraProveedor((objPeticionCliente as CompraPxDatos), ref respuestaProcesosProveedor);
+                    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.Datos;
+                }
+                else if (tipo == typeof(ConsultaPxDatos))
+                {
+                    //TODO consulta de datos
+                    //ObtenerParametrosPorCompraProveedor((objPeticionCliente as ConsultaPxDatos), ref respuestaProcesosProveedor);
+                    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.Datos;
                 }
 
                 return respuestaProcesosProveedor;
@@ -459,12 +472,32 @@ namespace CapaNegocio
         public static void ProcesarTramaProveedor(string trama, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
         {
             RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
-            if (respuestaCompraTpvTAE.Ingresar(trama))
+            RespuestaCompraTpvDatos respuestaCompraTpvDatos = new RespuestaCompraTpvDatos();
+            switch (respuestaProcesosProveedor.categoriaProducto)
             {
-                respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
-                respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
+                case CategoriaProducto.TAE:
+                    
+                    if (respuestaCompraTpvTAE.Ingresar(trama.Substring(2)))
+                    {
+                        respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
+                        respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
+                    }
+                    break;
+                case CategoriaProducto.Datos:                    
+                    if (respuestaCompraTpvDatos.Ingresar(trama.Substring(2)))
+                    {
+                        respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvDatos.codigoRespuesta;
+                        respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvDatos;
+                    }
+                    break;
+                default:
+                    if (respuestaCompraTpvTAE.Ingresar(trama.Substring(2)))
+                    {
+                        respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
+                        respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
+                    }
+                    break;
             }
-
         }
 
         /// <summary>
@@ -476,6 +509,31 @@ namespace CapaNegocio
         {
             CompraTpvTae compraTpvTae = new CompraTpvTae();
             if (compraTpvTae.Ingresar(compraPxTae) != true)
+            {
+                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                return;
+            }
+
+            RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
+
+            if (respuestaCompraTpvTAE.Ingresar(compraTpvTae) != true)
+            {
+                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                return;
+            }
+            respuestaProcesosProveedor.objPeticionProveedor = compraTpvTae;
+            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
+        }
+
+        /// <summary>
+        /// Función que obtiene las propiedades de una solicitud de compra a un proveedor a partir de la clase de compra del cliente
+        /// </summary>
+        /// <param name="consultaPxTae"></param>
+        /// <param name="respuestaProcesosProveedor"></param>
+        private static void ObtenerParametrosPorCompraProveedor(ConsultaPxTae consultaPxTae, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
+        {
+            CompraTpvTae compraTpvTae = new CompraTpvTae();
+            if (compraTpvTae.Ingresar(consultaPxTae) != true)
             {
                 respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
                 return;
@@ -838,87 +896,15 @@ namespace CapaNegocio
             }
         }
 
-        ///// <summary>
-        ///// Función que almacena en base de datos la transacción de compra o consulta
-        ///// </summary>
-        ///// <param name="compraTpvTae"> Instancia de CompraTpvTae</param>
-        ///// <param name="respuestaCompraTpvTAE">Instancia de RespuestaCompraTpvTAE</param>
-        ///// <returns></returns>
-        //public static RespuestaProcesosProveedor GuardarTrx(CompraTpvTae compraTpvTae, RespuestaCompraTpvTAE respuestaCompraTpvTAE)
-        //{
-        //    RespuestaProcesosProveedor respuestaProcesosProveedor = new RespuestaProcesosProveedor();
-
-        //    try
-        //    {
-        //        //lista de paramatros sobre la consulta
-        //        List<SqlParameter> listaParametros = new List<SqlParameter>()
-        //        {
-        //            new SqlParameter("@fechaHora", DateTime.Now),
-        //            new SqlParameter("@fecha", respuestaCompraTpvTAE.fechaCapturaTerminal),
-        //            new SqlParameter("@hora", respuestaCompraTpvTAE.horaTerminal),
-        //            new SqlParameter("@encabezado", respuestaCompraTpvTAE.encabezado),
-        //            new SqlParameter("@pCode", respuestaCompraTpvTAE.pCode),
-        //            new SqlParameter("@issuer", respuestaCompraTpvTAE.issuer),
-        //            new SqlParameter("@sku", compraTpvTae.sku.Trim()),
-        //            new SqlParameter("@folio", "NA"),
-        //            new SqlParameter("@numeroReferencia", respuestaCompraTpvTAE.referencia),
-        //            new SqlParameter("@telefono", respuestaCompraTpvTAE.telefono),
-        //            new SqlParameter("@monto", respuestaCompraTpvTAE.monto),
-        //            new SqlParameter("@idGrupo", respuestaCompraTpvTAE.TerminalId.Substring(4,3)),
-        //            new SqlParameter("@idCadena", respuestaCompraTpvTAE.TerminalId.Substring(7,5)),
-        //            new SqlParameter("@idTienda", respuestaCompraTpvTAE.TerminalId.Substring(12,4)),
-        //            new SqlParameter("@idProveedor", compraTpvTae.idProveedor),
-        //            new SqlParameter("@idMaster", compraTpvTae.idMaster),
-        //            new SqlParameter("@numTransaccion", respuestaCompraTpvTAE.systemTrace),
-        //            new SqlParameter("@autorizacion", respuestaCompraTpvTAE.autorizacion),
-        //            new SqlParameter("@codigoRespuesta", respuestaCompraTpvTAE.codigoRespuesta),
-        //            new SqlParameter("@saldoActual", compraTpvTae.saldoActual),
-        //            new SqlParameter("@mensaje200", compraTpvTae.Obtener().Trim()),
-        //            new SqlParameter("@mensaje210", respuestaCompraTpvTAE.Obtener().Trim()),
-        //            new SqlParameter("@mensaje220", "NA"),
-        //            new SqlParameter("@mensaje230", "NA"),
-        //            new SqlParameter("@tipoTrx", (int) tipoTransaccion.TAE),
-        //        };
-
-        //        ResultadoBaseDatos resultadoBaseDatos = OperacionesBaseDatos.EjecutaSP("sprInsertarVenta", listaParametros, Utileria.cadenaConexionTrx);
-
-
-        //        // se pregunta si existió un error en base de datos
-        //        if (!resultadoBaseDatos.Error)
-        //        {
-        //            //Se revisa si existen resultados
-        //            if (resultadoBaseDatos.Datos.Tables.Count > 0 && resultadoBaseDatos.Datos.Tables[0].Rows.Count > 0)
-        //            {
-
-        //            }
-        //            else
-        //            {
-        //                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
-        //                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.NoExisteOriginal;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
-        //            respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
-        //        }
-        //        return respuestaProcesosProveedor;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
-        //        respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
-        //        return respuestaProcesosProveedor;
-        //    }
-        //    finally
-        //    {
-        //        GC.Collect();
-        //    }
-        //}
-
-        public static RespuestaProcesosProveedor GuardarTrx(object objPeticionTpv, object objRespuestaTpv)
-        {            
-            if (objPeticionTpv is null)
+        /// <summary>
+        /// Guarda en la base cualquier transacción de compra
+        /// </summary>
+        /// <param name="objPeticionCliente">objeto de petición del cliente</param>
+        /// <param name="objRespuestaTpv">Objeto de respuesta de la mensajería TPV</param>
+        /// <returns></returns>
+        public static RespuestaProcesosProveedor GuardarTrx(object objPeticionCliente, object objRespuestaTpv)
+        {
+            if (objPeticionCliente is null)
             {
                 Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("El objeto de peticion TPV no está instanciado"), Utileria.TiposLog.error));
                 return null;
@@ -933,16 +919,15 @@ namespace CapaNegocio
 
             try
             {
-                Type t = objPeticionTpv.GetType();
+                Type t = objPeticionCliente.GetType();
                 List<SqlParameter> listaParametros;
                 if (t == typeof(CompraTpvTae))
                 {
-                    CompraTpvTae compraTpvTae = objPeticionTpv as CompraTpvTae;
+                    CompraTpvTae compraTpvTae = objPeticionCliente as CompraTpvTae;
                     RespuestaCompraTpvTAE respuestaCompraTpvTAE = objRespuestaTpv as RespuestaCompraTpvTAE;
-                    //lista de paramatros sobre la consulta
                     listaParametros = new List<SqlParameter>()
                 {
-                    new SqlParameter("@fechaHora", DateTime.Now),
+                    new SqlParameter("@fechaHora", compraTpvTae.fechaHoraCompleta),
                     new SqlParameter("@fecha", respuestaCompraTpvTAE.fechaCapturaTerminal),
                     new SqlParameter("@hora", respuestaCompraTpvTAE.horaTerminal),
                     new SqlParameter("@encabezado", respuestaCompraTpvTAE.encabezado),
@@ -966,24 +951,23 @@ namespace CapaNegocio
                     new SqlParameter("@mensaje210", respuestaCompraTpvTAE.Obtener().Trim()),
                     new SqlParameter("@mensaje220", "NA"),
                     new SqlParameter("@mensaje230", "NA"),
-                    new SqlParameter("@tipoTrx", (int) tipoTransaccion.TAE),
+                    new SqlParameter("@tipoTrx", (int) tipoTransaccion.TAE)
                 };
                 }
                 else
                 {
-                    CompraTpvDatos compraTpvDatos = objPeticionTpv as CompraTpvDatos;
+                    CompraTpvDatos compraTpvDatos = objPeticionCliente as CompraTpvDatos;
                     RespuestaCompraTpvDatos respuestaCompraTpvDatos = objRespuestaTpv as RespuestaCompraTpvDatos;
                     //lista de paramatros sobre la consulta
                     listaParametros = new List<SqlParameter>()
                 {
-                    new SqlParameter("@fechaHora", DateTime.Now),
+                    new SqlParameter("@fechaHora", compraTpvDatos.fechaHoraCompleta),
                     new SqlParameter("@fecha", respuestaCompraTpvDatos.fechaCapturaTerminal),
                     new SqlParameter("@hora", respuestaCompraTpvDatos.horaTerminal),
                     new SqlParameter("@encabezado", respuestaCompraTpvDatos.encabezado),
                     new SqlParameter("@pCode", respuestaCompraTpvDatos.pCode),
                     new SqlParameter("@issuer", respuestaCompraTpvDatos.issuer),
                     new SqlParameter("@sku", compraTpvDatos.sku.Trim()),
-                    new SqlParameter("@folio", compraTpvDatos.idPaquete),
                     new SqlParameter("@numeroReferencia", respuestaCompraTpvDatos.referencia),
                     new SqlParameter("@telefono", respuestaCompraTpvDatos.telefono),
                     new SqlParameter("@monto", respuestaCompraTpvDatos.monto),
@@ -999,11 +983,12 @@ namespace CapaNegocio
                     new SqlParameter("@mensaje200", compraTpvDatos.Obtener().Trim()),
                     new SqlParameter("@mensaje210", respuestaCompraTpvDatos.Obtener().Trim()),
                     new SqlParameter("@mensaje220", "NA"),
-                    new SqlParameter("@mensaje230", "NA"),
-                    new SqlParameter("@tipoTrx", (int) tipoTransaccion.Datos),
+                    new SqlParameter("@folio", compraTpvDatos.idPaquete),
+                    new SqlParameter("@tipoTrx", (int) tipoTransaccion.Datos)
+
                 };
                 }
-                
+
 
                 ResultadoBaseDatos resultadoBaseDatos = OperacionesBaseDatos.EjecutaSP("sprInsertarVenta", listaParametros, Utileria.cadenaConexionTrx);
 
@@ -1019,7 +1004,7 @@ namespace CapaNegocio
                     else
                     {
                         Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
-                        respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.NoExisteOriginal;
+                        respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                     }
                 }
                 else
@@ -1040,6 +1025,108 @@ namespace CapaNegocio
                 GC.Collect();
             }
         }
+
+        /// <summary>
+        /// Consulta el estado de la transacción en la base de datos
+        /// </summary>
+        /// <param name="objPeticionCliente">objeto de petición del cliente<</param>
+        /// <returns></returns>
+        public static RespuestaProcesosCliente ConsultaTrxBaseTransaccional(object objPeticionCliente)
+        {
+            RespuestaProcesosCliente respuestaGenerica = new RespuestaProcesosCliente();
+
+            try
+            {
+                //lista de paramatros sobre la consulta
+                List<SqlParameter> listaParametros = new List<SqlParameter>();
+
+                Type t = objPeticionCliente.GetType();
+
+                if (t == typeof(ConsultaPxTae))
+                {
+                    ConsultaPxTae consultaPxTae = objPeticionCliente as ConsultaPxTae;
+                    listaParametros.Add(new SqlParameter("@idGrupo", consultaPxTae.idGrupo));
+                    listaParametros.Add(new SqlParameter("@idCadena", consultaPxTae.idCadena));
+                    listaParametros.Add(new SqlParameter("@idTienda", consultaPxTae.idTienda));
+                    listaParametros.Add(new SqlParameter("@telefono", consultaPxTae.telefono));
+                    listaParametros.Add(new SqlParameter("@fecha", consultaPxTae.fecha.Substring(2)));
+                    listaParametros.Add(new SqlParameter("@hora", consultaPxTae.hora));
+                    listaParametros.Add(new SqlParameter("@numeroTransaccion", consultaPxTae.numeroTransaccion));
+                    listaParametros.Add(new SqlParameter("@sku", consultaPxTae.productoInfo.sku));
+                }
+                else if (t == typeof(ConsultaPxDatos))
+                {
+                    ConsultaPxDatos consultaPxDatos = objPeticionCliente as ConsultaPxDatos;
+                    listaParametros.Add(new SqlParameter("@idGrupo", consultaPxDatos.idGrupo));
+                    listaParametros.Add(new SqlParameter("@idCadena", consultaPxDatos.idCadena));
+                    listaParametros.Add(new SqlParameter("@idTienda", consultaPxDatos.idTienda));
+                    listaParametros.Add(new SqlParameter("@telefono", consultaPxDatos.telefono));
+                    listaParametros.Add(new SqlParameter("@fecha", consultaPxDatos.fecha.Substring(2)));
+                    listaParametros.Add(new SqlParameter("@hora", consultaPxDatos.hora));
+                    listaParametros.Add(new SqlParameter("@numeroTransaccion", consultaPxDatos.numeroTransaccion));
+                    listaParametros.Add(new SqlParameter("@sku", consultaPxDatos.productoInfo.sku));
+                }
+
+
+
+                ResultadoBaseDatos resultadoBaseDatos = OperacionesBaseDatos.EjecutaSP("sprObtenerInfoTrx", listaParametros, Utileria.cadenaConexionTrx);
+
+
+                // se pregunta si existió un error en base de datos
+                if (!resultadoBaseDatos.Error)
+                {
+                    //Se revisa si existen resultados
+                    if (resultadoBaseDatos.Datos.Tables.Count > 0 && resultadoBaseDatos.Datos.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow cadaResultado in resultadoBaseDatos.Datos.Tables[0].Rows)
+                        {
+                            if (t == typeof(ConsultaPxTae))
+                            {
+                                RespuestaConsultaPxTae respuestaConsultaPxTae = new RespuestaConsultaPxTae()
+                                {
+                                    codigoRespuesta = int.Parse(cadaResultado["codigoRespuesta"].ToString()),
+                                    autorizacion = int.Parse(cadaResultado["autorizacion"].ToString())
+                                };
+                                respuestaGenerica.objetoAux = respuestaConsultaPxTae.autorizacion;
+                            }
+                            else if (t == typeof(ConsultaPxDatos))
+                            {
+                                RespuestaConsultaPxDatos respuestaConsultaPxDatos = new RespuestaConsultaPxDatos()
+                                {
+                                    codigoRespuesta = int.Parse(cadaResultado["codigoRespuesta"].ToString()),
+                                    autorizacion = int.Parse(cadaResultado["autorizacion"].ToString())
+                                };
+                                respuestaGenerica.objetoAux = respuestaConsultaPxDatos.autorizacion;
+                            }
+                            return respuestaGenerica;
+                        }
+                    }
+                    else
+                    {
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.NoExisteOriginal;
+                    }
+                }
+                else
+                {
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
+                }
+                return respuestaGenerica;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
+                return respuestaGenerica;
+            }
+            finally
+            {
+                GC.Collect();
+            }
+        }
+
+        
 
         #endregion
 

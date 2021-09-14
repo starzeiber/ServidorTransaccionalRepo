@@ -81,6 +81,7 @@ namespace CapaNegocio
         {
             try
             {
+                idGrupo = consultaPxDatos.idGrupo;
                 idCadena = consultaPxDatos.idCadena;
                 idTienda = consultaPxDatos.idTienda;
                 idPos = consultaPxDatos.idPos;

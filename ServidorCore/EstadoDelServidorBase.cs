@@ -27,7 +27,7 @@ namespace ServidorCore
         /// <param name="args"></param>
         /// <returns></returns>
         public virtual string mensajeBienvenida(object args)
-        {            
+        {
             return "";
         }
 
@@ -44,8 +44,8 @@ namespace ServidorCore
         /// </summary>
         /// <param name="args"></param>
         public virtual void OnClienteCerrado(object args)
-        {            
-            Trace.TraceInformation("Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() + 
+        {
+            Trace.TraceInformation("Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() +
                 ", desde la IP:" + (args as EstadoDelClienteBase).ipCliente);
         }
 

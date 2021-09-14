@@ -112,7 +112,8 @@ namespace ServidorCore
                 return totalBytesLeidos;
             }
         }
-
+        
+        public string ipLocal;
 
         #endregion
 
@@ -184,6 +185,8 @@ namespace ServidorCore
         /// Retraso en el envío, es para uso en Debug
         /// </summary>
         internal static int maxRetrasoParaEnvio = 0;
+
+        
 
         /// <summary>
         /// Tipo de log a escribir
@@ -331,13 +334,15 @@ namespace ServidorCore
             this.ipProveedor = ipProveedor;
             this.puertoProveedor = puertoProveedor;
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);            
 
             // se crea el socket que se utilizará de escucha para las conexiones entrantes
             socketDeEscucha = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // se asocia con el puerto de escucha el socket de escucha
             this.socketDeEscucha.Bind(localEndPoint);
+
+            ipLocal = socketDeEscucha.LocalEndPoint.ToString().Split(':')[0];
 
             // se inicia la escucha de conexiones con un backlog de 100 conexiones
             this.socketDeEscucha.Listen(backLog);
@@ -590,7 +595,7 @@ namespace ServidorCore
             {
                 // bloqueo los procesos sobre este mismo cliente hasta no terminar con esta petición para no tener revolturas de mensajes
                 estadoDelCliente.esperandoEnvio.Reset();
-
+                estadoDelCliente.esConsulta = false;
                 // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la varia tramaEnvioProveedor
                 estadoDelCliente.ProcesarTrama(mensajeRecibido);
 
@@ -605,7 +610,11 @@ namespace ServidorCore
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == 0)
                 {
-                    //TODO validar si tiene saldo
+                    if (estadoDelCliente.esConsulta)
+                    {
+                        ResponderAlCliente(estadoDelCliente);
+                        return;
+                    }
 
                     // me espero a ver si tengo disponibilidad de SAEA para un proveedor
                     semaforoParaAceptarProveedores.Wait();
@@ -643,32 +652,34 @@ namespace ServidorCore
 
                     // como todo en asyncrono, no hay forma de verificar con un Time Out si la conexión es efectiva, por lo tanto
                     // utilizo una conexión con AsyncResult y le doy un tiempo de 1 segundo para conectarse, de lo contrario, considero error
-                    //TODO pruebas
-                    IAsyncResult conectar = null;
-                    //IAsyncResult conectar = socketDeTrabajoProveedor.BeginConnect(endPointProveedor, null, null);
-                    //bool success = conectar.AsyncWaitHandle.WaitOne(1000, true);
 
-                    //se logró conectar el socket
-                    if (socketDeTrabajoProveedor.Connected)
+                    //IAsyncResult conectar = socketDeTrabajoProveedor.BeginConnect(endPointProveedor, null, null);                    
+                    //bool success = conectar.AsyncWaitHandle.WaitOne(5000, true);
+                    try
                     {
-                        // se finaliza sin acción la conexión asincrona
-                        socketDeTrabajoProveedor.EndConnect(conectar);
-                        socketDeTrabajoProveedor.Shutdown(SocketShutdown.Both);
+                        socketDeTrabajoProveedor.Connect(endPointProveedor);
+                        //se logró conectar el socket
+                        if (socketDeTrabajoProveedor.Connected)
+                        {
+                            // se finaliza sin acción la conexión asincrona
+                            //socketDeTrabajoProveedor.EndConnect(conectar);
+                            //socketDeTrabajoProveedor.Shutdown(SocketShutdown.Both);
 
-                        socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                        saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
-                        //Inicio el proceso de conexión                    
-                        bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
-                        if (!seHizoSync)
-                            // se llama a la función que completa el flujo de envío, 
-                            // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-                            // en su evento callback                    
-                            ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
+                            socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                            saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
+                            //Inicio el proceso de conexión                    
+                            bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
+                            if (!seHizoSync)
+                                // se llama a la función que completa el flujo de envío, 
+                                // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
+                                // en su evento callback                    
+                                ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
 
-                        //semaforoParaAceptarProveedores.Release();
-                        //adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                            //semaforoParaAceptarProveedores.Release();
+                            //adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                        }
                     }
-                    else // si no se logró conectar el socket en 1 segundo, se responde con error
+                    catch (Exception)
                     {
                         socketDeTrabajoProveedor.Close();
                         estadoDelProveedor.codigoRespuesta = 70;
@@ -679,6 +690,12 @@ namespace ServidorCore
                         // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
                         adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                     }
+
+
+                    //else // si no se logró conectar el socket en 1 segundo, se responde con error
+                    //{
+
+                    //}
                 }
                 // si el código de respuesta es 30(error en el formato) o 50 (Error en algún paso de evaluar la mensajería),
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
@@ -972,7 +989,7 @@ namespace ServidorCore
                     //EscribirLog(mensajeAlProveedor.Substring(2), tipoLog.INFORMACION);
 
                     // se obtiene la cantidad de bytes de la trama completa
-                    int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeAlProveedor, 0, mensajeAlProveedor.Length, estadoDelProveedor.saeaDeEnvioRecepcion.Buffer, estadoDelProveedor.saeaDeEnvioRecepcion.Offset);
+                    int numeroDeBytes = Encoding.Default.GetBytes(mensajeAlProveedor, 0, mensajeAlProveedor.Length, estadoDelProveedor.saeaDeEnvioRecepcion.Buffer, estadoDelProveedor.saeaDeEnvioRecepcion.Offset);
                     // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
                     if (numeroDeBytes > tamanoBufferPorPeticion)
                     {
@@ -1036,7 +1053,7 @@ namespace ServidorCore
                 EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
-
+            EscribirLog("Se ha enviado la trama: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " y se espera respuesta", tipoLog.INFORMACION);
             // se determina que operación se está llevando a cabo para indicar que manejador de eventos se ejecuta
             switch (e.LastOperation)
             {
@@ -1143,9 +1160,7 @@ namespace ServidorCore
             Int32 bytesTransferred = saeaRecepcion.BytesTransferred;
 
             // se obtiene el mensaje y se decodifica
-            //String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
-            //TODO pruebas
-            String mensajeRecibido = "210650101000000010000082614283100069514282908260826082610690000000110680000001600000000178400063200TNDL003000010001TN      00037000010000100001DF MX484012B999PRO1+000015 00000551234567890BAJO1H";
+            String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
 
             //EscribirLog(mensajeRecibido.Substring(2), tipoLog.INFORMACION);
             // incrementa el contador de bytes totales recibidos
@@ -1326,7 +1341,7 @@ namespace ServidorCore
 
         }
 
-       
+
 
 
         #endregion

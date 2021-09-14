@@ -85,6 +85,7 @@ namespace CapaNegocio
         /// </summary>
         private static EventLogTraceListener logListener;
 
+        public static string ipLocal;
         /// <summary>
         /// Puerto local asignado al servidor
         /// </summary>
@@ -368,22 +369,22 @@ namespace CapaNegocio
         /// Función para obtener un número aleatorio confiable
         /// </summary>
         /// <returns></returns>
-        public static Task<int> ObtenerNumeroResultadoAleatorio(int numElementos)
+        public static int ObtenerNumeroResultadoAleatorio(int numElementos)
         {
             try
             {
-                Task.Delay(50);
+                Thread.Sleep(70);
                 semillaAleatorio = (int)DateTime.Now.Ticks & 0x0000FFFF;
                 random = new Random(semillaAleatorio);
                 Monitor.Enter(random);
                 int aleatorio = random.Next(1, numElementos);
                 Monitor.Exit(random);
-                return Task.FromResult(aleatorio);
+                return aleatorio;
             }
             catch (Exception ex)
             {
                 Task.Run(() => Log(ObtenerNombreFuncion(ex.Message), TiposLog.error));
-                return Task.FromResult(0);
+                return 0;
             }
         }
 

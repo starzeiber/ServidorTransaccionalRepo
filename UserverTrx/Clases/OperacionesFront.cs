@@ -15,8 +15,8 @@ namespace Userver.Clases
         /// <returns></returns>
         public static async Task<bool> CargarConfiguracion()
         {
-            return await PrepararLog() != false && 
-                await ObtenerCadenasConexion() != false && 
+            return await PrepararLog() != false &&
+                await ObtenerCadenasConexion() != false &&
                 await CargarIpsYPuertos() != false;
         }
 

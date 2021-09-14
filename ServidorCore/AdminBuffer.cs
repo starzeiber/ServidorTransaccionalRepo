@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServidorCore
 {
@@ -69,7 +66,7 @@ namespace ServidorCore
         ///  Asigna el espacio de buffer usado por la pila de buffer
         /// </summary>
         internal void inicializarBuffer()
-        {            
+        {
             // Se crea un enorme buffer y se divide después para cada objeto SocketAsyncEventArg
             this.bufferCompleto = new Byte[this.numeroBytesAdministrados];
         }

@@ -84,6 +84,8 @@ namespace ServidorCore
         /// </summary>
         public int timeOut { get; set; }
 
+        public bool esConsulta { get; set; }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -108,6 +110,7 @@ namespace ServidorCore
             ipCliente = "";
             socketDeTrabajo = null;
             timeOut = 50;
+            esConsulta = false;
         }
 
         /// <summary>

@@ -29,6 +29,8 @@ namespace CapaNegocio.Clases
         /// </summary>
         public decimal saldoActual { get; set; }
 
+        public DateTime fechaHoraCompleta { get; set; }
+
 
         /// <summary>
         /// Función que obtiene las propiedades a partir de la instancia CompraPxTae
@@ -41,9 +43,17 @@ namespace CapaNegocio.Clases
             {
                 pCode = 650000;
                 monto = compraPxTae.productoInfo.monto;
+                fechaHora = compraPxTae.fecha.Substring(2) + compraPxTae.hora;
+                fechaHoraCompleta = DateTime.Now;
                 systemTrace = compraPxTae.numeroTransaccion;
+                //TODO es para pruebas la siguiente línea
+                //systemTrace = Utileria.ObtenerNumeroResultadoAleatorio(6);
+                horaTerminal = compraPxTae.hora;
+                fechaTerminal = compraPxTae.fecha.Substring(2);
+                fechaContableTerminal = fechaTerminal;
+                fechaCapturaTerminal = fechaTerminal;
                 issuer = compraPxTae.proveedorInfo.issuer.Length + compraPxTae.proveedorInfo.issuer;
-                referencia = Task.Run(() => Utileria.ObtenerNumeroResultadoAleatorio(6)).Result;
+                referencia = Utileria.ObtenerNumeroResultadoAleatorio(6);
                 TerminalId = "STTN" +
                     Validaciones.formatoValor(compraPxTae.idGrupo.ToString(), TipoFormato.N, 3) +
                     Validaciones.formatoValor(compraPxTae.idCadena.ToString(), TipoFormato.N, 5) +
@@ -59,6 +69,45 @@ namespace CapaNegocio.Clases
                 sku = compraPxTae.productoInfo.sku;
                 idProveedor = compraPxTae.proveedorInfo.idProveedor;
                 idMaster = compraPxTae.proveedorInfo.idMaster;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                return false;
+            }
+
+        }
+
+        public bool Ingresar(ConsultaPxTae consultaPxTae)
+        {
+            try
+            {
+                pCode = 650000;
+                monto = consultaPxTae.productoInfo.monto;
+                fechaHora = consultaPxTae.fecha.Substring(2) + consultaPxTae.hora;
+                systemTrace = consultaPxTae.numeroTransaccion;
+                horaTerminal = consultaPxTae.hora;
+                fechaTerminal = consultaPxTae.fecha.Substring(2);
+                fechaContableTerminal = fechaTerminal;
+                fechaCapturaTerminal = fechaTerminal;
+                issuer = consultaPxTae.proveedorInfo.issuer.Length + consultaPxTae.proveedorInfo.issuer;
+                referencia = Utileria.ObtenerNumeroResultadoAleatorio(6);
+                TerminalId = "STTN" +
+                    Validaciones.formatoValor(consultaPxTae.idGrupo.ToString(), TipoFormato.N, 3) +
+                    Validaciones.formatoValor(consultaPxTae.idCadena.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(consultaPxTae.idTienda.ToString(), TipoFormato.N, 4);
+                merchantData = "TARJETASN      " +
+                    Validaciones.formatoValor(consultaPxTae.idGrupo.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(consultaPxTae.idCadena.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(consultaPxTae.idTienda.ToString(), TipoFormato.N, 5) +
+                    Validaciones.formatoValor(consultaPxTae.idPos.ToString(), TipoFormato.N, 5) +
+                    "DF MX";
+                telefono = consultaPxTae.telefono;
+
+                sku = consultaPxTae.productoInfo.sku;
+                idProveedor = consultaPxTae.proveedorInfo.idProveedor;
+                idMaster = consultaPxTae.proveedorInfo.idMaster;
                 return true;
             }
             catch (Exception ex)

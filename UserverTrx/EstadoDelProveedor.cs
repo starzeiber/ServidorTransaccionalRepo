@@ -2,6 +2,7 @@
 using CapaNegocio.Clases;
 using ServidorCore;
 using System;
+using System.Threading.Tasks;
 
 namespace Userver
 {
@@ -20,15 +21,19 @@ namespace Userver
 
         public override void ObtenerTramaPeticion()
         {
+            
+            CheaderTPV.CheaderTPV cheaderTPV = new CheaderTPV.CheaderTPV();
             switch (respuestaProcesosProveedor.categoriaProducto)
             {
                 case Operaciones.CategoriaProducto.TAE:
                     CompraTpvTae compraTpvTae = objPeticion as CompraTpvTae;
                     tramaSolicitud = compraTpvTae.Obtener();
-                    CheaderTPV.CheaderTPV cheaderTPV = new CheaderTPV.CheaderTPV();
                     tramaSolicitud = cheaderTPV.CreaHeader(tramaSolicitud.Length) + tramaSolicitud;
                     break;
                 case Operaciones.CategoriaProducto.Datos:
+                    CompraTpvDatos compraTpvDatos = objPeticion as CompraTpvDatos;
+                    tramaSolicitud = compraTpvDatos.Obtener();
+                    tramaSolicitud = cheaderTPV.CreaHeader(tramaSolicitud.Length) + tramaSolicitud;
                     break;
                 default:
                     break;
@@ -59,6 +64,11 @@ namespace Userver
                     codigoAutorizacion = respuestaCompraTpvTAE.autorizacion;
                     break;
                 case Operaciones.CategoriaProducto.Datos:
+                    CompraTpvDatos compraTpvDatos = objPeticion as CompraTpvDatos;
+                    RespuestaCompraTpvDatos respuestaCompraTpvDatos = objRespuesta as RespuestaCompraTpvDatos;
+                    respuestaCompraTpvDatos.Ingresar(compraTpvDatos);
+                    tramaRespuesta = respuestaCompraTpvDatos.Obtener();
+                    codigoAutorizacion = respuestaCompraTpvDatos.autorizacion;
                     break;
                 default:
                     break;
@@ -78,19 +88,19 @@ namespace Userver
                     respuestaCompraTpvTAE.autorizacion = codigoAutorizacion;
                     Operaciones.GuardarTrx(compraTpvTae, respuestaCompraTpvTAE);
                 }
-                else if (tipo == typeof(RespuestaCompraTpvTAE))
+                else if (tipo == typeof(RespuestaCompraTpvDatos))
                 {
                     CompraTpvDatos compraTpvDatos = objPeticion as CompraTpvDatos;
                     RespuestaCompraTpvDatos respuestaCompraTpvDatos = objRespuesta as RespuestaCompraTpvDatos;
                     respuestaCompraTpvDatos.codigoRespuesta = codigoRespuesta;
                     respuestaCompraTpvDatos.autorizacion = codigoAutorizacion;
-                    
+                    Operaciones.GuardarTrx(compraTpvDatos, respuestaCompraTpvDatos);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
             }
-
         }
     }
 }

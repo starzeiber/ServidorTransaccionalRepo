@@ -9,6 +9,7 @@ namespace CapaNegocio.Clases
     /// </summary>
     public class RespuestaCompraTpvTAE : RespuestaCompraTpvBase
     {
+
         /// <summary>
         /// Ingresa la información en las propiedades de la clase a partir de la compra
         /// </summary>
@@ -26,6 +27,11 @@ namespace CapaNegocio.Clases
                 TerminalId = compraTpvTae.TerminalId;
                 merchantData = compraTpvTae.merchantData;
                 telefono = compraTpvTae.telefono;
+                fechaHora = compraTpvTae.fechaHora;
+                horaTerminal = compraTpvTae.horaTerminal;
+                fechaTerminal = compraTpvTae.fechaTerminal;
+                fechaCapturaTerminal = compraTpvTae.fechaCapturaTerminal;
+                fechaContableTerminal = compraTpvTae.fechaContableTerminal;
                 return true;
             }
             catch (Exception ex)

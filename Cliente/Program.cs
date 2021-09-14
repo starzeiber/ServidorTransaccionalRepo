@@ -18,7 +18,7 @@ namespace Cliente
             List<Thread> listaHilos = new List<Thread>();
             int numClientes = 0;
             int numTrxPorCliente = 0;
-            List< AutoResetEvent> autos;
+            List<AutoResetEvent> autos;
             do
             {
                 numClientesYaRespondidos = 0;
@@ -37,9 +37,9 @@ namespace Cliente
                     Thread thread = new Thread(() => EnvioTrx(Auto, (object)numTrxPorCliente));
                     thread.Start();
                     listaHilos.Add(thread);
-                }                
+                }
 
-                
+
                 //WaitHandle.WaitAll(autos.ToArray());                
                 autos.Clear();
                 //manual.Reset();
@@ -52,27 +52,27 @@ namespace Cliente
 
         }
 
-        private static void EnvioTrx(AutoResetEvent auto,object numTrx)
+        private static void EnvioTrx(AutoResetEvent auto, object numTrx)
         {
             //manual.WaitOne();
 
-            //IPAddress iPAddress = IPAddress.Parse("10.0.0.3");
-            IPAddress iPAddress = IPAddress.Parse("192.168.69.12");
+            IPAddress iPAddress = IPAddress.Parse("10.0.0.3");
+            //IPAddress iPAddress = IPAddress.Parse("192.168.69.12");
             IPEndPoint endPointProcesa = new IPEndPoint(iPAddress, 8002);
-            
+
             semaforo.Wait();
 
             // se genera un socket que será usado en el envío y recepción            
             Socket socketDeTrabajo = new Socket(endPointProcesa.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            socketDeTrabajo.ReceiveTimeout = 30000;
-            socketDeTrabajo.SendTimeout = 30000;
+            //socketDeTrabajo.ReceiveTimeout = 30000;
+            //socketDeTrabajo.SendTimeout = 30000;
             try
             {
-                socketDeTrabajo.Connect(endPointProcesa);                
+                socketDeTrabajo.Connect(endPointProcesa);
                 Interlocked.Increment(ref numClientesYaRespondidos);
                 Console.WriteLine(numClientesYaRespondidos);
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
                 Interlocked.Increment(ref numClientesYaRespondidos);
                 Console.WriteLine(numClientesYaRespondidos.ToString() + ". " + ex.Message);
@@ -88,7 +88,7 @@ namespace Cliente
             {
                 for (int i = 0; i < (int)numTrx; i++)
                 {
-                    byte[] msg = Encoding.UTF8.GetBytes("130623000100010001130211150030098469766750482       452170489941665");
+                    byte[] msg = Encoding.UTF8.GetBytes("130623000100010043210816110641098469766750482       555555550909113");
                     byte[] bytes = new byte[1024];
 
 
@@ -96,7 +96,7 @@ namespace Cliente
 
                     byteCount = socketDeTrabajo.Receive(bytes);
                     string respuesta = Encoding.UTF8.GetString(bytes).Substring(2);
-                                        
+
                 }
                 semaforo.Release();
             }
@@ -110,8 +110,8 @@ namespace Cliente
             }
             finally
             {
-                auto.Set();                  
-            }   
+                auto.Set();
+            }
         }
     }
 }
