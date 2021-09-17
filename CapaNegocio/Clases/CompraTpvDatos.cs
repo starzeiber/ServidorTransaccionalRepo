@@ -34,6 +34,9 @@ namespace CapaNegocio.Clases
         /// </summary>
         public decimal saldoActual { get; set; }
 
+        /// <summary>
+        /// Fecha y hora completa del sistema al momento de la instancia
+        /// </summary>
         public DateTime fechaHoraCompleta { get; set; }
 
         /// <summary>
@@ -85,7 +88,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
 
@@ -125,7 +128,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

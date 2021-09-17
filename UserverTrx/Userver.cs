@@ -37,7 +37,7 @@ namespace Userver
                     Environment.Exit(666);
                 }
 
-                metroListView_Eventos.Items.Add("Se ha cargado la configuración correctamente");               
+                metroListView_Eventos.Items.Add("Se ha cargado la configuración correctamente");
 
                 servidor = new ServidorTransaccional<EstadoDelCliente, EstadoDelServidor, EstadoDelProveedor>(maxNumDeClientesSimultaneos, 1024, 100);
                 servidor.ConfigInicioServidor();

@@ -99,7 +99,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
 
                 return false;
             }
@@ -138,7 +138,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
 
                 return false;
             }
@@ -154,6 +154,7 @@ namespace CapaNegocio
             try
             {
                 respuesta.Append(encabezado.ToString());
+                respuesta.Append(Validaciones.formatoValor(idGrupo.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(idCadena.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(idTienda.ToString(), TipoFormato.N, 4));
                 respuesta.Append(Validaciones.formatoValor(idPos.ToString(), TipoFormato.N, 4));
@@ -166,14 +167,7 @@ namespace CapaNegocio
                 respuesta.Append(Validaciones.formatoValor(autorizacion.ToString(), TipoFormato.N, 9));
                 respuesta.Append(Validaciones.formatoValor(PIN.ToString(), TipoFormato.ANS, 20));
                 respuesta.Append(Validaciones.formatoValor(fechaExpiracion.ToString(), TipoFormato.N, 6));
-                if (monto > 0)
-                {
-                    respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + monto.ToString().Split('.')[1], TipoFormato.N, 9));
-                }
-                else
-                {
-                    respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
-                }
+                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
                 respuesta.Append(Validaciones.formatoValor(folio, TipoFormato.N, 20));
                 respuesta.Append(Validaciones.formatoValor(nombreProveedor, TipoFormato.ANS, 14));
                 respuesta.Append(Validaciones.formatoValor(mensajeTicket1, TipoFormato.ANS, 80));
@@ -185,7 +179,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
 
                 return String.Empty;
             }

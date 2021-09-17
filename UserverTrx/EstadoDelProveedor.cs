@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace Userver
 {
+    /// <summary>
+    /// Contiene todas las operaciones que realizará el proveedor
+    /// </summary>
     public class EstadoDelProveedor : EstadoDelProveedorBase
     {
         RespuestaProcesosProveedor respuestaProcesosProveedor;
 
+        /// <summary>
+        /// Ingresa el objeto de petición del cliente para su tratamiento
+        /// </summary>
+        /// <param name="obj"></param>
         public override void IngresarObjetoPeticionCliente(object obj)
         {
             respuestaProcesosProveedor = Operaciones.ProcesarMensajeriaProveedor(obj);
@@ -19,9 +26,12 @@ namespace Userver
             objRespuesta = respuestaProcesosProveedor.objRespuestaProveedor;
         }
 
+        /// <summary>
+        /// Obtiene la trama de petición hacia el proveedor
+        /// </summary>
         public override void ObtenerTramaPeticion()
         {
-            
+
             CheaderTPV.CheaderTPV cheaderTPV = new CheaderTPV.CheaderTPV();
             switch (respuestaProcesosProveedor.categoriaProducto)
             {
@@ -40,6 +50,10 @@ namespace Userver
             }
         }
 
+        /// <summary>
+        /// Procesa la trama que  responde el proveedor
+        /// </summary>
+        /// <param name="trama"></param>
         public override void ProcesarTramaDelProveeedor(string trama)
         {
             Operaciones.ProcesarTramaProveedor(trama, ref respuestaProcesosProveedor);
@@ -52,6 +66,9 @@ namespace Userver
 
         }
 
+        /// <summary>
+        /// Obtiene la trama de respuesta ya validada
+        /// </summary>
         public override void ObtenerTramaRespuesta()
         {
             switch (respuestaProcesosProveedor.categoriaProducto)
@@ -75,6 +92,9 @@ namespace Userver
             }
         }
 
+        /// <summary>
+        /// Guarda la transacción en base de datos
+        /// </summary>
         public override void GuardarTransaccion()
         {
             try
@@ -99,7 +119,7 @@ namespace Userver
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
             }
         }
     }

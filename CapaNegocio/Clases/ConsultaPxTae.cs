@@ -67,7 +67,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message + ". Trama:" + trama), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". Trama:" + trama), Utileria.TiposLog.error));
                 return false;
             }
         }
@@ -96,7 +96,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
 
                 return String.Empty;
             }

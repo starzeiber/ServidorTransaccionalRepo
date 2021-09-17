@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Userver.Clases
 {
+    /// <summary>
+    /// Contiene todas las operaciones que se realizan desde la capa de presentación
+    /// </summary>
     public static class OperacionesFront
     {
 
@@ -58,7 +61,7 @@ namespace Userver.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error al cargar las cadenas de conexión: " + ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error al cargar las cadenas de conexión: " + ex.Message), Utileria.TiposLog.error));
                 return Task.FromResult(false);
             }
         }
@@ -75,7 +78,7 @@ namespace Userver.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return Task.FromResult(false);
             }
         }
@@ -102,7 +105,7 @@ namespace Userver.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error creando performance counter: " + ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error creando performance counter: " + ex.Message), Utileria.TiposLog.error));
                 return Task.FromResult(false);
             }
         }

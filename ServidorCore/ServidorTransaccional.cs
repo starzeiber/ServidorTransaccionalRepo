@@ -113,6 +113,9 @@ namespace ServidorCore
             }
         }
 
+        /// <summary>
+        /// IP de escucha
+        /// </summary>
         public string ipLocal;
 
         #endregion
@@ -734,7 +737,7 @@ namespace ServidorCore
             {
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
-                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente,tipoLog.INFORMACION);
+                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
@@ -1057,11 +1060,12 @@ namespace ServidorCore
                 EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
-            EscribirLog("Se ha enviado la trama: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " y se espera respuesta", tipoLog.INFORMACION);
+
             // se determina que operación se está llevando a cabo para indicar que manejador de eventos se ejecuta
             switch (e.LastOperation)
             {
                 case SocketAsyncOperation.Send:
+                    EscribirLog("Se ha enviado la trama: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
                     // se comprueba que no hay errores con el socket
                     if (e.SocketError == SocketError.Success)
                     {
@@ -1078,6 +1082,7 @@ namespace ServidorCore
                     }
                     break;
                 case SocketAsyncOperation.Receive:
+
                     // se comprueba que exista información
                     if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
                     {
@@ -1166,7 +1171,7 @@ namespace ServidorCore
             // se obtiene el mensaje y se decodifica
             String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
 
-            //EscribirLog(mensajeRecibido.Substring(2), tipoLog.INFORMACION);
+            EscribirLog(mensajeRecibido.Substring(2) + " del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
             // incrementa el contador de bytes totales recibidos
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
             //Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);

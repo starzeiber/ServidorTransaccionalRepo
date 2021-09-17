@@ -151,7 +151,6 @@ namespace ServidorCore
         /// <summary>
         /// Función que guardará la operación con el proveedor
         /// </summary>
-        /// <param name="obj"></param>
         public virtual void GuardarTransaccion()
         {
 

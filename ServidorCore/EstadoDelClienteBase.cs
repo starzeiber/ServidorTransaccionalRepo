@@ -84,6 +84,9 @@ namespace ServidorCore
         /// </summary>
         public int timeOut { get; set; }
 
+        /// <summary>
+        /// Bandera para identificar si el proceso solo es de consulta sobre una transacción
+        /// </summary>
         public bool esConsulta { get; set; }
 
         /// <summary>

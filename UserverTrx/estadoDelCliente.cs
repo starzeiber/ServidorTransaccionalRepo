@@ -50,8 +50,6 @@ namespace Userver
         /// <summary>
         /// Función que obtiene la trama de respuesta a un mensaje del cliente
         /// </summary>
-        /// <param name="codigoRespuesta"></param>
-        /// <param name="codigoAutorizacion"></param>
         public override void ObtenerTramaRespuesta()
         {
             Type tipo = objRespuesta.GetType();

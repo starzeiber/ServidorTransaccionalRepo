@@ -9,6 +9,11 @@ namespace CapaNegocio.Clases
     /// </summary>
     public class RespuestaCompraTpvDatos : RespuestaCompraTpvBase
     {
+        /// <summary>
+        /// A partir de la trama realiza la obtención de la información
+        /// </summary>
+        /// <param name="trama">Cadena a parsear</param>
+        /// <returns></returns>
         public bool Ingresar(string trama)
         {
             try
@@ -19,7 +24,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
         }
@@ -50,7 +55,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
         }
@@ -88,7 +93,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

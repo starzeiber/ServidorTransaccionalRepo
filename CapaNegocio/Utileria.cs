@@ -85,6 +85,9 @@ namespace CapaNegocio
         /// </summary>
         private static EventLogTraceListener logListener;
 
+        /// <summary>
+        /// Ip donde se coloca la aplicación
+        /// </summary>
         public static string ipLocal;
         /// <summary>
         /// Puerto local asignado al servidor
@@ -325,15 +328,20 @@ namespace CapaNegocio
         /// <summary>
         /// Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
         /// </summary>
-        /// <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
+        /// <param name="evento"></param>
+        /// <param name="memberName"></param>
+        /// <param name="sourceFilePath"></param>
+        /// <param name="sourceLineNumber"></param>
         /// <returns></returns>
-        public static string ObtenerNombreFuncion([System.Runtime.CompilerServices.CallerMemberName] string nombreFuncion = "")
+        public static string ObtenerRutaDeLlamada(string evento, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+        [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+        [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0)
         {
             try
             {
                 StackTrace st = new StackTrace(new StackFrame(1));
                 string infoMetodo = st.GetFrame(0).GetMethod().DeclaringType.FullName + "." +
-                    nombreFuncion + ".";
+                    memberName + ". " + evento;
                 return infoMetodo;
             }
             catch (Exception ex)
@@ -343,27 +351,27 @@ namespace CapaNegocio
 
         }
 
-        /// <summary>
-        /// Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
-        /// </summary>
-        /// <param name="propiedadesConValores">Si se desea ingrear propiedad:valor como cadena para darle formato de salida</param>
-        /// <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
-        /// <returns></returns>
-        public static string ObtenerNombreFuncion(string propiedadesConValores = "", [System.Runtime.CompilerServices.CallerMemberName] string nombreFuncion = "")
-        {
-            try
-            {
-                StackTrace st = new StackTrace(new StackFrame(1));
-                string infoMetodoConArgumentos = st.GetFrame(0).GetMethod().DeclaringType.FullName + "." +
-                    nombreFuncion + ". " + propiedadesConValores;
-                return infoMetodoConArgumentos;
-            }
-            catch (Exception ex)
-            {
-                return "Error al obtener todas las propiedades de entrada: " + ex.Message;
-            }
+        ///// <summary>
+        ///// Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
+        ///// </summary>
+        ///// <param name="propiedadesConValores">Si se desea ingrear propiedad:valor como cadena para darle formato de salida</param>
+        ///// <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
+        ///// <returns></returns>
+        //public static string ObtenerNombreFuncion(string propiedadesConValores, [System.Runtime.CompilerServices.CallerMemberName] string nombreFuncion = "")
+        //{
+        //    try
+        //    {
+        //        StackTrace st = new StackTrace(new StackFrame(1));
+        //        string infoMetodoConArgumentos = st.GetFrame(0).GetMethod().DeclaringType.FullName + "." +
+        //            nombreFuncion + ". " + propiedadesConValores;
+        //        return infoMetodoConArgumentos;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return "Error al obtener todas las propiedades de entrada: " + ex.Message;
+        //    }
 
-        }
+        //}
 
         /// <summary>
         /// Función para obtener un número aleatorio confiable
@@ -383,7 +391,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Log(ObtenerNombreFuncion(ex.Message), TiposLog.error));
+                Task.Run(() => Log(ObtenerRutaDeLlamada(ex.Message), TiposLog.error));
                 return 0;
             }
         }
@@ -423,7 +431,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Log(ObtenerNombreFuncion(ex.Message), TiposLog.error);
+                Log(ObtenerRutaDeLlamada(ex.Message), TiposLog.error);
                 return String.Empty;
             }
             return cadena;

@@ -29,6 +29,9 @@ namespace CapaNegocio.Clases
         /// </summary>
         public decimal saldoActual { get; set; }
 
+        /// <summary>
+        /// Fecha y hora completa del sistema al momento de la instancia
+        /// </summary>
         public DateTime fechaHoraCompleta { get; set; }
 
 
@@ -73,12 +76,17 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
 
         }
 
+        /// <summary>
+        /// Ingresa la información a la clase
+        /// </summary>
+        /// <param name="consultaPxTae"></param>
+        /// <returns></returns>
         public bool Ingresar(ConsultaPxTae consultaPxTae)
         {
             try
@@ -112,7 +120,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return false;
             }
 
@@ -150,7 +158,7 @@ namespace CapaNegocio.Clases
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

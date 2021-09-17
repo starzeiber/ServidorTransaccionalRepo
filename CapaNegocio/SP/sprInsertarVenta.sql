@@ -24,7 +24,7 @@ ALTER PROCEDURE sprInsertarVenta
 	@hora varchar(10),
 	@encabezado int,
 	@pCode int,
-	@issuer varchar(12),
+	@issuer varchar(15),
 	@sku varchar(20),
 	@folio varchar(50),
 	@numeroReferencia varchar(12),

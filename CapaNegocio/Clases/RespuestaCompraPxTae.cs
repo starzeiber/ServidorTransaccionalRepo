@@ -84,7 +84,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
                 return false;
             }
 
@@ -122,7 +122,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error en el parseo de la trama: " + ex.Message), Utileria.TiposLog.error));
 
                 return false;
             }
@@ -168,7 +168,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 return String.Empty;
             }
         }

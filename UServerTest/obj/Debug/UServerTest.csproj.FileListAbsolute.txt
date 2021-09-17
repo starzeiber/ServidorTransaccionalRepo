@@ -1,0 +1,17 @@
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\es\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.resources.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\es\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.resources.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\es\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\UServerTest.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\UServerTest.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.xml
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\obj\Debug\UServerTest.csproj.AssemblyReference.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\obj\Debug\UServerTest.csproj.CoreCompileInputs.cache
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\obj\Debug\UServerTest.csproj.CopyComplete
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\obj\Debug\UServerTest.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UServerTest\obj\Debug\UServerTest.pdb

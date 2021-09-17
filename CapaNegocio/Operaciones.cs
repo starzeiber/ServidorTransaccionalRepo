@@ -74,6 +74,9 @@ namespace CapaNegocio
             Datos = 1
         }
 
+        /// <summary>
+        /// Tipos de transacción para el guardado en la base de datos
+        /// </summary>
         internal enum tipoTransaccion
         {
             /// <summary>
@@ -86,7 +89,7 @@ namespace CapaNegocio
             Datos = 8
         }
 
-        //--------------------------------
+
         #region Cliente
 
         /// <summary>
@@ -156,9 +159,13 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Utileria.Log(Utileria.ObtenerNombreFuncion("Error al identificar el tipo de mensajeria: " + ex.Message), Utileria.TiposLog.error);
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error al identificar el tipo de mensajeria: " + ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
                 respuestaProcesosCliente.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
                 return respuestaProcesosCliente;
+            }
+            finally
+            {
+                GC.Collect();
             }
         }
 
@@ -171,122 +178,132 @@ namespace CapaNegocio
         /// <param name="categoriaProducto">categoría del producto a comprar</param>
         private static void ObtenerParametrosPorCompraCliente(string trama, tipoMensajeria tipoMensajeria, ref RespuestaProcesosCliente respuestaGenerica, CategoriaProducto categoriaProducto = CategoriaProducto.TAE)
         {
-            switch (tipoMensajeria)
+            try
             {
-                case tipoMensajeria.PX:
-                    switch (categoriaProducto)
-                    {
-                        case CategoriaProducto.TAE:
-                            // se obtienen los campos de la trama
-                            CompraPxTae compraPxTae = new CompraPxTae();
+                switch (tipoMensajeria)
+                {
+                    case tipoMensajeria.PX:
+                        switch (categoriaProducto)
+                        {
+                            case CategoriaProducto.TAE:
+                                // se obtienen los campos de la trama
+                                CompraPxTae compraPxTae = new CompraPxTae();
 
-                            if (compraPxTae.Ingresar(trama) != true)
-                            {
+                                if (compraPxTae.Ingresar(trama) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                RespuestaCompraPxTae respuestaCompraPxTae = new RespuestaCompraPxTae();
+
+                                if (respuestaCompraPxTae.Ingresar(compraPxTae) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+                                respuestaGenerica.objPeticionCliente = compraPxTae;
+                                respuestaGenerica.objRespuestaCliente = respuestaCompraPxTae;
+
+                                if ((bool)ValidarGrupoCadenaTienda(compraPxTae.idGrupo, compraPxTae.idCadena, compraPxTae.idTienda).objetoAux != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                    return;
+                                }
+
+                                RespuestaProcesosCliente respuestaInfoProductoProveedor = ObtenerInfoProducto(compraPxTae.sku);
+                                if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    compraPxTae.productoInfo = respuestaInfoProductoProveedor.objetoAux as ProductoInfo;
+                                }
+
+                                respuestaInfoProductoProveedor = ObtenerInfoProveedor(compraPxTae.productoInfo.idProveedor);
+                                if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    compraPxTae.proveedorInfo = respuestaInfoProductoProveedor.objetoAux as ProveedorInfo;
+                                }
+
+                                respuestaCompraPxTae.Actualizar(compraPxTae);
+
+                                break;
+                            case CategoriaProducto.Datos:
+                                CompraPxDatos compraPxDatos = new CompraPxDatos();
+
+                                if (compraPxDatos.Ingresar(trama) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                RespuestaCompraPxDatos respuestaCompraPxDatos = new RespuestaCompraPxDatos();
+                                if (respuestaCompraPxDatos.Ingresar(compraPxDatos) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                respuestaGenerica.objPeticionCliente = compraPxDatos;
+                                respuestaGenerica.objRespuestaCliente = respuestaCompraPxDatos;
+
+                                if ((bool)ValidarGrupoCadenaTienda(compraPxDatos.idGrupo, compraPxDatos.idCadena, compraPxDatos.idTienda).objetoAux != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                    return;
+                                }
+
+                                respuestaInfoProductoProveedor = ObtenerInfoProducto(compraPxDatos.sku);
+                                if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    compraPxDatos.productoInfo = respuestaInfoProductoProveedor.objetoAux as ProductoInfo;
+                                }
+
+                                respuestaInfoProductoProveedor = ObtenerInfoProveedor(compraPxDatos.productoInfo.idProveedor);
+                                if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    compraPxDatos.proveedorInfo = respuestaInfoProductoProveedor.objetoAux as ProveedorInfo;
+                                }
+
+                                respuestaCompraPxDatos.Actualizar(compraPxDatos);
+                                break;
+                            default:
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
+                                break;
+                        }
+                        break;
+                    case tipoMensajeria.TenServer:
 
-                            RespuestaCompraPxTae respuestaCompraPxTae = new RespuestaCompraPxTae();
+                        break;
+                    default:
+                        respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                        break;
 
-                            if (respuestaCompraPxTae.Ingresar(compraPxTae) != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
-                            respuestaGenerica.objPeticionCliente = compraPxTae;
-                            respuestaGenerica.objRespuestaCliente = respuestaCompraPxTae;
-
-                            if ((bool)ValidarGrupoCadenaTienda(compraPxTae.idGrupo, compraPxTae.idCadena, compraPxTae.idTienda).objetoAux != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
-                                return;
-                            }
-
-                            RespuestaProcesosCliente respuestaInfoProductoProveedor = ObtenerInfoProducto(compraPxTae.sku);
-                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                compraPxTae.productoInfo = respuestaInfoProductoProveedor.objetoAux as ProductoInfo;
-                            }
-
-                            respuestaInfoProductoProveedor = ObtenerInfoProveedor(compraPxTae.productoInfo.idProveedor);
-                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                compraPxTae.proveedorInfo = respuestaInfoProductoProveedor.objetoAux as ProveedorInfo;
-                            }
-
-                            respuestaCompraPxTae.Actualizar(compraPxTae);
-
-                            break;
-                        case CategoriaProducto.Datos:
-                            CompraPxDatos compraPxDatos = new CompraPxDatos();
-
-                            if (compraPxDatos.Ingresar(trama) != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
-
-                            RespuestaCompraPxDatos respuestaCompraPxDatos = new RespuestaCompraPxDatos();
-                            if (respuestaCompraPxDatos.Ingresar(compraPxDatos) != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
-
-                            respuestaGenerica.objPeticionCliente = compraPxDatos;
-                            respuestaGenerica.objRespuestaCliente = respuestaCompraPxDatos;
-
-                            if ((bool)ValidarGrupoCadenaTienda(compraPxDatos.idGrupo, compraPxDatos.idCadena, compraPxDatos.idTienda).objetoAux != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
-                                return;
-                            }
-
-                            respuestaInfoProductoProveedor = ObtenerInfoProducto(compraPxDatos.sku);
-                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                compraPxDatos.productoInfo = respuestaInfoProductoProveedor.objetoAux as ProductoInfo;                                
-                            }
-
-                            respuestaInfoProductoProveedor = ObtenerInfoProveedor(compraPxDatos.productoInfo.idProveedor);
-                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                compraPxDatos.proveedorInfo = respuestaInfoProductoProveedor.objetoAux as ProveedorInfo;
-                            }
-
-                            respuestaCompraPxDatos.Actualizar(compraPxDatos);
-                            break;
-                        default:
-                            respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                            break;
-                    }
-                    break;
-                case tipoMensajeria.TenServer:
-
-                    break;
-                default:
-                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
+                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                return;
             }
         }
 
@@ -299,125 +316,133 @@ namespace CapaNegocio
         /// <param name="categoriaProducto">categoría del producto</param>
         private static void ObtenerParametrosPorConsultaCliente(string trama, tipoMensajeria tipoMensajeria, ref RespuestaProcesosCliente respuestaGenerica, CategoriaProducto categoriaProducto = CategoriaProducto.TAE)
         {
-
-            switch (tipoMensajeria)
+            try
             {
-                case tipoMensajeria.PX:
-                    switch (categoriaProducto)
-                    {
-                        case CategoriaProducto.TAE:
-                            // se obtienen los campos de la trama
-                            ConsultaPxTae consultaPxTae = new ConsultaPxTae();
-                            if (consultaPxTae.Ingresar(trama) != true)
-                            {
+                switch (tipoMensajeria)
+                {
+                    case tipoMensajeria.PX:
+                        switch (categoriaProducto)
+                        {
+                            case CategoriaProducto.TAE:
+                                // se obtienen los campos de la trama
+                                ConsultaPxTae consultaPxTae = new ConsultaPxTae();
+                                if (consultaPxTae.Ingresar(trama) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                RespuestaConsultaPxTae respuestaConsultaPxTae = new RespuestaConsultaPxTae();
+                                if (respuestaConsultaPxTae.Ingresar(consultaPxTae) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                respuestaGenerica.objPeticionCliente = consultaPxTae;
+                                respuestaGenerica.objRespuestaCliente = respuestaConsultaPxTae;
+
+                                if ((bool)ValidarGrupoCadenaTienda(consultaPxTae.idGrupo, consultaPxTae.idCadena, consultaPxTae.idTienda).objetoAux != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                    return;
+                                }
+                                RespuestaProcesosCliente respuestaGenericaTmp = ObtenerInfoProducto(consultaPxTae.sku);
+                                if (respuestaGenericaTmp.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    consultaPxTae.productoInfo = respuestaGenericaTmp.objetoAux as ProductoInfo;
+                                }
+
+                                respuestaGenericaTmp = ObtenerInfoProveedor(consultaPxTae.productoInfo.idProveedor);
+                                if (respuestaGenericaTmp.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    consultaPxTae.proveedorInfo = respuestaGenericaTmp.objetoAux as ProveedorInfo;
+                                }
+
+                                respuestaConsultaPxTae.Actualizar(consultaPxTae);
+                                break;
+                            case CategoriaProducto.Datos:
+                                ConsultaPxDatos consultaPxDatos = new ConsultaPxDatos();
+
+                                if (consultaPxDatos.Ingresar(trama) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                RespuestaConsultaPxDatos respuestaConsultaPxDatos = new RespuestaConsultaPxDatos();
+                                if (respuestaConsultaPxDatos.Ingresar(consultaPxDatos) != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                                    return;
+                                }
+
+                                respuestaGenerica.objPeticionCliente = consultaPxDatos;
+                                respuestaGenerica.objRespuestaCliente = respuestaConsultaPxDatos;
+
+                                if ((bool)ValidarGrupoCadenaTienda(consultaPxDatos.idGrupo, consultaPxDatos.idCadena, consultaPxDatos.idTienda).objetoAux != true)
+                                {
+                                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
+                                    return;
+                                }
+                                respuestaGenericaTmp = ObtenerInfoProducto(consultaPxDatos.sku);
+                                if (respuestaGenericaTmp.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    consultaPxDatos.productoInfo = respuestaGenericaTmp.objetoAux as ProductoInfo;
+                                }
+
+                                respuestaGenericaTmp = ObtenerInfoProveedor(consultaPxDatos.productoInfo.idProveedor);
+                                if (respuestaGenericaTmp.codigoRespuesta != 0)
+                                {
+                                    respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
+                                    return;
+                                }
+                                else
+                                {
+                                    consultaPxDatos.proveedorInfo = respuestaGenericaTmp.objetoAux as ProveedorInfo;
+                                }
+
+                                respuestaConsultaPxDatos.Actualizar(consultaPxDatos);
+                                break;
+                            default:
                                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
+                                break;
+                        }
+                        break;
+                    case tipoMensajeria.TenServer:
 
-                            RespuestaConsultaPxTae respuestaConsultaPxTae = new RespuestaConsultaPxTae();
-                            if (respuestaConsultaPxTae.Ingresar(consultaPxTae) != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
-
-                            respuestaGenerica.objPeticionCliente = consultaPxTae;
-                            respuestaGenerica.objRespuestaCliente = respuestaConsultaPxTae;
-
-                            if ((bool)ValidarGrupoCadenaTienda(consultaPxTae.idGrupo, consultaPxTae.idCadena, consultaPxTae.idTienda).objetoAux != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
-                                return;
-                            }
-                            RespuestaProcesosCliente respuestaGenericaTmp = ObtenerInfoProducto(consultaPxTae.sku);
-                            if (respuestaGenericaTmp.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                consultaPxTae.productoInfo = respuestaGenericaTmp.objetoAux as ProductoInfo;
-                            }
-
-                            respuestaGenericaTmp = ObtenerInfoProveedor(consultaPxTae.productoInfo.idProveedor);
-                            if (respuestaGenericaTmp.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                consultaPxTae.proveedorInfo = respuestaGenericaTmp.objetoAux as ProveedorInfo;
-                            }
-
-                            respuestaConsultaPxTae.Actualizar(consultaPxTae);
-                            break;
-                        case CategoriaProducto.Datos:
-                            ConsultaPxDatos consultaPxDatos = new ConsultaPxDatos();
-
-                            if (consultaPxDatos.Ingresar(trama) != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
-
-                            RespuestaConsultaPxDatos respuestaConsultaPxDatos = new RespuestaConsultaPxDatos();
-                            if (respuestaConsultaPxDatos.Ingresar(consultaPxDatos) != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                                return;
-                            }
-
-                            respuestaGenerica.objPeticionCliente = consultaPxDatos;
-                            respuestaGenerica.objRespuestaCliente = respuestaConsultaPxDatos;
-
-                            if ((bool)ValidarGrupoCadenaTienda(consultaPxDatos.idGrupo, consultaPxDatos.idCadena, consultaPxDatos.idTienda).objetoAux != true)
-                            {
-                                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.TerminalInvalida;
-                                return;
-                            }
-                            respuestaGenericaTmp = ObtenerInfoProducto(consultaPxDatos.sku);
-                            if (respuestaGenericaTmp.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                consultaPxDatos.productoInfo = respuestaGenericaTmp.objetoAux as ProductoInfo;
-                            }
-
-                            respuestaGenericaTmp = ObtenerInfoProveedor(consultaPxDatos.productoInfo.idProveedor);
-                            if (respuestaGenericaTmp.codigoRespuesta != 0)
-                            {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericaTmp.codigoRespuesta;
-                                return;
-                            }
-                            else
-                            {
-                                consultaPxDatos.proveedorInfo = respuestaGenericaTmp.objetoAux as ProveedorInfo;
-                            }
-
-                            respuestaConsultaPxDatos.Actualizar(consultaPxDatos);
-                            break;
-                        default:
-                            respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                            break;
-                    }
-                    break;
-                case tipoMensajeria.TenServer:
-
-                    break;
-                default:
-                    respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
-                    break;
+                        break;
+                    default:
+                        respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
+                respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                return;
             }
         }
 
         #endregion
 
-        //--------------------------------
+
         #region Proveedor
 
         /// <summary>
@@ -437,28 +462,28 @@ namespace CapaNegocio
                     ObtenerParametrosPorCompraProveedor((objPeticionCliente as CompraPxTae), ref respuestaProcesosProveedor);
                     respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.TAE;
                 }
-                else if (tipo == typeof(ConsultaPxTae))
-                {
-                    ObtenerParametrosPorCompraProveedor((objPeticionCliente as ConsultaPxTae), ref respuestaProcesosProveedor);
-                    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.TAE;
-                }
+                //else if (tipo == typeof(ConsultaPxTae))
+                //{
+                //    ObtenerParametrosPorCompraProveedor((objPeticionCliente as ConsultaPxTae), ref respuestaProcesosProveedor);
+                //    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.TAE;
+                //}
                 else if (tipo == typeof(CompraPxDatos))
                 {
                     ObtenerParametrosPorCompraProveedor((objPeticionCliente as CompraPxDatos), ref respuestaProcesosProveedor);
                     respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.Datos;
                 }
-                else if (tipo == typeof(ConsultaPxDatos))
-                {
-                    //TODO consulta de datos
-                    //ObtenerParametrosPorCompraProveedor((objPeticionCliente as ConsultaPxDatos), ref respuestaProcesosProveedor);
-                    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.Datos;
-                }
+                //else if (tipo == typeof(ConsultaPxDatos))
+                //{
+                //    //TODO consulta de datos
+                //    //ObtenerParametrosPorCompraProveedor((objPeticionCliente as ConsultaPxDatos), ref respuestaProcesosProveedor);
+                //    respuestaProcesosProveedor.categoriaProducto = CategoriaProducto.Datos;
+                //}
 
                 return respuestaProcesosProveedor;
             }
             catch (Exception ex)
             {
-                Utileria.Log(Utileria.ObtenerNombreFuncion("Error al identificar el tipo de mensajeria: " + ex.Message), Utileria.TiposLog.error);
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada("Error al identificar el tipo de mensajeria: " + ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
                 respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
                 return respuestaProcesosProveedor;
             }
@@ -473,30 +498,38 @@ namespace CapaNegocio
         {
             RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
             RespuestaCompraTpvDatos respuestaCompraTpvDatos = new RespuestaCompraTpvDatos();
-            switch (respuestaProcesosProveedor.categoriaProducto)
+            try
             {
-                case CategoriaProducto.TAE:
-                    
-                    if (respuestaCompraTpvTAE.Ingresar(trama.Substring(2)))
-                    {
-                        respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
-                        respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
-                    }
-                    break;
-                case CategoriaProducto.Datos:                    
-                    if (respuestaCompraTpvDatos.Ingresar(trama.Substring(2)))
-                    {
-                        respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvDatos.codigoRespuesta;
-                        respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvDatos;
-                    }
-                    break;
-                default:
-                    if (respuestaCompraTpvTAE.Ingresar(trama.Substring(2)))
-                    {
-                        respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
-                        respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
-                    }
-                    break;
+                switch (respuestaProcesosProveedor.categoriaProducto)
+                {
+                    case CategoriaProducto.TAE:
+
+                        if (respuestaCompraTpvTAE.Ingresar(trama.Substring(2)))
+                        {
+                            respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
+                            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
+                        }
+                        break;
+                    case CategoriaProducto.Datos:
+                        if (respuestaCompraTpvDatos.Ingresar(trama.Substring(2)))
+                        {
+                            respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvDatos.codigoRespuesta;
+                            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvDatos;
+                        }
+                        break;
+                    default:
+                        if (respuestaCompraTpvTAE.Ingresar(trama.Substring(2)))
+                        {
+                            respuestaProcesosProveedor.codigoRespuesta = respuestaCompraTpvTAE.codigoRespuesta;
+                            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
+                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
             }
         }
 
@@ -507,47 +540,64 @@ namespace CapaNegocio
         /// <param name="respuestaProcesosProveedor"></param>
         private static void ObtenerParametrosPorCompraProveedor(CompraPxTae compraPxTae, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
         {
-            CompraTpvTae compraTpvTae = new CompraTpvTae();
-            if (compraTpvTae.Ingresar(compraPxTae) != true)
+            try
             {
-                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
-                return;
+
+                CompraTpvTae compraTpvTae = new CompraTpvTae();
+                if (compraTpvTae.Ingresar(compraPxTae) != true)
+                {
+                    respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                    return;
+                }
+
+                RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
+
+                if (respuestaCompraTpvTAE.Ingresar(compraTpvTae) != true)
+                {
+                    respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                    return;
+                }
+                respuestaProcesosProveedor.objPeticionProveedor = compraTpvTae;
+                respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
             }
-
-            RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
-
-            if (respuestaCompraTpvTAE.Ingresar(compraTpvTae) != true)
+            catch (Exception ex)
             {
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
                 respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
-                return;
             }
-            respuestaProcesosProveedor.objPeticionProveedor = compraTpvTae;
-            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
         }
 
         /// <summary>
-        /// Función que obtiene las propiedades de una solicitud de compra a un proveedor a partir de la clase de compra del cliente
+        /// Función que obtiene las propiedades de una solicitud de consulta a un proveedor a partir de la clase de compra del cliente
         /// </summary>
         /// <param name="consultaPxTae"></param>
         /// <param name="respuestaProcesosProveedor"></param>
         private static void ObtenerParametrosPorCompraProveedor(ConsultaPxTae consultaPxTae, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
         {
-            CompraTpvTae compraTpvTae = new CompraTpvTae();
-            if (compraTpvTae.Ingresar(consultaPxTae) != true)
+            try
             {
-                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
-                return;
+                CompraTpvTae compraTpvTae = new CompraTpvTae();
+                if (compraTpvTae.Ingresar(consultaPxTae) != true)
+                {
+                    respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                    return;
+                }
+
+                RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
+
+                if (respuestaCompraTpvTAE.Ingresar(compraTpvTae) != true)
+                {
+                    respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                    return;
+                }
+                respuestaProcesosProveedor.objPeticionProveedor = compraTpvTae;
+                respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
             }
-
-            RespuestaCompraTpvTAE respuestaCompraTpvTAE = new RespuestaCompraTpvTAE();
-
-            if (respuestaCompraTpvTAE.Ingresar(compraTpvTae) != true)
+            catch (Exception ex)
             {
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
                 respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
-                return;
             }
-            respuestaProcesosProveedor.objPeticionProveedor = compraTpvTae;
-            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvTAE;
         }
 
         /// <summary>
@@ -557,22 +607,30 @@ namespace CapaNegocio
         /// <param name="respuestaProcesosProveedor"></param>
         private static void ObtenerParametrosPorCompraProveedor(CompraPxDatos compraPxDatos, ref RespuestaProcesosProveedor respuestaProcesosProveedor)
         {
-            CompraTpvDatos compraTpvDatos = new CompraTpvDatos();
-            if (compraTpvDatos.Ingresar(compraPxDatos) != true)
+            try
             {
-                respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
-                return;
+                CompraTpvDatos compraTpvDatos = new CompraTpvDatos();
+                if (compraTpvDatos.Ingresar(compraPxDatos) != true)
+                {
+                    respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                    return;
+                }
+
+                RespuestaCompraTpvDatos respuestaCompraTpvDatos = new RespuestaCompraTpvDatos();
+
+                if (respuestaCompraTpvDatos.Ingresar(compraTpvDatos) != true)
+                {
+                    respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
+                    return;
+                }
+                respuestaProcesosProveedor.objPeticionProveedor = compraTpvDatos;
+                respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvDatos;
             }
-
-            RespuestaCompraTpvDatos respuestaCompraTpvDatos = new RespuestaCompraTpvDatos();
-
-            if (respuestaCompraTpvDatos.Ingresar(compraTpvDatos) != true)
+            catch (Exception ex)
             {
+                Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message + ". " + ex.StackTrace), Utileria.TiposLog.error);
                 respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorProceso;
-                return;
             }
-            respuestaProcesosProveedor.objPeticionProveedor = compraTpvDatos;
-            respuestaProcesosProveedor.objRespuestaProveedor = respuestaCompraTpvDatos;
         }
 
         #endregion
@@ -619,14 +677,14 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaGenerica.objetoAux = false;
                         respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaGenerica.objetoAux = false;
                     respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 }
@@ -634,7 +692,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 return respuestaGenerica;
             }
@@ -680,20 +738,20 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorObteniendoCredito;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorObteniendoCredito;
                 }
                 return respuestaGenerica;
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorObteniendoCredito;
                 return respuestaGenerica;
             }
@@ -741,14 +799,14 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaGenerica.objetoAux = false;
                         respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaGenerica.objetoAux = false;
                     respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 }
@@ -756,7 +814,7 @@ namespace CapaNegocio
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaGenerica.objetoAux = false;
                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 return respuestaGenerica;
@@ -809,20 +867,20 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 }
                 return respuestaGenerica;
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 return respuestaGenerica;
             }
@@ -873,20 +931,20 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 }
                 return respuestaGenerica;
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 return respuestaGenerica;
             }
@@ -906,12 +964,12 @@ namespace CapaNegocio
         {
             if (objPeticionCliente is null)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("El objeto de peticion TPV no está instanciado"), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("El objeto de peticion TPV no está instanciado"), Utileria.TiposLog.error));
                 return null;
             }
             if (objRespuestaTpv is null)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("El objeto de respuesta TPV no está instanciado"), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("El objeto de respuesta TPV no está instanciado"), Utileria.TiposLog.error));
                 return null;
             }
 
@@ -932,7 +990,7 @@ namespace CapaNegocio
                     new SqlParameter("@hora", respuestaCompraTpvTAE.horaTerminal),
                     new SqlParameter("@encabezado", respuestaCompraTpvTAE.encabezado),
                     new SqlParameter("@pCode", respuestaCompraTpvTAE.pCode),
-                    new SqlParameter("@issuer", respuestaCompraTpvTAE.issuer),
+                    new SqlParameter("@issuer", respuestaCompraTpvTAE.issuer.Substring(2)),
                     new SqlParameter("@sku", compraTpvTae.sku.Trim()),
                     new SqlParameter("@folio", "NA"),
                     new SqlParameter("@numeroReferencia", respuestaCompraTpvTAE.referencia),
@@ -966,7 +1024,7 @@ namespace CapaNegocio
                     new SqlParameter("@hora", respuestaCompraTpvDatos.horaTerminal),
                     new SqlParameter("@encabezado", respuestaCompraTpvDatos.encabezado),
                     new SqlParameter("@pCode", respuestaCompraTpvDatos.pCode),
-                    new SqlParameter("@issuer", respuestaCompraTpvDatos.issuer),
+                    new SqlParameter("@issuer", respuestaCompraTpvDatos.issuer.Substring(2)),
                     new SqlParameter("@sku", compraTpvDatos.sku.Trim()),
                     new SqlParameter("@numeroReferencia", respuestaCompraTpvDatos.referencia),
                     new SqlParameter("@telefono", respuestaCompraTpvDatos.telefono),
@@ -1004,20 +1062,20 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 }
                 return respuestaProcesosProveedor;
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaProcesosProveedor.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 return respuestaProcesosProveedor;
             }
@@ -1030,7 +1088,7 @@ namespace CapaNegocio
         /// <summary>
         /// Consulta el estado de la transacción en la base de datos
         /// </summary>
-        /// <param name="objPeticionCliente">objeto de petición del cliente<</param>
+        /// <param name="objPeticionCliente">objeto de petición del cliente</param>
         /// <returns></returns>
         public static RespuestaProcesosCliente ConsultaTrxBaseTransaccional(object objPeticionCliente)
         {
@@ -1104,20 +1162,20 @@ namespace CapaNegocio
                     }
                     else
                     {
-                        Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion("No hay resultados con la operación"), Utileria.TiposLog.warnning));
+                        Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada("No hay resultados con la operación"), Utileria.TiposLog.warnning));
                         respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.NoExisteOriginal;
                     }
                 }
                 else
                 {
-                    Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
+                    Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(resultadoBaseDatos.Excepcion.Message), Utileria.TiposLog.error));
                     respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 }
                 return respuestaGenerica;
             }
             catch (Exception ex)
             {
-                Task.Run(() => Utileria.Log(Utileria.ObtenerNombreFuncion(ex.Message), Utileria.TiposLog.error));
+                Task.Run(() => Utileria.Log(Utileria.ObtenerRutaDeLlamada(ex.Message), Utileria.TiposLog.error));
                 respuestaGenerica.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorAccesoDB;
                 return respuestaGenerica;
             }
@@ -1126,8 +1184,6 @@ namespace CapaNegocio
                 GC.Collect();
             }
         }
-
-        
 
         #endregion
 

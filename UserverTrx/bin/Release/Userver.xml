@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Userver</name>
+    </assembly>
+    <members>
+        <member name="M:Userver.Clases.OperacionesFront.CargarConfiguracion">
+            <summary>
+            Carga la configuración iniciar de bases de datos y otros parámetros importantes
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Userver.Clases.OperacionesFront.PrepararLog">
+            <summary>
+            Función que prepara el log del sistema
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Userver.Clases.OperacionesFront.ObtenerCadenasConexion">
+            <summary>
+            Obtiene las cadenas de conexión del .config
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Userver.Clases.OperacionesFront.CargarPerfomanceCounter">
+            <summary>
+            Inicializa el performance counter del sistema
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:Userver.Userver.components">
+            <summary>
+            Variable del diseñador necesaria.
+            </summary>
+        </member>
+        <member name="M:Userver.Userver.Dispose(System.Boolean)">
+            <summary>
+            Limpiar los recursos que se estén usando.
+            </summary>
+            <param name="disposing">true si los recursos administrados se deben desechar; false en caso contrario.</param>
+        </member>
+        <member name="M:Userver.Userver.InitializeComponent">
+            <summary>
+            Método necesario para admitir el Diseñador. No se puede modificar
+            el contenido de este método con el editor de código.
+            </summary>
+        </member>
+        <member name="T:Userver.EstadoDelCliente">
+            <summary>
+            Clase que recibe el mensaje del cliente, realizará el envío de ese mensaje a la capa de negocio
+            para su tratamiento y devolverá la respuesta por el socket al cliente
+            </summary>
+        </member>
+        <member name="F:Userver.EstadoDelCliente.respuestaProcesosCliente">
+            <summary>
+            Instancia que contendrá la respuesta y parametros necesarios sobre la evaluación de la mensajería
+            </summary>
+        </member>
+        <member name="M:Userver.EstadoDelCliente.ProcesarTrama(System.String)">
+            <summary>
+            Función que realiza todo el procesamiento de particionar la trama y evaluarla
+            </summary>
+            <param name="mensajeCliente">Mensaje enviado por el cliente</param>
+        </member>
+        <member name="M:Userver.EstadoDelCliente.ObtenerTramaRespuesta">
+            <summary>
+            Función que obtiene la trama de respuesta a un mensaje del cliente
+            </summary>
+            <param name="codigoRespuesta"></param>
+            <param name="codigoAutorizacion"></param>
+        </member>
+        <member name="M:Userver.Program.Main">
+            <summary>
+            Punto de entrada principal para la aplicación.
+            </summary>
+        </member>
+        <member name="T:Userver.Properties.Resources">
+            <summary>
+              Clase de recurso fuertemente tipado, para buscar cadenas traducidas, etc.
+            </summary>
+        </member>
+        <member name="P:Userver.Properties.Resources.ResourceManager">
+            <summary>
+              Devuelve la instancia de ResourceManager almacenada en caché utilizada por esta clase.
+            </summary>
+        </member>
+        <member name="P:Userver.Properties.Resources.Culture">
+            <summary>
+              Reemplaza la propiedad CurrentUICulture del subproceso actual para todas las
+              búsquedas de recursos mediante esta clase de recurso fuertemente tipado.
+            </summary>
+        </member>
+    </members>
+</doc>
