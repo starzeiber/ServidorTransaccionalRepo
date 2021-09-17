@@ -28,7 +28,7 @@ namespace Userver
             // el proceso de evaluación de la mensajería entrega un codigo de respuesta
             codigoRespuesta = respuestaProcesosCliente.codigoRespuesta;
 
-            if (codigoRespuesta == 0)
+            if (codigoRespuesta != 30 && codigoRespuesta != 50)
             {
                 // y los objetos genéricos de petición y respuesta pre seteados
                 objPeticion = respuestaProcesosCliente.objPeticionCliente;

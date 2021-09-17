@@ -123,7 +123,7 @@ namespace CapaNegocio
                             ObtenerParametrosPorConsultaCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, CategoriaProducto.Datos);
                             break;
                         default:
-                            respuestaProcesosCliente.codigoRespuesta = (int)Utileria.CodigosRespuesta.Denegada;
+                            respuestaProcesosCliente.codigoRespuesta = (int)Utileria.CodigosRespuesta.ErrorFormato;
                             break;
                     }
                 }
@@ -202,26 +202,26 @@ namespace CapaNegocio
                                 return;
                             }
 
-                            RespuestaProcesosCliente respuestaGenericatmp = ObtenerInfoProducto(compraPxTae.sku);
-                            if (respuestaGenericatmp.codigoRespuesta != 0)
+                            RespuestaProcesosCliente respuestaInfoProductoProveedor = ObtenerInfoProducto(compraPxTae.sku);
+                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
                             {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericatmp.codigoRespuesta;
+                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
                                 return;
                             }
                             else
                             {
-                                compraPxTae.productoInfo = respuestaGenericatmp.objetoAux as ProductoInfo;
+                                compraPxTae.productoInfo = respuestaInfoProductoProveedor.objetoAux as ProductoInfo;
                             }
 
-                            respuestaGenericatmp = ObtenerInfoProveedor(compraPxTae.productoInfo.idProveedor);
-                            if (respuestaGenericatmp.codigoRespuesta != 0)
+                            respuestaInfoProductoProveedor = ObtenerInfoProveedor(compraPxTae.productoInfo.idProveedor);
+                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
                             {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericatmp.codigoRespuesta;
+                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
                                 return;
                             }
                             else
                             {
-                                compraPxTae.proveedorInfo = respuestaGenericatmp.objetoAux as ProveedorInfo;
+                                compraPxTae.proveedorInfo = respuestaInfoProductoProveedor.objetoAux as ProveedorInfo;
                             }
 
                             respuestaCompraPxTae.Actualizar(compraPxTae);
@@ -252,26 +252,26 @@ namespace CapaNegocio
                                 return;
                             }
 
-                            respuestaGenericatmp = ObtenerInfoProducto(compraPxDatos.sku);
-                            if (respuestaGenerica.codigoRespuesta != 0)
+                            respuestaInfoProductoProveedor = ObtenerInfoProducto(compraPxDatos.sku);
+                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
                             {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericatmp.codigoRespuesta;
+                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
                                 return;
                             }
                             else
                             {
-                                compraPxDatos.productoInfo = respuestaGenericatmp.objetoAux as ProductoInfo;
+                                compraPxDatos.productoInfo = respuestaInfoProductoProveedor.objetoAux as ProductoInfo;                                
                             }
 
-                            respuestaGenericatmp = ObtenerInfoProveedor(compraPxDatos.productoInfo.idProveedor);
-                            if (respuestaGenericatmp.codigoRespuesta != 0)
+                            respuestaInfoProductoProveedor = ObtenerInfoProveedor(compraPxDatos.productoInfo.idProveedor);
+                            if (respuestaInfoProductoProveedor.codigoRespuesta != 0)
                             {
-                                respuestaGenerica.codigoRespuesta = respuestaGenericatmp.codigoRespuesta;
+                                respuestaGenerica.codigoRespuesta = respuestaInfoProductoProveedor.codigoRespuesta;
                                 return;
                             }
                             else
                             {
-                                compraPxDatos.proveedorInfo = respuestaGenericatmp.objetoAux as ProveedorInfo;
+                                compraPxDatos.proveedorInfo = respuestaInfoProductoProveedor.objetoAux as ProveedorInfo;
                             }
 
                             respuestaCompraPxDatos.Actualizar(compraPxDatos);
@@ -983,6 +983,7 @@ namespace CapaNegocio
                     new SqlParameter("@mensaje200", compraTpvDatos.Obtener().Trim()),
                     new SqlParameter("@mensaje210", respuestaCompraTpvDatos.Obtener().Trim()),
                     new SqlParameter("@mensaje220", "NA"),
+                    new SqlParameter("@mensaje230", "NA"),
                     new SqlParameter("@folio", compraTpvDatos.idPaquete),
                     new SqlParameter("@tipoTrx", (int) tipoTransaccion.Datos)
 

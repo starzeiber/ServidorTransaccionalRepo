@@ -247,7 +247,7 @@
             Función que obtiene la trama de respuesta de una proveedor
             </summary>
         </member>
-        <member name="M:ServidorCore.EstadoDelProveedorBase.GuardarTransaccion(System.Object)">
+        <member name="M:ServidorCore.EstadoDelProveedorBase.GuardarTransaccion">
             <summary>
             Función que guardará la operación con el proveedor
             </summary>
@@ -500,6 +500,12 @@
             <summary>
             Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
             </summary>
+        </member>
+        <member name="M:ServidorCore.ServidorTransaccional`3.ResponderAlCliente(`2)">
+            <summary>
+            Función que realiza el envío de la trama de respuesta al cliente desde los estado del proveedor
+            </summary>
+            <param name="estadoDelProveedor">EstadoDelProveedor</param>
         </member>
         <member name="M:ServidorCore.ServidorTransaccional`3.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>

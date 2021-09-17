@@ -112,7 +112,7 @@ namespace ServidorCore
                 return totalBytesLeidos;
             }
         }
-        
+
         public string ipLocal;
 
         #endregion
@@ -186,7 +186,7 @@ namespace ServidorCore
         /// </summary>
         internal static int maxRetrasoParaEnvio = 0;
 
-        
+
 
         /// <summary>
         /// Tipo de log a escribir
@@ -334,7 +334,7 @@ namespace ServidorCore
             this.ipProveedor = ipProveedor;
             this.puertoProveedor = puertoProveedor;
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);            
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);
 
             // se crea el socket que se utilizará de escucha para las conexiones entrantes
             socketDeEscucha = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -578,6 +578,8 @@ namespace ServidorCore
             // se obtiene el mensaje y se decodifica para entenderlo
             String mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
 
+            EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+
             // incrementa el contador de bytes totales recibidos para tener estadísticas nada más
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
             if (totalBytesLeidos == 2147480000)
@@ -701,6 +703,7 @@ namespace ServidorCore
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
                 else if (estadoDelCliente.codigoRespuesta != 30 && estadoDelCliente.codigoRespuesta != 50)
                 {
+                    EscribirLog("Error en la identificación de la trama", tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente);
                 }
             }
@@ -731,6 +734,7 @@ namespace ServidorCore
             {
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
+                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente,tipoLog.INFORMACION);
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
@@ -745,9 +749,9 @@ namespace ServidorCore
                     // Se solicita el espacio de buffer para los bytes que se van a enviar                    
                     estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    EscribirLog("Error asignando buffer para la respuesta al cliente: " + ex.Message, tipoLog.ERROR);
                     return;
                 }
 

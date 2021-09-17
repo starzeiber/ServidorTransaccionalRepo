@@ -218,11 +218,6 @@
             Contiene todas las propiedades de una respuesta en protocolo TPV
             </summary>
         </member>
-        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvTAE.sku">
-            <summary>
-            codigo del producto
-            </summary>
-        </member>
         <member name="M:CapaNegocio.Clases.RespuestaCompraTpvTAE.Ingresar(CapaNegocio.Clases.CompraTpvTae)">
             <summary>
             Ingresa la información en las propiedades de la clase a partir de la compra
@@ -358,6 +353,26 @@
             
             </summary>
         </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvDatos.sku">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvDatos.idProveedor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvDatos.idMaster">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvDatos.saldoActual">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:CapaNegocio.Clases.CompraTpvDatos.#ctor">
             <summary>
             
@@ -379,6 +394,26 @@
         <member name="T:CapaNegocio.Clases.CompraTpvTae">
             <summary>
             Clase que contiene todas las propiedades de una compra TPV
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvTae.sku">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvTae.idProveedor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvTae.idMaster">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvTae.saldoActual">
+            <summary>
+            
             </summary>
         </member>
         <member name="M:CapaNegocio.Clases.CompraTpvTae.Ingresar(CapaNegocio.CompraPxTae)">
@@ -1149,6 +1184,16 @@
             Paquetes de tiempo aire electrónico
             </summary>
         </member>
+        <member name="F:CapaNegocio.Operaciones.tipoTransaccion.TAE">
+            <summary>
+            Tiempo aire electrónico
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Operaciones.tipoTransaccion.Datos">
+            <summary>
+            Paquetes de tiempo aire electrónico
+            </summary>
+        </member>
         <member name="M:CapaNegocio.Operaciones.ProcesarMensajeriaCliente(System.String)">
             <summary>
             Funcion que recibe la trama del cliente, identifica de que tipo es y la particiona en sus propiedades
@@ -1193,6 +1238,13 @@
             Función que obtiene las propiedades de una solicitud de compra a un proveedor a partir de la clase de compra del cliente
             </summary>
             <param name="compraPxTae"></param>
+            <param name="respuestaProcesosProveedor"></param>
+        </member>
+        <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraProveedor(CapaNegocio.ConsultaPxTae,CapaNegocio.RespuestaProcesosProveedor@)">
+            <summary>
+            Función que obtiene las propiedades de una solicitud de compra a un proveedor a partir de la clase de compra del cliente
+            </summary>
+            <param name="consultaPxTae"></param>
             <param name="respuestaProcesosProveedor"></param>
         </member>
         <member name="M:CapaNegocio.Operaciones.ObtenerParametrosPorCompraProveedor(CapaNegocio.CompraPxDatos,CapaNegocio.RespuestaProcesosProveedor@)">
@@ -1243,13 +1295,15 @@
             <param name="idProveedor">identificador de un proveedor</param>
             <returns></returns>
         </member>
-        <member name="M:CapaNegocio.Operaciones.GuardarTrx(CapaNegocio.Clases.RespuestaCompraTpvTAE)">
+        <member name="M:CapaNegocio.Operaciones.GuardarTrx(System.Object,System.Object)">
             <summary>
-            Función que almacena en base de datos la transacción de compra o consulta
+            Guarda en la base cualquier transacción de compra
             </summary>
-            <param name="respuestaCompraTpvTAE"></param>
+            <param name="objPeticionCliente">objeto de petición del cliente</param>
+            <param name="objRespuestaTpv">Objeto de respuesta de la mensajería TPV</param>
             <returns></returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:CapaNegocio.Operaciones.ConsultaTrxBaseTransaccional(System.Object)" -->
         <member name="T:CapaNegocio.RespuestaProcesosCliente">
             <summary>
             Contiene todas las propiedades que se utilizan como respuesta entre los procesos internos
