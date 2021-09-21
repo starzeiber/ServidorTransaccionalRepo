@@ -251,7 +251,6 @@
             <summary>
             Función que guardará la operación con el proveedor
             </summary>
-            <param name="obj"></param>
         </member>
         <member name="T:ServidorCore.ServidorTransaccional`3">
             <summary>
@@ -329,6 +328,11 @@
         <member name="P:ServidorCore.ServidorTransaccional`3.totalDeBytesTransferidos">
             <summary>
             Bytes que se han transmitido desde el inicio de la aplicación
+            </summary>
+        </member>
+        <member name="F:ServidorCore.ServidorTransaccional`3.ipLocal">
+            <summary>
+            IP de escucha
             </summary>
         </member>
         <member name="F:ServidorCore.ServidorTransaccional`3.numeroConexionesSimultaneas">
@@ -700,6 +704,11 @@
         <member name="P:ServidorCore.EstadoDelClienteBase.timeOut">
             <summary>
             Tiempo de espera general del lado del cliente
+            </summary>
+        </member>
+        <member name="P:ServidorCore.EstadoDelClienteBase.esConsulta">
+            <summary>
+            Bandera para identificar si el proceso solo es de consulta sobre una transacción
             </summary>
         </member>
         <member name="M:ServidorCore.EstadoDelClienteBase.#ctor">

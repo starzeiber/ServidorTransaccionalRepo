@@ -22,4 +22,3 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release\UserverTrx.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release\Userver.exe
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Release\Userver.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Release\Userver.xml

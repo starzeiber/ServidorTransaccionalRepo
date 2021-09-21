@@ -200,6 +200,13 @@
             Clase que contiene todas las propiedades de una respuesta para la compra de datos en protocolo tpv
             </summary>
         </member>
+        <member name="M:CapaNegocio.Clases.RespuestaCompraTpvDatos.Ingresar(System.String)">
+            <summary>
+            A partir de la trama realiza la obtención de la información
+            </summary>
+            <param name="trama">Cadena a parsear</param>
+            <returns></returns>
+        </member>
         <member name="M:CapaNegocio.Clases.RespuestaCompraTpvDatos.Ingresar(CapaNegocio.Clases.CompraTpvDatos)">
             <summary>
             Ingresa la información de la compra en las propiedades de la respuesta
@@ -338,6 +345,11 @@
             
             </summary>
         </member>
+        <member name="P:CapaNegocio.Clases.RespuestaCompraTpvBase.saldoActual">
+            <summary>
+            Saldo al momento de la transacción
+            </summary>
+        </member>
         <member name="M:CapaNegocio.Clases.RespuestaCompraTpvBase.#ctor">
             <summary>
             
@@ -371,6 +383,11 @@
         <member name="P:CapaNegocio.Clases.CompraTpvDatos.saldoActual">
             <summary>
             
+            </summary>
+        </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvDatos.fechaHoraCompleta">
+            <summary>
+            Fecha y hora completa del sistema al momento de la instancia
             </summary>
         </member>
         <member name="M:CapaNegocio.Clases.CompraTpvDatos.#ctor">
@@ -416,11 +433,23 @@
             
             </summary>
         </member>
+        <member name="P:CapaNegocio.Clases.CompraTpvTae.fechaHoraCompleta">
+            <summary>
+            Fecha y hora completa del sistema al momento de la instancia
+            </summary>
+        </member>
         <member name="M:CapaNegocio.Clases.CompraTpvTae.Ingresar(CapaNegocio.CompraPxTae)">
             <summary>
             Función que obtiene las propiedades a partir de la instancia CompraPxTae
             </summary>
             <param name="compraPxTae">Instancia CompraPxTae</param>
+            <returns></returns>
+        </member>
+        <member name="M:CapaNegocio.Clases.CompraTpvTae.Ingresar(CapaNegocio.ConsultaPxTae)">
+            <summary>
+            Ingresa la información a la clase
+            </summary>
+            <param name="consultaPxTae"></param>
             <returns></returns>
         </member>
         <member name="M:CapaNegocio.Clases.CompraTpvTae.Obtener">
@@ -1308,7 +1337,13 @@
             <param name="objRespuestaTpv">Objeto de respuesta de la mensajería TPV</param>
             <returns></returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:CapaNegocio.Operaciones.ConsultaTrxBaseTransaccional(System.Object)" -->
+        <member name="M:CapaNegocio.Operaciones.ConsultaTrxBaseTransaccional(System.Object)">
+            <summary>
+            Consulta el estado de la transacción en la base de datos
+            </summary>
+            <param name="objPeticionCliente">objeto de petición del cliente</param>
+            <returns></returns>
+        </member>
         <member name="T:CapaNegocio.RespuestaProcesosCliente">
             <summary>
             Contiene todas las propiedades que se utilizan como respuesta entre los procesos internos
@@ -1412,6 +1447,11 @@
         <member name="F:CapaNegocio.Utileria.logListener">
             <summary>
             Log del sistema
+            </summary>
+        </member>
+        <member name="F:CapaNegocio.Utileria.ipLocal">
+            <summary>
+            Ip donde se coloca la aplicación
             </summary>
         </member>
         <member name="F:CapaNegocio.Utileria.puertoLocal">
@@ -1577,7 +1617,10 @@
             <summary>
             Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
             </summary>
-            <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
+            <param name="evento"></param>
+            <param name="memberName"></param>
+            <param name="sourceFilePath"></param>
+            <param name="sourceLineNumber"></param>
             <returns></returns>
         </member>
         <member name="M:CapaNegocio.Utileria.ObtenerNumeroResultadoAleatorio(System.Int32)">
