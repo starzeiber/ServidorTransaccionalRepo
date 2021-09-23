@@ -1434,14 +1434,14 @@
             Cadena de conexión a la base administrativa del ws
             </summary>
         </member>
-        <member name="F:CapaNegocio.Utileria.peformancePeticionesEntrantes">
+        <member name="F:CapaNegocio.Utileria.performancePeticionesEntrantesClientesUserver">
             <summary>
-            Instancias del performance counter de peticiones entrantes
+            Instancia del performance counter de peticiones entrantes
             </summary>
         </member>
-        <member name="F:CapaNegocio.Utileria.peformancePeticionesSalientes">
+        <member name="F:CapaNegocio.Utileria.performancePeticionesRespondidasClientesUserver">
             <summary>
-            Instancias del performance counter de peticiones entrantes
+            Instancia del performance counter de peticiones entrantes
             </summary>
         </member>
         <member name="F:CapaNegocio.Utileria.logListener">

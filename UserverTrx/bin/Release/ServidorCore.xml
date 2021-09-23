@@ -263,6 +263,11 @@
             <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
             socket de trabajo una vez asignado desde el pool</typeparam>
         </member>
+        <member name="F:ServidorCore.ServidorTransaccional`3.peformanceConexionesEntrantes">
+            <summary>
+            Instancia del performance counter de peticiones entrantes
+            </summary>
+        </member>
         <member name="P:ServidorCore.ServidorTransaccional`3.nombreServidor">
             <summary>        
             nombre del servidor para identificarlo en una lista
@@ -402,11 +407,6 @@
             Retraso en el envío, es para uso en Debug
             </summary>
         </member>
-        <member name="T:ServidorCore.ServidorTransaccional`3.tipoLog">
-            <summary>
-            Tipo de log a escribir
-            </summary>
-        </member>
         <member name="M:ServidorCore.ServidorTransaccional`3.#ctor(System.Int32,System.Int32,System.Int32)">
             <summary>
             Crea una instancia del administrador de sockets, posterior se tiene que llamar al método
@@ -523,12 +523,26 @@
             Se detiene el servidor
             </summary>
         </member>
-        <member name="M:ServidorCore.ServidorTransaccional`3.EscribirLog(System.String,ServidorCore.ServidorTransaccional{`0,`1,`2}.tipoLog)">
+        <member name="M:ServidorCore.ServidorTransaccional`3.EscribirLog(System.String,ServidorCore.Utileria.tipoLog)">
             <summary>
             Funcion que el guardado de logs en el event log de windows
             </summary>
             <param name="mensaje"></param>
             <param name="tipoLog"></param>
+        </member>
+        <member name="M:ServidorCore.ServidorTransaccional`3.SeVencioTO(`0)">
+            <summary>
+            Verificación del tiempo de la transacción sobre el proceso del clente
+            </summary>
+            <param name="estadoDelCliente">instancia del estado del cliente</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServidorCore.ServidorTransaccional`3.SeVencioTO(`2)">
+            <summary>
+            Verificación del tiempo de la transacción sobre el proceso del proveedor
+            </summary>
+            <param name="estadoDelProveedor">instancia del estado del proveedor</param>
+            <returns></returns>
         </member>
         <member name="T:ServidorCore.ClienteBloqueo">
             <summary>
@@ -739,6 +753,106 @@
         <member name="M:ServidorCore.EstadoDelClienteBase.ObtenerTramaRespuesta">
             <summary>
             Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.TransaccionExitosa">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.TerminalInvalida">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.Denegada">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorEnRed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.TimeOutInterno">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorGuardandoDB">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.NoExisteOriginal">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorTELCELTablaLLena">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorAccesoDB">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorFormato">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.NumeroTelefono">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorProceso">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ClienteBloqueado">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.SinCreditoDisponible">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorObteniendoCredito">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.ErrorConexionServer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.SinRespuestaCarrier">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.CarrierAbajo">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServidorCore.Utileria.CodigosRespuesta.MontoInvalido">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:ServidorCore.Utileria.tipoLog">
+            <summary>
+            Tipo de log a escribir
             </summary>
         </member>
     </members>

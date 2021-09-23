@@ -34,6 +34,6 @@ using System.Runtime.InteropServices;
 
 //Autor     Fecha       Versión     Descripción
 //@UMB      26/02/21    1.0.0.0     Se Inicia el proyecto integrando las capas necesarias
-
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+//@UMB      26/02/21    2.0.0.0     Se cuenta con TAE y Datos PX completo y funcional
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]

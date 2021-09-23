@@ -72,13 +72,18 @@ namespace CapaNegocio
         public static string cadenaConexionTrx;
 
         /// <summary>
-        /// Instancias del performance counter de peticiones entrantes
+        /// Instancia del performance counter de peticiones entrantes
         /// </summary>
-        public static PerformanceCounter peformancePeticionesEntrantes;
+        public static PerformanceCounter performancePeticionesEntrantesClientesUserver;
+
         /// <summary>
-        /// Instancias del performance counter de peticiones entrantes
+        /// Instancia del performance counter de peticiones entrantes
         /// </summary>
-        public static PerformanceCounter peformancePeticionesSalientes;
+        public static PerformanceCounter performancePeticionesRespondidasClientesUserver;
+
+        public static PerformanceCounter performancePeticionesSalientesProveedorUserver;
+
+        public static PerformanceCounter performancePeticionesRespondidasProveedorUserver;
 
         /// <summary>
         /// Log del sistema

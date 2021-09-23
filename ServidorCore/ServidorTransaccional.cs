@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using static ServidorCore.Utileria;
 
 namespace ServidorCore
 {
@@ -22,6 +23,11 @@ namespace ServidorCore
         where S : EstadoDelServidorBase, new()
         where X : EstadoDelProveedorBase, new()
     {
+        /// <summary>
+        /// Instancia del performance counter de peticiones entrantes
+        /// </summary>
+        public PerformanceCounter peformanceConexionesEntrantes;
+
         #region Propiedades públicas
 
         /// <summary>        
@@ -191,15 +197,7 @@ namespace ServidorCore
 
 
 
-        /// <summary>
-        /// Tipo de log a escribir
-        /// </summary>
-        internal enum tipoLog
-        {
-            INFORMACION = 0,
-            ALERTA = 1,
-            ERROR = 2
-        }
+        
 
         #endregion
 
@@ -222,6 +220,7 @@ namespace ServidorCore
             //listaClientesPermitidos = new List<Regex>();
             listaClientesPendientesDesconexion = new List<T>();
             this.tamanoBufferPorPeticion = tamanoBuffer;
+
 
             try
             {
@@ -258,6 +257,17 @@ namespace ServidorCore
         /// </summary>
         public void ConfigInicioServidor()
         {
+            try
+            {
+                peformanceConexionesEntrantes = new PerformanceCounter("TN", "conexionesEntrantesUserver", false);
+                peformanceConexionesEntrantes.IncrementBy(1);
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + "ConfigInicioServidor", tipoLog.ERROR);
+                throw;
+            }
+
             //objetos para operaciones asincronas en los sockets de los clientes
             SocketAsyncEventArgs saeaDeEnvioRecepcionCliente;
             //SocketAsyncEventArgs saeaDeEnvioForzadoAlCliente;
@@ -380,6 +390,7 @@ namespace ServidorCore
             semaforoParaAceptarClientes.Wait();
             try
             {
+                peformanceConexionesEntrantes.IncrementBy(1);
                 // se comienza asincronamente el proceso de aceptación y mediante un evento manual 
                 // se verifica que haya sido exitoso. Cuando el proceso asincrono es exitoso devuelve false
                 bool seHizoAsync = socketDeEscucha.AcceptAsync(saeaAceptarConexion);
@@ -406,7 +417,7 @@ namespace ServidorCore
         {
             // se valida que existan errores registrados
             if (saea.SocketError != SocketError.Success)
-            {
+            {                
                 // se comprueba que no hay un proceso de cierre del programa o desconexión en curso para no dejar sockets en segundo plano
                 if (desconectado)
                 {
@@ -585,7 +596,7 @@ namespace ServidorCore
 
             // incrementa el contador de bytes totales recibidos para tener estadísticas nada más
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
-            if (totalBytesLeidos == 2147480000)
+            if (totalBytesLeidos == LIMITE_BYTES_CONTADOR)
             {
                 Interlocked.Exchange(ref this.totalBytesLeidos, 0);
             }
@@ -607,13 +618,13 @@ namespace ServidorCore
                 if (SeVencioTO(estadoDelCliente))
                 {
                     EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.idUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
-                    estadoDelCliente.codigoRespuesta = 6;
+                    estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
                     estadoDelCliente.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
-                if (estadoDelCliente.codigoRespuesta == 0)
+                if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
                 {
                     if (estadoDelCliente.esConsulta)
                     {
@@ -649,7 +660,7 @@ namespace ServidorCore
                     if (SeVencioTO(estadoDelCliente))
                     {
                         EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
-                        estadoDelCliente.codigoRespuesta = 6;
+                        estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
                         estadoDelCliente.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelCliente);
                         return;
@@ -687,7 +698,7 @@ namespace ServidorCore
                     catch (Exception)
                     {
                         socketDeTrabajoProveedor.Close();
-                        estadoDelProveedor.codigoRespuesta = 70;
+                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelProveedor);
                         // se libera el semaforo por si otra petición está solicitando acceso
@@ -704,7 +715,7 @@ namespace ServidorCore
                 }
                 // si el código de respuesta es 30(error en el formato) o 50 (Error en algún paso de evaluar la mensajería),
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
-                else if (estadoDelCliente.codigoRespuesta != 30 && estadoDelCliente.codigoRespuesta != 50)
+                else if (estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.ErrorFormato && estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.ErrorProceso)
                 {
                     EscribirLog("Error en la identificación de la trama", tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente);
@@ -1495,12 +1506,22 @@ namespace ServidorCore
             }
         }
 
+        /// <summary>
+        /// Verificación del tiempo de la transacción sobre el proceso del clente
+        /// </summary>
+        /// <param name="estadoDelCliente">instancia del estado del cliente</param>
+        /// <returns></returns>
         private bool SeVencioTO(T estadoDelCliente)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
             return timeSpan.Seconds > estadoDelCliente.timeOut;
         }
 
+        /// <summary>
+        /// Verificación del tiempo de la transacción sobre el proceso del proveedor
+        /// </summary>
+        /// <param name="estadoDelProveedor">instancia del estado del proveedor</param>
+        /// <returns></returns>
         private bool SeVencioTO(X estadoDelProveedor)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;

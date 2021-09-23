@@ -110,19 +110,15 @@ namespace CapaNegocio
                     switch (encabezado)
                     {
                         case (int)CabecerasTrama.compraTaePx:
-                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.compraTaePx;
                             ObtenerParametrosPorCompraCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, CategoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.consultaTaePx:
-                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.consultaTaePx;
                             ObtenerParametrosPorConsultaCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, CategoriaProducto.TAE);
                             break;
                         case (int)CabecerasTrama.compraDatosPx:
-                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.compraDatosPx;
                             ObtenerParametrosPorCompraCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, CategoriaProducto.Datos);
                             break;
                         case (int)CabecerasTrama.consultaDatosPx:
-                            //respuestaProcesosCliente.cabeceraTrama = CabecerasTrama.consultaDatosPx;
                             ObtenerParametrosPorConsultaCliente(trama, tipoMensajeria.PX, ref respuestaProcesosCliente, CategoriaProducto.Datos);
                             break;
                         default:
@@ -130,7 +126,7 @@ namespace CapaNegocio
                             break;
                     }
                 }
-                else
+                else //Quiere decir que es un encabezado hex no visible
                 {
                     //quito el encabezado HEX porque es una trama TPV
                     trama = trama.Substring(2);

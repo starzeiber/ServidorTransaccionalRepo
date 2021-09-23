@@ -62,15 +62,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clases\OperacionesFront.cs" />
-    <Compile Include="EstadoDelProveedor.cs" />
-    <Compile Include="EstadoDelServidor.cs" />
+    <Compile Include="Clases\EstadoDelProveedor.cs" />
+    <Compile Include="Clases\EstadoDelServidor.cs" />
     <Compile Include="Userver.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Userver.Designer.cs">
       <DependentUpon>Userver.cs</DependentUpon>
     </Compile>
-    <Compile Include="EstadoDelCliente.cs" />
+    <Compile Include="Clases\EstadoDelCliente.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Userver.resx">
@@ -111,4 +111,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="AfterCompile">
+    <Exec Command="echo &quot;&quot;" />
+  </Target>
 </Project>
