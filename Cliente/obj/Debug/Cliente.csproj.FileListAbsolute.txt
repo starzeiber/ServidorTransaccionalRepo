@@ -8,6 +8,7 @@ C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Debug\Clie
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\bin\Debug\Cliente.exe.config
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\bin\Debug\Cliente.exe
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\bin\Debug\Cliente.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Debug\Cliente.csproj.AssemblyReference.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Debug\Cliente.exe
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\Cliente\obj\Debug\Cliente.pdb

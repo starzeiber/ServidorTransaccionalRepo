@@ -107,10 +107,7 @@ namespace CapaNegocio
         /// puerto del switch del proveedor
         /// </summary>
         public static int puertoProveedor;
-
-        [ThreadStatic]
-        static int semillaAleatorio;
-
+                
         /// <summary>
         /// Número aleatorio para seleccionar un puerto disponible
         /// </summary>
@@ -355,43 +352,32 @@ namespace CapaNegocio
             }
 
         }
-
-        ///// <summary>
-        ///// Obtiene el nombre de la función en conjunto con la clase a la que pertenece y todas sus propiedades con su valor en una cadena de texto
-        ///// </summary>
-        ///// <param name="propiedadesConValores">Si se desea ingrear propiedad:valor como cadena para darle formato de salida</param>
-        ///// <param name="nombreFuncion">opcional con el nombre de la funcion, de lo contrario se obtiene del objeto instanciaDeUnaClase </param>
-        ///// <returns></returns>
-        //public static string ObtenerNombreFuncion(string propiedadesConValores, [System.Runtime.CompilerServices.CallerMemberName] string nombreFuncion = "")
-        //{
-        //    try
-        //    {
-        //        StackTrace st = new StackTrace(new StackFrame(1));
-        //        string infoMetodoConArgumentos = st.GetFrame(0).GetMethod().DeclaringType.FullName + "." +
-        //            nombreFuncion + ". " + propiedadesConValores;
-        //        return infoMetodoConArgumentos;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return "Error al obtener todas las propiedades de entrada: " + ex.Message;
-        //    }
-
-        //}
+                
+                
 
         /// <summary>
         /// Función para obtener un número aleatorio confiable
         /// </summary>
         /// <returns></returns>
-        public static int ObtenerNumeroResultadoAleatorio(int numElementos)
+        public static int ObtenerNumeroResultadoAleatorio(int countDigits)
         {
             try
             {
                 Thread.Sleep(70);
-                semillaAleatorio = (int)DateTime.Now.Ticks & 0x0000FFFF;
-                random = new Random(semillaAleatorio);
-                Monitor.Enter(random);
-                int aleatorio = random.Next(1, numElementos);
-                Monitor.Exit(random);
+                int seed = Environment.TickCount;
+                random = new Random(seed);
+                int aleatorio = 1;
+                bool seBloquea= Monitor.TryEnter(random);
+                string numDigit = "9";
+                while (numDigit.Length<countDigits)
+                {
+                    numDigit += "9";
+                }
+                if (seBloquea)
+                {
+                    aleatorio = random.Next(1, int.Parse(numDigit));
+                    Monitor.Exit(random);
+                }
                 return aleatorio;
             }
             catch (Exception ex)

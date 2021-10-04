@@ -72,7 +72,8 @@ namespace CapaNegocio.Clases
             {
                 respuesta.Append(encabezado.ToString());
                 respuesta.Append(Validaciones.formatoValor(pCode.ToString(), TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 12));
+                int dosDecimales = (int)(((decimal)monto % 1) * 100);
+                respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + dosDecimales.ToString("00"), TipoFormato.N, 12));
                 respuesta.Append(Validaciones.formatoValor(fechaHora.ToString(), TipoFormato.N, 10));
                 respuesta.Append(Validaciones.formatoValor(systemTrace.ToString(), TipoFormato.N, 6));
                 respuesta.Append(Validaciones.formatoValor(horaTerminal, TipoFormato.N, 6));

@@ -10,6 +10,11 @@ namespace CapaNegocio.Clases
     public class RespuestaCompraTpvDatos : RespuestaCompraTpvBase
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public string idPaquete { get; set; }
+
+        /// <summary>
         /// A partir de la trama realiza la obtención de la información
         /// </summary>
         /// <param name="trama">Cadena a parsear</param>
@@ -51,6 +56,7 @@ namespace CapaNegocio.Clases
                 fechaTerminal = compraTpvDatos.fechaTerminal;
                 fechaCapturaTerminal = compraTpvDatos.fechaCapturaTerminal;
                 fechaContableTerminal = compraTpvDatos.fechaContableTerminal;
+                idPaquete = compraTpvDatos.idPaquete;
                 return true;
             }
             catch (Exception ex)
@@ -71,7 +77,8 @@ namespace CapaNegocio.Clases
             {
                 respuesta.Append(encabezado.ToString());
                 respuesta.Append(Validaciones.formatoValor(pCode.ToString(), TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 12));
+                int dosDecimales = (int)(((decimal)monto % 1) * 100);                
+                respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + dosDecimales.ToString("00"), TipoFormato.N, 12));
                 respuesta.Append(Validaciones.formatoValor(fechaHora.ToString(), TipoFormato.N, 10));
                 respuesta.Append(Validaciones.formatoValor(systemTrace.ToString(), TipoFormato.N, 6));
                 respuesta.Append(Validaciones.formatoValor(horaTerminal, TipoFormato.N, 6));
@@ -88,6 +95,7 @@ namespace CapaNegocio.Clases
                 respuesta.Append(Validaciones.formatoValor(codigoMoneda.ToString(), TipoFormato.N, 3));
                 respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.N, 15));
                 respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 18));
+                respuesta.Append(Validaciones.formatoValor(idPaquete, TipoFormato.ANS, 10));
 
                 return respuesta.ToString();
             }

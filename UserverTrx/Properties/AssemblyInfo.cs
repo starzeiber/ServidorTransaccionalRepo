@@ -34,6 +34,9 @@ using System.Runtime.InteropServices;
 
 //Autor     Fecha       Versión     Descripción
 //@UMB      26/02/21    1.0.0.0     Se Inicia el proyecto integrando las capas necesarias
-//@UMB      26/02/21    2.0.0.0     Se cuenta con TAE y Datos PX completo y funcional
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+//@UMB      23/09/21    2.0.0.0     Se cuenta con TAE y Datos PX completo y funcional
+//@UMB      23/09/21    2.0.0.1     Se mejora la función de numero aleatorio
+//@UMB      04/10/21    2.0.1.0     Se corrige el guardado de base de datos sobre el monto (punto decimal) y se mejora la generación de numero aleatorio     
+
+[assembly: AssemblyVersion("2.0.1.0")]
+[assembly: AssemblyFileVersion("2.0.1.0")]
