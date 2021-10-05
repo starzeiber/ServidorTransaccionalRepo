@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -124,6 +125,14 @@ namespace ServidorCore
         /// </summary>
         public string ipLocal;
 
+        private const string PROGRAM = "Userver";
+
+        private DateTime validity;
+
+        private string serialPC;
+
+        private string licence;
+
         #endregion
 
         #region Propiedades privadas
@@ -195,10 +204,6 @@ namespace ServidorCore
         /// </summary>
         internal static int maxRetrasoParaEnvio = 0;
 
-
-
-        
-
         #endregion
 
         /// <summary>
@@ -221,6 +226,7 @@ namespace ServidorCore
             listaClientesPendientesDesconexion = new List<T>();
             this.tamanoBufferPorPeticion = tamanoBuffer;
 
+            validity = DateTime.Now;
 
             try
             {
@@ -266,6 +272,12 @@ namespace ServidorCore
             {
                 EscribirLog(ex.Message + "ConfigInicioServidor", tipoLog.ERROR);
                 throw;
+            }
+
+            if (!ValidateLicence())
+            {
+                EscribirLog(" ", tipoLog.ERROR);
+                Environment.Exit(666);
             }
 
             //objetos para operaciones asincronas en los sockets de los clientes
@@ -417,7 +429,7 @@ namespace ServidorCore
         {
             // se valida que existan errores registrados
             if (saea.SocketError != SocketError.Success)
-            {                
+            {
                 // se comprueba que no hay un proceso de cierre del programa o desconexión en curso para no dejar sockets en segundo plano
                 if (desconectado)
                 {
@@ -434,7 +446,7 @@ namespace ServidorCore
                 return;
             }
 
-            // si el cliente pasó todas las validaciones entonces se le asigna ya un estado de trabajo del pool de estados de cliente listo con todas sus propiedes
+            // si el cliente pasó todas las Utileria entonces se le asigna ya un estado de trabajo del pool de estados de cliente listo con todas sus propiedes
             T estadoDelCliente = adminEstadosCliente.obtenerUnElemento();
 
             // debo colocar la referencia del proceso principal donde genero el estado del cliente para tenerlo como referencia de retorno
@@ -1076,7 +1088,7 @@ namespace ServidorCore
             switch (e.LastOperation)
             {
                 case SocketAsyncOperation.Send:
-                    EscribirLog("Se ha enviado la trama: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Mensaje enviado al proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
                     // se comprueba que no hay errores con el socket
                     if (e.SocketError == SocketError.Success)
                     {
@@ -1181,8 +1193,8 @@ namespace ServidorCore
 
             // se obtiene el mensaje y se decodifica
             String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
+            EscribirLog("Mensaje recibido del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
 
-            EscribirLog(mensajeRecibido.Substring(2) + " del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
             // incrementa el contador de bytes totales recibidos
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
             //Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
@@ -1296,7 +1308,7 @@ namespace ServidorCore
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
                 EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
-                                
+
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
@@ -1528,6 +1540,74 @@ namespace ServidorCore
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
             return timeSpan.Seconds > estadoDelProveedor.timeOut;
+        }
+                
+        private bool ValidateLicence()
+        {
+            cEncriptaAES.cEncriptarAES encrypter = new cEncriptaAES.cEncriptarAES();
+            encrypter.cEncriptarAES_Constructor("AdmindeServicios");
+
+            GetLicence();
+            GetSerialPc();
+            return string.Compare(PROGRAM,encrypter.Desencrip(licence.Split('|')[0])) == 0
+                ? DateTime.Compare(validity, DateTime.Parse(encrypter.Desencrip(licence.Split('|')[2]))) <= 0
+                    ? string.Compare(serialPC, encrypter.Desencrip(licence.Split('|')[4])) == 0
+                    : false
+                : false;
+        }
+
+
+        private void GetLicence()
+        {
+            FileStream fileStream;
+            try
+            {
+                using (fileStream = File.OpenRead("C:\\Users\\URIEL\\Desktop\\Licence.txt"))
+                {
+                    using (StreamReader streamReader = new StreamReader(fileStream))
+                    {
+
+                        while (streamReader.EndOfStream == false)
+                        {
+                            licence = streamReader.ReadLine();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message, tipoLog.ERROR);
+            }
+        }
+
+        private void GetSerialPc()
+        {
+            try
+            {
+                Process cmd = new Process();
+                cmd.StartInfo.FileName = "cmd.exe";
+                cmd.StartInfo.RedirectStandardInput = true;
+                cmd.StartInfo.RedirectStandardOutput = true;
+                cmd.StartInfo.CreateNoWindow = true;
+                cmd.StartInfo.UseShellExecute = false;
+                cmd.Start();
+
+                cmd.StandardInput.WriteLine("wmic bios get serialnumber");
+                cmd.StandardInput.Flush();
+                cmd.StandardInput.Close();
+                cmd.WaitForExit();
+                string response = cmd.StandardOutput.ReadToEnd();
+
+                int index = response.IndexOf("SerialNumber");
+
+                serialPC = response.Substring(index + 17).Split(' ')[0];
+
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message, tipoLog.ERROR);
+                serialPC = "";
+            }
         }
 
 

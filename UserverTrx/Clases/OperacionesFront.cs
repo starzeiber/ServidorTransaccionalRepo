@@ -21,7 +21,7 @@ namespace Userver.Clases
             return await PrepararLog() != false &&
                 await ObtenerCadenasConexion() != false &&
                 await CargarIpsYPuertos() != false &&
-                await CargarPerfomanceCounter()!=false;
+                await CargarPerfomanceCounter() != false;
         }
 
         /// <summary>
@@ -98,12 +98,12 @@ namespace Userver.Clases
                     return Task.FromResult(false);
                 }
                 else
-                {                    
+                {
                     Utileria.performancePeticionesEntrantesClientesUserver = new PerformanceCounter("TN", "PeticionesEntrantesClientesUserver", false);
                     Utileria.performancePeticionesRespondidasClientesUserver = new PerformanceCounter("TN", "PeticionesRespondidasClientesUserver", false);
                     Utileria.performancePeticionesSalientesProveedorUserver = new PerformanceCounter("TN", "PeticionesSalientesProveedorUserver", false);
                     Utileria.performancePeticionesRespondidasProveedorUserver = new PerformanceCounter("TN", "PeticionesRespondidasProveedorUserver", false);
-                    
+
                     return Task.FromResult(true);
                 }
             }

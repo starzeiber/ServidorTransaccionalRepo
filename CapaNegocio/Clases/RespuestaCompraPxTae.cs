@@ -138,31 +138,31 @@ namespace CapaNegocio
             try
             {
                 respuesta.Append(encabezado.ToString());
-                respuesta.Append(Validaciones.formatoValor(idGrupo.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(idCadena.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(idTienda.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(idPos.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(fecha, TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(hora, TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(region.ToString(), TipoFormato.N, 2));
-                respuesta.Append(Validaciones.formatoValor(sku, TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 10));
-                respuesta.Append(Validaciones.formatoValor(numeroTransaccion.ToString(), TipoFormato.N, 5));
-                respuesta.Append(Validaciones.formatoValor(autorizacion.ToString(), TipoFormato.N, 9));
-                respuesta.Append(Validaciones.formatoValor(PIN.ToString(), TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(fechaExpiracion.ToString(), TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(idGrupo.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(idCadena.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(idTienda.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(idPos.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(fecha, Utileria.TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(hora, Utileria.TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(region.ToString(), Utileria.TipoFormato.N, 2));
+                respuesta.Append(Utileria.formatoValor(sku, Utileria.TipoFormato.ANS, 20));
+                respuesta.Append(Utileria.formatoValor(telefono, Utileria.TipoFormato.N, 10));
+                respuesta.Append(Utileria.formatoValor(numeroTransaccion.ToString(), Utileria.TipoFormato.N, 5));
+                respuesta.Append(Utileria.formatoValor(autorizacion.ToString(), Utileria.TipoFormato.N, 9));
+                respuesta.Append(Utileria.formatoValor(PIN.ToString(), Utileria.TipoFormato.ANS, 20));
+                respuesta.Append(Utileria.formatoValor(fechaExpiracion.ToString(), Utileria.TipoFormato.N, 6));
                 if (monto > 0)
                 {
-                    respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + monto.ToString().Split('.')[1], TipoFormato.N, 9));
+                    respuesta.Append(Utileria.formatoValor(monto.ToString().Split('.')[0] + monto.ToString().Split('.')[1], Utileria.TipoFormato.N, 9));
                 }
                 else
                 {
-                    respuesta.Append(Validaciones.formatoValor(monto.ToString(), TipoFormato.N, 9));
+                    respuesta.Append(Utileria.formatoValor(monto.ToString(), Utileria.TipoFormato.N, 9));
                 }
-                respuesta.Append(Validaciones.formatoValor(nombreProveedor.ToString(), TipoFormato.ANS, 14));
-                respuesta.Append(Validaciones.formatoValor(mensajeTicket1.ToString(), TipoFormato.ANS, 80));
-                respuesta.Append(Validaciones.formatoValor(mensajeTicket2.ToString(), TipoFormato.ANS, 60));
-                respuesta.Append(Validaciones.formatoValor(codigoRespuesta.ToString(), TipoFormato.N, 2));
+                respuesta.Append(Utileria.formatoValor(nombreProveedor.ToString(), Utileria.TipoFormato.ANS, 14));
+                respuesta.Append(Utileria.formatoValor(mensajeTicket1.ToString(), Utileria.TipoFormato.ANS, 80));
+                respuesta.Append(Utileria.formatoValor(mensajeTicket2.ToString(), Utileria.TipoFormato.ANS, 60));
+                respuesta.Append(Utileria.formatoValor(codigoRespuesta.ToString(), Utileria.TipoFormato.N, 2));
 
                 return respuesta.ToString();
             }

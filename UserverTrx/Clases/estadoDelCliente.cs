@@ -54,7 +54,7 @@ namespace Userver
             try
             {
                 Type tipo = objRespuesta.GetType();
-                
+
                 if (tipo == typeof(RespuestaCompraPxTae))
                 {
                     RespuestaCompraPxTae respuestaCompraPxTae = objRespuesta as RespuestaCompraPxTae;
@@ -112,7 +112,7 @@ namespace Userver
             catch (Exception)
             {
 
-            }            
+            }
         }
 
     }

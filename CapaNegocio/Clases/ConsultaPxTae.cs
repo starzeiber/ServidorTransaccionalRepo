@@ -83,15 +83,15 @@ namespace CapaNegocio
             try
             {
                 respuesta.Append(encabezado.ToString());
-                respuesta.Append(Validaciones.formatoValor(idCadena.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(idTienda.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(idPos.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(fecha, TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(hora, TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(region.ToString(), TipoFormato.N, 2));
-                respuesta.Append(Validaciones.formatoValor(sku, TipoFormato.ANS, 20));
-                respuesta.Append(Validaciones.formatoValor(telefono, TipoFormato.N, 10));
-                respuesta.Append(Validaciones.formatoValor(numeroTransaccion.ToString(), TipoFormato.N, 5));
+                respuesta.Append(Utileria.formatoValor(idCadena.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(idTienda.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(idPos.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(fecha, Utileria.TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(hora, Utileria.TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(region.ToString(), Utileria.TipoFormato.N, 2));
+                respuesta.Append(Utileria.formatoValor(sku, Utileria.TipoFormato.ANS, 20));
+                respuesta.Append(Utileria.formatoValor(telefono, Utileria.TipoFormato.N, 10));
+                respuesta.Append(Utileria.formatoValor(numeroTransaccion.ToString(), Utileria.TipoFormato.N, 5));
                 return respuesta.ToString();
             }
             catch (Exception ex)

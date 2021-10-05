@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace ServidorCore
 {
     internal static class Utileria
     {
-        internal const int LIMITE_BYTES_CONTADOR= 2147480000;
+        internal const int LIMITE_BYTES_CONTADOR = 2147480000;
         internal enum CodigosRespuesta
         {
             /// <summary>
@@ -98,5 +95,6 @@ namespace ServidorCore
             ALERTA = 1,
             ERROR = 2
         }
+
     }
 }

@@ -58,14 +58,14 @@ namespace CapaNegocio.Clases
                 issuer = compraPxTae.proveedorInfo.issuer.Length + compraPxTae.proveedorInfo.issuer;
                 referencia = Utileria.ObtenerNumeroResultadoAleatorio(6);
                 TerminalId = "STTN" +
-                    Validaciones.formatoValor(compraPxTae.idGrupo.ToString(), TipoFormato.N, 3) +
-                    Validaciones.formatoValor(compraPxTae.idCadena.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(compraPxTae.idTienda.ToString(), TipoFormato.N, 4);
+                    Utileria.formatoValor(compraPxTae.idGrupo.ToString(), Utileria.TipoFormato.N, 3) +
+                    Utileria.formatoValor(compraPxTae.idCadena.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(compraPxTae.idTienda.ToString(), Utileria.TipoFormato.N, 4);
                 merchantData = "TARJETASN      " +
-                    Validaciones.formatoValor(compraPxTae.idGrupo.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(compraPxTae.idCadena.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(compraPxTae.idTienda.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(compraPxTae.idPos.ToString(), TipoFormato.N, 5) +
+                    Utileria.formatoValor(compraPxTae.idGrupo.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(compraPxTae.idCadena.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(compraPxTae.idTienda.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(compraPxTae.idPos.ToString(), Utileria.TipoFormato.N, 5) +
                     "DF MX";
                 telefono = compraPxTae.telefono;
 
@@ -102,14 +102,14 @@ namespace CapaNegocio.Clases
                 issuer = consultaPxTae.proveedorInfo.issuer.Length + consultaPxTae.proveedorInfo.issuer;
                 referencia = Utileria.ObtenerNumeroResultadoAleatorio(6);
                 TerminalId = "STTN" +
-                    Validaciones.formatoValor(consultaPxTae.idGrupo.ToString(), TipoFormato.N, 3) +
-                    Validaciones.formatoValor(consultaPxTae.idCadena.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(consultaPxTae.idTienda.ToString(), TipoFormato.N, 4);
+                    Utileria.formatoValor(consultaPxTae.idGrupo.ToString(), Utileria.TipoFormato.N, 3) +
+                    Utileria.formatoValor(consultaPxTae.idCadena.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(consultaPxTae.idTienda.ToString(), Utileria.TipoFormato.N, 4);
                 merchantData = "TARJETASN      " +
-                    Validaciones.formatoValor(consultaPxTae.idGrupo.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(consultaPxTae.idCadena.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(consultaPxTae.idTienda.ToString(), TipoFormato.N, 5) +
-                    Validaciones.formatoValor(consultaPxTae.idPos.ToString(), TipoFormato.N, 5) +
+                    Utileria.formatoValor(consultaPxTae.idGrupo.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(consultaPxTae.idCadena.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(consultaPxTae.idTienda.ToString(), Utileria.TipoFormato.N, 5) +
+                    Utileria.formatoValor(consultaPxTae.idPos.ToString(), Utileria.TipoFormato.N, 5) +
                     "DF MX";
                 telefono = consultaPxTae.telefono;
 
@@ -136,23 +136,23 @@ namespace CapaNegocio.Clases
             try
             {
                 respuesta.Append(encabezado.ToString());
-                respuesta.Append(Validaciones.formatoValor(pCode.ToString(), TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(pCode.ToString(), Utileria.TipoFormato.N, 6));
                 int dosDecimales = (int)(((decimal)monto % 1) * 100);
-                respuesta.Append(Validaciones.formatoValor(monto.ToString().Split('.')[0] + dosDecimales.ToString("00"), TipoFormato.N, 12));
-                respuesta.Append(Validaciones.formatoValor(fechaHora.ToString(), TipoFormato.N, 10));
-                respuesta.Append(Validaciones.formatoValor(systemTrace.ToString(), TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(horaTerminal, TipoFormato.N, 6));
-                respuesta.Append(Validaciones.formatoValor(fechaTerminal, TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(fechaContableTerminal.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(fechaCapturaTerminal.ToString(), TipoFormato.N, 4));
-                respuesta.Append(Validaciones.formatoValor(adquiriente, TipoFormato.N, 12));
-                respuesta.Append(Validaciones.formatoValor(issuer, TipoFormato.N, 11));
-                respuesta.Append(Validaciones.formatoValor(referencia.ToString(), TipoFormato.N, 12));
-                respuesta.Append(Validaciones.formatoValor(TerminalId, TipoFormato.ANS, 16));
-                respuesta.Append(Validaciones.formatoValor(merchantData, TipoFormato.ANS, 40));
-                respuesta.Append(Validaciones.formatoValor(codigoMoneda.ToString(), TipoFormato.N, 3));
-                respuesta.Append(Validaciones.formatoValor(datosAdicionales, TipoFormato.N, 15));
-                respuesta.Append("015" + Validaciones.formatoValor(telefono, TipoFormato.N, 15));
+                respuesta.Append(Utileria.formatoValor(monto.ToString().Split('.')[0] + dosDecimales.ToString("00"), Utileria.TipoFormato.N, 12));
+                respuesta.Append(Utileria.formatoValor(fechaHora.ToString(), Utileria.TipoFormato.N, 10));
+                respuesta.Append(Utileria.formatoValor(systemTrace.ToString(), Utileria.TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(horaTerminal, Utileria.TipoFormato.N, 6));
+                respuesta.Append(Utileria.formatoValor(fechaTerminal, Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(fechaContableTerminal.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(fechaCapturaTerminal.ToString(), Utileria.TipoFormato.N, 4));
+                respuesta.Append(Utileria.formatoValor(adquiriente, Utileria.TipoFormato.N, 12));
+                respuesta.Append(Utileria.formatoValor(issuer, Utileria.TipoFormato.N, 11));
+                respuesta.Append(Utileria.formatoValor(referencia.ToString(), Utileria.TipoFormato.N, 12));
+                respuesta.Append(Utileria.formatoValor(TerminalId, Utileria.TipoFormato.ANS, 16));
+                respuesta.Append(Utileria.formatoValor(merchantData, Utileria.TipoFormato.ANS, 40));
+                respuesta.Append(Utileria.formatoValor(codigoMoneda.ToString(), Utileria.TipoFormato.N, 3));
+                respuesta.Append(Utileria.formatoValor(datosAdicionales, Utileria.TipoFormato.N, 15));
+                respuesta.Append("015" + Utileria.formatoValor(telefono, Utileria.TipoFormato.N, 15));
 
                 return respuesta.ToString();
             }

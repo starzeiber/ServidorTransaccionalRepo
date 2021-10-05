@@ -32,6 +32,9 @@
     <DocumentationFile>bin\Release\ServidorCore.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="cEncriptaAES">
+      <HintPath>Dll\cEncriptaAES.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
