@@ -127,11 +127,13 @@ namespace ServidorCore
 
         private const string PROGRAM = "Userver";
 
-        private DateTime validity;
+        private readonly DateTime localValidity;
 
-        private string serialPC;
+        private string serialPC="";
 
-        private string licence;
+        private string licence="";
+
+        private const string NOTLICENCE = "No cuenta con licencia válida";
 
         #endregion
 
@@ -204,6 +206,13 @@ namespace ServidorCore
         /// </summary>
         internal static int maxRetrasoParaEnvio = 0;
 
+        private enum Licence
+        {
+            program = 0,
+            validity = 2,
+            serialPc = 4
+        }
+
         #endregion
 
         /// <summary>
@@ -226,7 +235,7 @@ namespace ServidorCore
             listaClientesPendientesDesconexion = new List<T>();
             this.tamanoBufferPorPeticion = tamanoBuffer;
 
-            validity = DateTime.Now;
+            localValidity = DateTime.Now;
 
             try
             {
@@ -276,7 +285,7 @@ namespace ServidorCore
 
             if (!ValidateLicence())
             {
-                EscribirLog(" ", tipoLog.ERROR);
+                EscribirLog(NOTLICENCE, tipoLog.ERROR);
                 Environment.Exit(666);
             }
 
@@ -1541,28 +1550,29 @@ namespace ServidorCore
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
             return timeSpan.Seconds > estadoDelProveedor.timeOut;
         }
-                
+
         private bool ValidateLicence()
         {
-            cEncriptaAES.cEncriptarAES encrypter = new cEncriptaAES.cEncriptarAES();
-            encrypter.cEncriptarAES_Constructor("AdmindeServicios");
+            Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
 
-            GetLicence();
-            GetSerialPc();
-            return string.Compare(PROGRAM,encrypter.Desencrip(licence.Split('|')[0])) == 0
-                ? DateTime.Compare(validity, DateTime.Parse(encrypter.Desencrip(licence.Split('|')[2]))) <= 0
-                    ? string.Compare(serialPC, encrypter.Desencrip(licence.Split('|')[4])) == 0
-                    : false
-                : false;
+            if (!GetLicence())
+                return false;
+
+            if (!GetSerialPc())
+                return false;
+
+            return string.Compare(PROGRAM, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.program])) == 0
+                    && (DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.validity]))) <= 0
+                    && string.Compare(serialPC, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.serialPc])) == 0);
         }
 
 
-        private void GetLicence()
+        private bool GetLicence()
         {
             FileStream fileStream;
             try
             {
-                using (fileStream = File.OpenRead("C:\\Users\\URIEL\\Desktop\\Licence.txt"))
+                using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\Licence.txt"))
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
                     {
@@ -1573,14 +1583,16 @@ namespace ServidorCore
                         }
                     }
                 }
+                return licence.Length > 0;
             }
             catch (Exception ex)
             {
                 EscribirLog(ex.Message, tipoLog.ERROR);
+                return false;
             }
         }
 
-        private void GetSerialPc()
+        private bool GetSerialPc()
         {
             try
             {
@@ -1602,11 +1614,13 @@ namespace ServidorCore
 
                 serialPC = response.Substring(index + 17).Split(' ')[0];
 
+                return serialPC.Length > 0;
             }
             catch (Exception ex)
             {
                 EscribirLog(ex.Message, tipoLog.ERROR);
                 serialPC = "";
+                return false;
             }
         }
 

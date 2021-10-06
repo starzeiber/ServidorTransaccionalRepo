@@ -25,5 +25,7 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.AssemblyReference.cache
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\cEncriptaAES.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\cEncriptaAES.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Licence.txt
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CopyComplete

@@ -32,8 +32,8 @@
     <DocumentationFile>bin\Release\ServidorCore.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="cEncriptaAES">
-      <HintPath>Dll\cEncriptaAES.dll</HintPath>
+    <Reference Include="Encrypter">
+      <HintPath>.\Encrypter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,11 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Guia.txt" />
+    <Content Include="Licence.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Mejoras.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Dll\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>

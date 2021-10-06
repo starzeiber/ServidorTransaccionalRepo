@@ -39,5 +39,6 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\U
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\UserverTrx.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\Userver.exe
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\obj\Debug\Userver.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\cEncriptaAES.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\cEncriptaAES.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\Licence.txt
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\Encrypter.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\UserverTrx\bin\Debug\Encrypter.pdb
