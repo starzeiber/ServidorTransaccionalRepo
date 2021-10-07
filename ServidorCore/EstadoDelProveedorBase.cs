@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace ServidorCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor

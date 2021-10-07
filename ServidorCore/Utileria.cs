@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace ServidorCore
+namespace ServerCore
 {
     internal static class Utileria
     {

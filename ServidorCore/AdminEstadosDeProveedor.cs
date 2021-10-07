@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ServidorCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase que controla el almacenado y asignación de estados de un socket, que sirven en 

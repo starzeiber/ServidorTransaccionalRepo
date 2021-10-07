@@ -1,6 +1,6 @@
-<project outputDir="C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug" baseDir="C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug" xmlns="http://confuser.codeplex.com">
+<project outputDir="C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release" baseDir="C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release" xmlns="http://confuser.codeplex.com">
 <rule pattern="true" />
-<module path="ServidorCore.dll">
+<module path="UServerCore.dll">
 <rule pattern="true">
 <protection id="anti ildasm" />
 <protection id="constants" />
@@ -15,5 +15,6 @@
 </protection >
 </rule>
 </module>
+<probePath>..\..\..\ServidorCore</probePath>
 <probePath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</probePath>
 </project>

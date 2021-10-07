@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 // La información general de un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie estos valores de atributo para modificar la información
 // asociada con un ensamblado.
-[assembly: AssemblyTitle("ServidorCore")]
+[assembly: AssemblyTitle("UServerCore")]
 [assembly: AssemblyDescription("Proyecto servidor transaccional")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("UMB")]
-[assembly: AssemblyProduct("ServidorCore")]
+[assembly: AssemblyProduct("UServerCore")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("UMB")]
 [assembly: AssemblyCulture("")]
 
 // Si establece ComVisible en false, los tipos de este ensamblado no estarán visibles 

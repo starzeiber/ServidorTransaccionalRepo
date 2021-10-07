@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Management;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using static ServidorCore.Utileria;
+using static ServerCore.Utileria;
 
-namespace ServidorCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 
@@ -125,11 +126,13 @@ namespace ServidorCore
         /// </summary>
         public string ipLocal;
 
-        private const string PROGRAM = "Userver";
+        private const string PROGRAM = "UServer";
 
         private readonly DateTime localValidity;
 
-        private string serialPC="";
+        private string processorId = "";
+        private string product = "";
+        private string manufacturer = "";
 
         private string licence="";
 
@@ -208,9 +211,11 @@ namespace ServidorCore
 
         private enum Licence
         {
-            program = 0,
-            validity = 2,
-            serialPc = 4
+            Program = 0,
+            Validity = 2,
+            ProcessorId = 4,
+            Product = 6,
+            Manufacturer = 8
         }
 
         #endregion
@@ -1553,17 +1558,27 @@ namespace ServidorCore
 
         private bool ValidateLicence()
         {
-            Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
+            try
+            {
+                Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
 
-            if (!GetLicence())
+                if (!GetLicence())
+                    return false;
+
+                if (!GetInfoPc())
+                    return false;
+
+                return string.Compare(PROGRAM, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Program])) == 0
+                        && (DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Validity]))) <= 0
+                        && (string.Compare(processorId, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.ProcessorId])) == 0)
+                        && (string.Compare(product, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Product])) == 0)
+                        && (string.Compare(manufacturer, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Manufacturer])) == 0));
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message, tipoLog.ERROR);
                 return false;
-
-            if (!GetSerialPc())
-                return false;
-
-            return string.Compare(PROGRAM, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.program])) == 0
-                    && (DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.validity]))) <= 0
-                    && string.Compare(serialPC, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.serialPc])) == 0);
+            }
         }
 
 
@@ -1592,36 +1607,42 @@ namespace ServidorCore
             }
         }
 
-        private bool GetSerialPc()
+        private bool GetInfoPc()
         {
             try
             {
-                Process cmd = new Process();
-                cmd.StartInfo.FileName = "cmd.exe";
-                cmd.StartInfo.RedirectStandardInput = true;
-                cmd.StartInfo.RedirectStandardOutput = true;
-                cmd.StartInfo.CreateNoWindow = true;
-                cmd.StartInfo.UseShellExecute = false;
-                cmd.Start();
+                processorId=RunQuery("Processor", "ProcessorId").ToUpper();
 
-                cmd.StandardInput.WriteLine("wmic bios get serialnumber");
-                cmd.StandardInput.Flush();
-                cmd.StandardInput.Close();
-                cmd.WaitForExit();
-                string response = cmd.StandardOutput.ReadToEnd();
+                product= RunQuery("BaseBoard", "Product").ToUpper();
 
-                int index = response.IndexOf("SerialNumber");
+                manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
 
-                serialPC = response.Substring(index + 17).Split(' ')[0];
-
-                return serialPC.Length > 0;
+                return true;
             }
             catch (Exception ex)
             {
                 EscribirLog(ex.Message, tipoLog.ERROR);
-                serialPC = "";
                 return false;
             }
+        }
+
+
+        private string RunQuery(string TableName, string MethodName)
+        {
+            ManagementObjectSearcher MOS =
+              new ManagementObjectSearcher("Select * from Win32_" + TableName);
+            foreach (ManagementObject MO in MOS.Get())
+            {
+                try
+                {
+                    return MO[MethodName].ToString();
+                }
+                catch (Exception)
+                {
+                    return "";
+                }
+            }
+            return "";
         }
 
 

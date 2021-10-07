@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 
-namespace ServidorCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase que administra un buffer enorme para seccionarlo y utilizar solamente lo
@@ -19,7 +19,7 @@ namespace ServidorCore
         /// <summary>
         /// Tamaño del arreglo de bytes usado como buffer en cada operación
         /// </summary>
-        private Int32 tamanoBufferPorSeccion;
+        private readonly Int32 tamanoBufferPorSeccion;
 
         /// <summary>
         /// indice en el arreglo de byte (buffer).
@@ -29,12 +29,12 @@ namespace ServidorCore
         /// <summary>
         /// Pila de indices para el administrador de buffer
         /// </summary>
-        private Stack<Int32> pilaDeIndicesDeDesplazamientoBuffer;
+        private readonly Stack<Int32> pilaDeIndicesDeDesplazamientoBuffer;
 
         /// <summary>
         /// Número de total de bytes controlados por la pila de buffer
         /// </summary>
-        private Int32 numeroBytesAdministrados;
+        private readonly Int32 numeroBytesAdministrados;
 
         /// <summary>
         /// Constructor que inicializa los valores del administrador de buffer

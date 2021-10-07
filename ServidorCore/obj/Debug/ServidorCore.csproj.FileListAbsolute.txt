@@ -19,13 +19,12 @@ C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
 C:\Users\starc\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Licence.txt
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServidorCore.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.AssemblyReference.cache
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Licence.txt
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CoreCompileInputs.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.csproj.CopyComplete
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.dll
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServidorCore.pdb
