@@ -407,6 +407,46 @@
             Retraso en el envío, es para uso en Debug
             </summary>
         </member>
+        <member name="T:ServerCore.ServidorTransaccional`3.Licence">
+            <summary>
+            Información de la licencia
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.PROGRAM">
+            <summary>
+            Nombre del programa
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.localValidity">
+            <summary>
+            Fecha de ejecución actual
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.processorId">
+            <summary>
+            Id del procesador del equipo
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.product">
+            <summary>
+            Producto que se ejecuta
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.manufacturer">
+            <summary>
+            información del fabricante
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.licence">
+            <summary>
+            Toda la licencia
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.NOTLICENCE">
+            <summary>
+            Mensaje de aviso
+            </summary>
+        </member>
         <member name="M:ServerCore.ServidorTransaccional`3.#ctor(System.Int32,System.Int32,System.Int32)">
             <summary>
             Crea una instancia del administrador de sockets, posterior se tiene que llamar al método
@@ -542,6 +582,32 @@
             Verificación del tiempo de la transacción sobre el proceso del proveedor
             </summary>
             <param name="estadoDelProveedor">instancia del estado del proveedor</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ValidateLicence">
+            <summary>
+            Valida que la licencia esté vigente
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.GetLicence">
+            <summary>
+            Obtiene el archivo de licencia de la ubicación de la aplicación
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.GetInfoPc">
+            <summary>
+            Obtiene la información de la PC que se requiere para el funcionamiento del server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.RunQuery(System.String,System.String)">
+            <summary>
+            Ejecuta una consulta al sistema
+            </summary>
+            <param name="TableName"></param>
+            <param name="MethodName"></param>
             <returns></returns>
         </member>
         <member name="T:ServerCore.ClienteBloqueo">

@@ -59,9 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Guia.txt" />
-    <Content Include="Licence.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

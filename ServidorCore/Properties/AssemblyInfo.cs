@@ -35,8 +35,8 @@ using System.Runtime.InteropServices;
 //Autor     Fecha       Versión     Descripción
 //@UMB      02/06/21    1.0.0.0     Creación del proyecto documentado en su totalidad, el core está funcionando aunque falta el log
 //@UMB      06/10/21    2.0.0.0     Proyecto funcional, ya contiene logs, performances y uso de licencia
+//@UMB      06/10/21    2.0.1.0     Se verifican los códigos de respuesta y se enlazan a un enum
 
 
-
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.1.0")]
+[assembly: AssemblyFileVersion("2.0.1.0")]

@@ -126,18 +126,6 @@ namespace ServerCore
         /// </summary>
         public string ipLocal;
 
-        private const string PROGRAM = "UServer";
-
-        private readonly DateTime localValidity;
-
-        private string processorId = "";
-        private string product = "";
-        private string manufacturer = "";
-
-        private string licence="";
-
-        private const string NOTLICENCE = "No cuenta con licencia válida";
-
         #endregion
 
         #region Propiedades privadas
@@ -209,6 +197,9 @@ namespace ServerCore
         /// </summary>
         internal static int maxRetrasoParaEnvio = 0;
 
+        /// <summary>
+        /// Información de la licencia
+        /// </summary>
         private enum Licence
         {
             Program = 0,
@@ -217,6 +208,41 @@ namespace ServerCore
             Product = 6,
             Manufacturer = 8
         }
+
+        /// <summary>
+        /// Nombre del programa
+        /// </summary>
+        private const string PROGRAM = "UServer";
+
+        /// <summary>
+        /// Fecha de ejecución actual
+        /// </summary>
+        private readonly DateTime localValidity;
+
+        /// <summary>
+        /// Id del procesador del equipo
+        /// </summary>
+        private string processorId = "";
+
+        /// <summary>
+        /// Producto que se ejecuta
+        /// </summary>
+        private string product = "";
+
+        /// <summary>
+        /// información del fabricante
+        /// </summary>
+        private string manufacturer = "";
+
+        /// <summary>
+        /// Toda la licencia
+        /// </summary>
+        private string licence = "";
+
+        /// <summary>
+        /// Mensaje de aviso
+        /// </summary>
+        private const string NOTLICENCE = "No cuenta con licencia válida";
 
         #endregion
 
@@ -691,22 +717,12 @@ namespace ServerCore
                         ResponderAlCliente(estadoDelCliente);
                         return;
                     }
-
-                    // como todo en asyncrono, no hay forma de verificar con un Time Out si la conexión es efectiva, por lo tanto
-                    // utilizo una conexión con AsyncResult y le doy un tiempo de 1 segundo para conectarse, de lo contrario, considero error
-
-                    //IAsyncResult conectar = socketDeTrabajoProveedor.BeginConnect(endPointProveedor, null, null);                    
-                    //bool success = conectar.AsyncWaitHandle.WaitOne(5000, true);
                     try
                     {
                         socketDeTrabajoProveedor.Connect(endPointProveedor);
                         //se logró conectar el socket
                         if (socketDeTrabajoProveedor.Connected)
                         {
-                            // se finaliza sin acción la conexión asincrona
-                            //socketDeTrabajoProveedor.EndConnect(conectar);
-                            //socketDeTrabajoProveedor.Shutdown(SocketShutdown.Both);
-
                             socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                             saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
                             //Inicio el proceso de conexión                    
@@ -977,14 +993,14 @@ namespace ServerCore
             {
                 if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
                 {
-                    estadoDelProveedor.codigoRespuesta = 71;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
 
                 }
                 else
                 {
-                    estadoDelProveedor.codigoRespuesta = 70;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
 
@@ -1010,7 +1026,7 @@ namespace ServerCore
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
-                estadoDelProveedor.codigoRespuesta = 71;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
@@ -1018,7 +1034,7 @@ namespace ServerCore
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
-                estadoDelProveedor.codigoRespuesta = 8;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
@@ -1057,7 +1073,7 @@ namespace ServerCore
                 catch (Exception ex)
                 {
                     EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión", tipoLog.ERROR);
-                    estadoDelProveedor.codigoRespuesta = 50;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProceso;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
                     CerrarSocketProveedor(estadoDelProveedor);
@@ -1112,7 +1128,7 @@ namespace ServerCore
                     else
                     {
                         EscribirLog("Error en el envío, RecepcionEnvioSalienteCallBack" + e.SocketError.ToString(), tipoLog.ERROR);
-                        estadoDelProveedor.codigoRespuesta = 5;
+                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelProveedor);
                         CerrarSocketProveedor(estadoDelProveedor);
@@ -1128,7 +1144,7 @@ namespace ServerCore
                     }
                     else
                     {
-                        estadoDelProveedor.codigoRespuesta = 5;
+                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelProveedor);
                         //CerrarSocketProveedor(estadoDelProveedor);
@@ -1136,7 +1152,7 @@ namespace ServerCore
                     break;
                 default:
                     EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioSalienteCallBack, " + e.LastOperation.ToString(), tipoLog.ALERTA);
-                    estadoDelProveedor.codigoRespuesta = 5;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProceso;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
                     CerrarSocketProveedor(estadoDelProveedor);
@@ -1154,7 +1170,7 @@ namespace ServerCore
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
-                estadoDelProveedor.codigoRespuesta = 71;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
@@ -1162,7 +1178,7 @@ namespace ServerCore
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
-                estadoDelProveedor.codigoRespuesta = 8;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
@@ -1184,9 +1200,10 @@ namespace ServerCore
                         // en su evento callback
                         RecepcionEnvioSalienteCallBack(estadoDelProveedor.socketDeTrabajo, estadoDelProveedor.saeaDeEnvioRecepcion);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    estadoDelProveedor.codigoRespuesta = 5;
+                    EscribirLog("error al ponerse en espera de respuesta del proveedor: " + ex.Message,tipoLog.ERROR);
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
                     CerrarSocketProveedor(estadoDelProveedor);
@@ -1228,14 +1245,14 @@ namespace ServerCore
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
-                estadoDelProveedor.codigoRespuesta = 71;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
             else if (SeVencioTO(estadoDelProveedor))
             {
-                estadoDelProveedor.codigoRespuesta = 8;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelProveedor);
                 CerrarSocketProveedor(estadoDelProveedor);
@@ -1556,6 +1573,10 @@ namespace ServerCore
             return timeSpan.Seconds > estadoDelProveedor.timeOut;
         }
 
+        /// <summary>
+        /// Valida que la licencia esté vigente
+        /// </summary>
+        /// <returns></returns>
         private bool ValidateLicence()
         {
             try
@@ -1581,13 +1602,16 @@ namespace ServerCore
             }
         }
 
-
+        /// <summary>
+        /// Obtiene el archivo de licencia de la ubicación de la aplicación
+        /// </summary>
+        /// <returns></returns>
         private bool GetLicence()
         {
             FileStream fileStream;
             try
-            {
-                using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\Licence.txt"))
+            {                
+                using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt"))
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
                     {
@@ -1607,13 +1631,17 @@ namespace ServerCore
             }
         }
 
+        /// <summary>
+        /// Obtiene la información de la PC que se requiere para el funcionamiento del server
+        /// </summary>
+        /// <returns></returns>
         private bool GetInfoPc()
         {
             try
             {
-                processorId=RunQuery("Processor", "ProcessorId").ToUpper();
+                processorId = RunQuery("Processor", "ProcessorId").ToUpper();
 
-                product= RunQuery("BaseBoard", "Product").ToUpper();
+                product = RunQuery("BaseBoard", "Product").ToUpper();
 
                 manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
 
@@ -1626,7 +1654,12 @@ namespace ServerCore
             }
         }
 
-
+        /// <summary>
+        /// Ejecuta una consulta al sistema
+        /// </summary>
+        /// <param name="TableName"></param>
+        /// <param name="MethodName"></param>
+        /// <returns></returns>
         private string RunQuery(string TableName, string MethodName)
         {
             ManagementObjectSearcher MOS =
