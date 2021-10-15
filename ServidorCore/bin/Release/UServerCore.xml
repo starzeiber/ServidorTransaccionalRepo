@@ -407,6 +407,11 @@
             Retraso en el envío, es para uso en Debug
             </summary>
         </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.numeroDeConexionesRestantesPosible">
+            <summary>
+            Numero que muestra cuantas conexiones puede aún soportar el servidor
+            </summary>
+        </member>
         <member name="T:ServerCore.ServidorTransaccional`3.Licence">
             <summary>
             Información de la licencia
@@ -461,13 +466,14 @@
             Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
             </summary>
         </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.IniciarServidor(System.Int32,System.String,System.Int32)">
+        <member name="M:ServerCore.ServidorTransaccional`3.IniciarServidor(System.Int32,System.String,System.Int32,System.Boolean)">
             <summary>
             Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
             </summary>
             <param name="puertoLocal">Puerto de escucha del servidor</param>
             <param name="ipProveedor">Ip del servidor del proveedor</param>
             <param name="puertoProveedor">Puerto del proveedor</param>
+            <param name="modoTest"></param>
         </member>
         <member name="M:ServerCore.ServidorTransaccional`3.IniciarAceptaciones(System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
@@ -487,7 +493,7 @@
             Operación de callBack que se llama cuando se envía o se recibe de un socket de asincrono para completar la operación
             </summary>
             <param name="sender">Objeto principal para devolver la llamada</param>
-            <param name="e">SocketAsyncEventArg asociado a la operación de envío o recepción</param>        
+            <param name="saea">SocketAsyncEventArg asociado a la operación de envío o recepción</param>        
         </member>
         <member name="M:ServerCore.ServidorTransaccional`3.ProcesarRecepcion(`0)">
             <summary>
@@ -919,6 +925,11 @@
         <member name="T:ServerCore.Utileria.tipoLog">
             <summary>
             Tipo de log a escribir
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.modoTest">
+            <summary>
+            Variable que indicará si el server entra en modo test
             </summary>
         </member>
     </members>

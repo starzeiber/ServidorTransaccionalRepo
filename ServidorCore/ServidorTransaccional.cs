@@ -198,6 +198,17 @@ namespace ServerCore
         internal static int maxRetrasoParaEnvio = 0;
 
         /// <summary>
+        /// Numero que muestra cuantas conexiones puede aún soportar el servidor
+        /// </summary>
+        public int numeroDeConexionesRestantesPosible
+        {
+            get
+            {
+                return semaforoParaAceptarClientes.CurrentCount;
+            }
+        }
+
+        /// <summary>
         /// Información de la licencia
         /// </summary>
         private enum Licence
@@ -294,8 +305,8 @@ namespace ServerCore
             adminEstadosDeProveedor = new AdminEstadosDeProveedor<X>(numeroConexionesSimultaneas);
 
             //Se inicializa el número inicial y maximo de conexiones simultaneas soportadas, será el semáforo quien indique que hay saturación.            
-            this.semaforoParaAceptarClientes = new SemaphoreSlim(numeroConexionesSimultaneas, numeroConexionesSimultaneas);
-            this.semaforoParaAceptarProveedores = new SemaphoreSlim(numeroConexionesSimultaneas, numeroConexionesSimultaneas);
+            semaforoParaAceptarClientes = new SemaphoreSlim(numeroConexionesSimultaneas, numeroConexionesSimultaneas);
+            semaforoParaAceptarProveedores = new SemaphoreSlim(numeroConexionesSimultaneas, numeroConexionesSimultaneas);
         }
 
         /// <summary>
@@ -387,11 +398,12 @@ namespace ServerCore
         /// <param name="puertoLocal">Puerto de escucha del servidor</param>
         /// <param name="ipProveedor">Ip del servidor del proveedor</param>
         /// <param name="puertoProveedor">Puerto del proveedor</param>
-        public void IniciarServidor(Int32 puertoLocal, string ipProveedor, int puertoProveedor)
+        /// <param name="modoTest"></param>
+        public void IniciarServidor(Int32 puertoLocal, string ipProveedor, int puertoProveedor, bool modoTest)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             desconectado = false;
-
+            Utileria.modoTest = modoTest;
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
             estadoDelServidorBase.OnInicio();
@@ -437,7 +449,6 @@ namespace ServerCore
                 // si ya existe instancia, se limpia el socket para trabajo. Esto se utiliza cuando se vuelve a colocar en escucha
                 saeaAceptarConexion.AcceptSocket = null;
             }
-
             // se comprueba el semáforo que nos indica que se tiene recursos para aceptar la conexión
             semaforoParaAceptarClientes.Wait();
             try
@@ -508,7 +519,13 @@ namespace ServerCore
                 try
                 {
                     if (!listaClientes.ContainsKey(estadoDelCliente.idUnicoCliente))
+                    {
                         listaClientes.Add(estadoDelCliente.idUnicoCliente, estadoDelCliente);
+                    }
+                    else
+                    {
+                        EscribirLog("Cliente ya registrado", tipoLog.ALERTA);
+                    }
                 }
                 finally
                 {
@@ -517,10 +534,9 @@ namespace ServerCore
             }
             else
             {
+                EscribirLog("Timeout de 5 seg para obtener bloqueo en AceptarConexionCallBack, listaClientes", tipoLog.ALERTA);
                 // si no puedo ingresarlo en la lista de clientes debo rechazarlo porque no tendría control para manipularlo en un futuro
                 CerrarSocketCliente(estadoDelCliente);
-
-                EscribirLog("Timeout de 5 seg para obtener bloqueo en AceptarConexionCallBack, listaClientes", tipoLog.ALERTA);
                 // coloco nuevamente el socket en proceso de aceptación con el mismo saea para un reintento de conexión
                 this.IniciarAceptaciones(saea);
                 return;
@@ -561,30 +577,40 @@ namespace ServerCore
         /// Operación de callBack que se llama cuando se envía o se recibe de un socket de asincrono para completar la operación
         /// </summary>
         /// <param name="sender">Objeto principal para devolver la llamada</param>
-        /// <param name="e">SocketAsyncEventArg asociado a la operación de envío o recepción</param>        
-        private void RecepcionEnvioEntranteCallBack(object sender, SocketAsyncEventArgs e)
+        /// <param name="saea">SocketAsyncEventArg asociado a la operación de envío o recepción</param>        
+        private void RecepcionEnvioEntranteCallBack(object sender, SocketAsyncEventArgs saea)
         {
             // obtengo el estado del socket
             // se comprueba que el estado haya sido obtenido correctamente
-            if (!(e.UserToken is T estadoDelCliente))
+            if (!(saea.UserToken is T estadoDelCliente))
             {
                 EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
 
             // se determina que operación se está llevando a cabo para indicar que manejador de eventos se ejecuta
-            switch (e.LastOperation)
+            switch (saea.LastOperation)
             {
                 case SocketAsyncOperation.Receive:
-                    // se comprueba que exista información y que el socket no refleje errores
-                    if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
+                    if (saea.SocketError == SocketError.Success)
                     {
-                        // se procesa la solicitud
-                        ProcesarRecepcion(estadoDelCliente);
+                        // se comprueba que exista información y que el socket no refleje errores
+                        if (saea.BytesTransferred > 0)
+                        {
+                            // se procesa la solicitud
+                            ProcesarRecepcion(estadoDelCliente);
+                        }
+                        else
+                        {
+                            EscribirLog("No hay datos que recibir", tipoLog.ALERTA);
+                            // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
+                            //CerrarSocketCliente(estadoDelCliente);
+                        }
                     }
                     else
                     {
-                        // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
+                        EscribirLog("Error en el proceso de recepción, socket no conectado correctamente, " + saea.SocketError.ToString(), tipoLog.ALERTA);
+                        //se cierra el cliente porque puede perdurar indefinidamente la conexión
                         CerrarSocketCliente(estadoDelCliente);
                     }
                     break;
@@ -592,20 +618,21 @@ namespace ServerCore
                     //indico que estaré enviando algo al cliente para que otro proceso con la misma conexión no quiera enviar algo al mismo tiempo
                     estadoDelCliente.esperandoEnvio.Set();
                     // se comprueba que no hay errores con el socket
-                    if (e.SocketError == SocketError.Success)
+                    if (saea.SocketError == SocketError.Success)
                     {
                         //Intento colocar el socket de nuevo en escucha por si el cliente envía otra trama con la misma conexión
                         ProcesarRecepcionEnvioCiclicoCliente(estadoDelCliente);
                     }
                     else
                     {
+                        EscribirLog("el socket no esta conectado correctamente", tipoLog.ALERTA);
                         // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
                         CerrarSocketCliente(estadoDelCliente);
                     }
                     break;
                 default:
                     // se da por errores de TCP/IP en alguna intermitencia
-                    EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioEntranteCallBack, " + e.LastOperation.ToString(), tipoLog.ERROR);
+                    EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioEntranteCallBack, " + saea.LastOperation.ToString(), tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                     break;
             }
@@ -684,76 +711,78 @@ namespace ServerCore
                         return;
                     }
 
-                    // me espero a ver si tengo disponibilidad de SAEA para un proveedor
-                    semaforoParaAceptarProveedores.Wait();
-
-                    //Se prepara el estado del proveedor que servirá como operador de envío y recepción de trama
-                    SocketAsyncEventArgs saeaProveedor = new SocketAsyncEventArgs();
-                    saeaProveedor.Completed += new EventHandler<SocketAsyncEventArgs>(ConexionProveedorCallBack);
-
-                    X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
-                    // ingreso la información de peticion para llenar las clases al proveedor
-                    estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objPeticion);
-                    estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
-                    // Para medir el inicio del proceso y tener control de time out
-                    estadoDelProveedor.fechaInicioTrx = DateTime.Now;
-
-
-                    saeaProveedor.UserToken = estadoDelProveedor;
-
-                    //TODO que la ip y puerto del proveedor sean dinámicas
-                    IPAddress iPAddress = IPAddress.Parse(ipProveedor);
-                    IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
-                    saeaProveedor.RemoteEndPoint = endPointProveedor;
-
-                    // se genera un socket que será usado en el envío y recepción
-                    Socket socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                    if (SeVencioTO(estadoDelCliente))
+                    if (!modoTest)
                     {
-                        EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
-                        estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
-                        estadoDelCliente.codigoAutorizacion = 0;
-                        ResponderAlCliente(estadoDelCliente);
-                        return;
-                    }
-                    try
-                    {
-                        socketDeTrabajoProveedor.Connect(endPointProveedor);
-                        //se logró conectar el socket
-                        if (socketDeTrabajoProveedor.Connected)
+                        // me espero a ver si tengo disponibilidad de SAEA para un proveedor
+                        semaforoParaAceptarProveedores.Wait();
+
+                        //Se prepara el estado del proveedor que servirá como operador de envío y recepción de trama
+                        SocketAsyncEventArgs saeaProveedor = new SocketAsyncEventArgs();
+                        saeaProveedor.Completed += new EventHandler<SocketAsyncEventArgs>(ConexionProveedorCallBack);
+
+                        X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
+                        // ingreso la información de peticion para llenar las clases al proveedor
+                        estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objPeticion);
+                        estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
+                        // Para medir el inicio del proceso y tener control de time out
+                        estadoDelProveedor.fechaInicioTrx = DateTime.Now;
+
+
+                        saeaProveedor.UserToken = estadoDelProveedor;
+
+                        //TODO que la ip y puerto del proveedor sean dinámicas
+                        IPAddress iPAddress = IPAddress.Parse(ipProveedor);
+                        IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
+                        saeaProveedor.RemoteEndPoint = endPointProveedor;
+
+                        // se genera un socket que será usado en el envío y recepción
+                        Socket socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                        if (SeVencioTO(estadoDelCliente))
                         {
-                            socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                            saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
-                            //Inicio el proceso de conexión                    
-                            bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
-                            if (!seHizoSync)
-                                // se llama a la función que completa el flujo de envío, 
-                                // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-                                // en su evento callback                    
-                                ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
+                            EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
+                            estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
+                            estadoDelCliente.codigoAutorizacion = 0;
+                            ResponderAlCliente(estadoDelCliente);
+                            return;
+                        }
+                        try
+                        {
+                            socketDeTrabajoProveedor.Connect(endPointProveedor);
+                            //se logró conectar el socket
+                            if (socketDeTrabajoProveedor.Connected)
+                            {
+                                socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                                saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
+                                //Inicio el proceso de conexión                    
+                                bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
+                                if (!seHizoSync)
+                                    // se llama a la función que completa el flujo de envío, 
+                                    // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
+                                    // en su evento callback                    
+                                    ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
 
-                            //semaforoParaAceptarProveedores.Release();
-                            //adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                                //semaforoParaAceptarProveedores.Release();
+                                //adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            socketDeTrabajoProveedor.Close();
+                            estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
+                            estadoDelProveedor.codigoAutorizacion = 0;
+                            ResponderAlCliente(estadoDelProveedor);
+                            // se libera el semaforo por si otra petición está solicitando acceso
+                            semaforoParaAceptarProveedores.Release();
+                            // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
+                            adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                         }
                     }
-                    catch (Exception)
+                    else
                     {
-                        socketDeTrabajoProveedor.Close();
-                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
-                        estadoDelProveedor.codigoAutorizacion = 0;
-                        ResponderAlCliente(estadoDelProveedor);
-                        // se libera el semaforo por si otra petición está solicitando acceso
-                        semaforoParaAceptarProveedores.Release();
-                        // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
-                        adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                        ResponderAlCliente(estadoDelCliente);
                     }
-
-
-                    //else // si no se logró conectar el socket en 1 segundo, se responde con error
-                    //{
-
-                    //}
+                    
                 }
                 // si el código de respuesta es 30(error en el formato) o 50 (Error en algún paso de evaluar la mensajería),
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
@@ -765,8 +794,8 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                CerrarSocketCliente(estadoDelCliente);
                 EscribirLog(ex.Message + ", ProcesarRecepcion", tipoLog.ERROR);
+                CerrarSocketCliente(estadoDelCliente);
             }
         }
 
@@ -824,8 +853,9 @@ namespace ServerCore
                         // en su evento callback
                         RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    EscribirLog("ResponderAlCliente: " + ex.Message, tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
@@ -1202,7 +1232,7 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog("error al ponerse en espera de respuesta del proveedor: " + ex.Message,tipoLog.ERROR);
+                    EscribirLog("error al ponerse en espera de respuesta del proveedor: " + ex.Message, tipoLog.ERROR);
                     estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
@@ -1224,7 +1254,7 @@ namespace ServerCore
 
             // se obtiene el mensaje y se decodifica
             String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
-            EscribirLog("Mensaje recibido del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+            EscribirLog("Mensaje recibido del proveedor: " + estadoDelProveedor.tramaRespuesta + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
 
             // incrementa el contador de bytes totales recibidos
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
@@ -1373,8 +1403,9 @@ namespace ServerCore
                         // en su evento callback
                         RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    EscribirLog("ResponderAlCliente del lado proveedor: " + ex.Message, tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
@@ -1537,16 +1568,19 @@ namespace ServerCore
             switch (tipoLog)
             {
                 case tipoLog.INFORMACION:
-                    Trace.TraceInformation(mensaje);
+                    if (!Utileria.modoTest)
+                        Trace.TraceInformation(mensaje);
                     break;
                 case tipoLog.ALERTA:
-                    Trace.TraceWarning(mensaje);
+                    if (!Utileria.modoTest)
+                        Trace.TraceWarning(mensaje);
                     break;
                 case tipoLog.ERROR:
                     Trace.TraceError(mensaje);
                     break;
                 default:
-                    Trace.WriteLine(mensaje);
+                    if (!Utileria.modoTest)
+                        Trace.WriteLine(mensaje);
                     break;
             }
         }
@@ -1610,7 +1644,8 @@ namespace ServerCore
         {
             FileStream fileStream;
             try
-            {                
+            {
+                EscribirLog(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt", tipoLog.INFORMACION);
                 using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt"))
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
@@ -1677,7 +1712,6 @@ namespace ServerCore
             }
             return "";
         }
-
 
         #endregion
 

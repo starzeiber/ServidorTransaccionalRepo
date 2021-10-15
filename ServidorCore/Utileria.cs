@@ -93,5 +93,10 @@
             ERROR = 2
         }
 
+        /// <summary>
+        /// Variable que indicará si el server entra en modo test
+        /// </summary>
+        internal static bool modoTest = false;
+
     }
 }
