@@ -1,8 +1,8 @@
-﻿namespace ServerCore
+﻿namespace UServerCore
 {
     internal static class Utileria
     {
-        internal const int LIMITE_BYTES_CONTADOR = 2147480000;
+
         internal enum CodigosRespuesta
         {
             /// <summary>
@@ -92,11 +92,5 @@
             ALERTA = 1,
             ERROR = 2
         }
-
-        /// <summary>
-        /// Variable que indicará si el server entra en modo test
-        /// </summary>
-        internal static bool modoTest = false;
-
     }
 }

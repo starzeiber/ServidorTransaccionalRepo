@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 
-namespace ServerCore
+namespace UServerCore
 {
     /// <summary>
     /// Clase que administra un buffer enorme para seccionarlo y utilizar solamente lo

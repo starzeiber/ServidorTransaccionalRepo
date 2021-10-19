@@ -7,9 +7,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using static ServerCore.Utileria;
+using static UServerCore.Configuracion;
+using static UServerCore.Utileria;
 
-namespace ServerCore
+namespace UServerCore
 {
     /// <summary>
     /// Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 
@@ -125,6 +126,7 @@ namespace ServerCore
         /// IP de escucha
         /// </summary>
         public string ipLocal;
+
 
         #endregion
 
@@ -254,6 +256,11 @@ namespace ServerCore
         /// Mensaje de aviso
         /// </summary>
         private const string NOTLICENCE = "No cuenta con licencia válida";
+
+        /// <summary>
+        /// Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor
+        /// </summary>
+        private bool modoRouter = false;
 
         #endregion
 
@@ -398,12 +405,14 @@ namespace ServerCore
         /// <param name="puertoLocal">Puerto de escucha del servidor</param>
         /// <param name="ipProveedor">Ip del servidor del proveedor</param>
         /// <param name="puertoProveedor">Puerto del proveedor</param>
-        /// <param name="modoTest"></param>
-        public void IniciarServidor(Int32 puertoLocal, string ipProveedor, int puertoProveedor, bool modoTest)
+        /// <param name="modoTest">Modo pruebas</param>
+        /// <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
+        public void IniciarServidor(Int32 puertoLocal, string ipProveedor, int puertoProveedor, bool modoTest, bool modoRouter)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             desconectado = false;
-            Utileria.modoTest = modoTest;
+            Configuracion.modoTest = modoTest;
+            Configuracion.modoRouter = modoRouter;
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
             estadoDelServidorBase.OnInicio();
@@ -691,6 +700,7 @@ namespace ServerCore
                 // bloqueo los procesos sobre este mismo cliente hasta no terminar con esta petición para no tener revolturas de mensajes
                 estadoDelCliente.esperandoEnvio.Reset();
                 estadoDelCliente.esConsulta = false;
+
                 // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la varia tramaEnvioProveedor
                 estadoDelCliente.ProcesarTrama(mensajeRecibido);
 
@@ -713,46 +723,43 @@ namespace ServerCore
 
                     if (!modoTest)
                     {
-                        // me espero a ver si tengo disponibilidad de SAEA para un proveedor
-                        semaforoParaAceptarProveedores.Wait();
-
-                        //Se prepara el estado del proveedor que servirá como operador de envío y recepción de trama
-                        SocketAsyncEventArgs saeaProveedor = new SocketAsyncEventArgs();
-                        saeaProveedor.Completed += new EventHandler<SocketAsyncEventArgs>(ConexionProveedorCallBack);
-
-                        X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
-                        // ingreso la información de peticion para llenar las clases al proveedor
-                        estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objPeticion);
-                        estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
-                        // Para medir el inicio del proceso y tener control de time out
-                        estadoDelProveedor.fechaInicioTrx = DateTime.Now;
-
-
-                        saeaProveedor.UserToken = estadoDelProveedor;
-
-                        //TODO que la ip y puerto del proveedor sean dinámicas
-                        IPAddress iPAddress = IPAddress.Parse(ipProveedor);
-                        IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
-                        saeaProveedor.RemoteEndPoint = endPointProveedor;
-
-                        // se genera un socket que será usado en el envío y recepción
-                        Socket socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                        if (SeVencioTO(estadoDelCliente))
+                        if (modoRouter)
                         {
-                            EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
-                            estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
-                            estadoDelCliente.codigoAutorizacion = 0;
-                            ResponderAlCliente(estadoDelCliente);
-                            return;
-                        }
-                        try
-                        {
-                            socketDeTrabajoProveedor.Connect(endPointProveedor);
-                            //se logró conectar el socket
-                            if (socketDeTrabajoProveedor.Connected)
+                            // me espero a ver si tengo disponibilidad de SAEA para un proveedor
+                            semaforoParaAceptarProveedores.Wait();
+
+                            //Se prepara el estado del proveedor que servirá como operador de envío y recepción de trama
+                            SocketAsyncEventArgs saeaProveedor = new SocketAsyncEventArgs();
+                            saeaProveedor.Completed += new EventHandler<SocketAsyncEventArgs>(ConexionProveedorCallBack);
+
+                            X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
+                            // ingreso la información de peticion para llenar las clases al proveedor
+                            estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objPeticion);
+                            estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
+                            // Para medir el inicio del proceso y tener control de time out
+                            estadoDelProveedor.fechaInicioTrx = DateTime.Now;
+
+
+                            saeaProveedor.UserToken = estadoDelProveedor;
+
+                            //TODO que la ip y puerto del proveedor sean dinámicas
+                            IPAddress iPAddress = IPAddress.Parse(ipProveedor);
+                            IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
+                            saeaProveedor.RemoteEndPoint = endPointProveedor;
+
+                            // se genera un socket que será usado en el envío y recepción
+                            Socket socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                            if (SeVencioTO(estadoDelCliente))
                             {
-                                socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                                EscribirLog("Se venció el TimeOut para el cliente. Preparando la conexión al proveedor", tipoLog.ALERTA);
+                                estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
+                                estadoDelCliente.codigoAutorizacion = 0;
+                                ResponderAlCliente(estadoDelCliente);
+                                return;
+                            }
+                            try
+                            {
                                 saeaProveedor.AcceptSocket = socketDeTrabajoProveedor;
                                 //Inicio el proceso de conexión                    
                                 bool seHizoSync = socketDeTrabajoProveedor.ConnectAsync(saeaProveedor);
@@ -761,28 +768,28 @@ namespace ServerCore
                                     // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
                                     // en su evento callback                    
                                     ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
-
-                                //semaforoParaAceptarProveedores.Release();
-                                //adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                            }
+                            catch (Exception)
+                            {
+                                socketDeTrabajoProveedor.Close();
+                                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
+                                estadoDelProveedor.codigoAutorizacion = 0;
+                                ResponderAlCliente(estadoDelProveedor);
+                                // se libera el semaforo por si otra petición está solicitando acceso
+                                semaforoParaAceptarProveedores.Release();
+                                // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
+                                adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                             }
                         }
-                        catch (Exception)
+                        else
                         {
-                            socketDeTrabajoProveedor.Close();
-                            estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
-                            estadoDelProveedor.codigoAutorizacion = 0;
-                            ResponderAlCliente(estadoDelProveedor);
-                            // se libera el semaforo por si otra petición está solicitando acceso
-                            semaforoParaAceptarProveedores.Release();
-                            // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
-                            adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                            ResponderAlCliente(estadoDelCliente);
                         }
                     }
                     else
                     {
                         ResponderAlCliente(estadoDelCliente);
                     }
-                    
                 }
                 // si el código de respuesta es 30(error en el formato) o 50 (Error en algún paso de evaluar la mensajería),
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
@@ -862,6 +869,7 @@ namespace ServerCore
             }
             else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
             {
+                EscribirLog("Sin respuesta", tipoLog.ALERTA);
                 if (estadoDelCliente.socketDeTrabajo.Connected)
                 {
                     try
@@ -1343,6 +1351,7 @@ namespace ServerCore
             // se marca el semáforo de que puede aceptar otro cliente
             this.semaforoParaAceptarProveedores.Release();
         }
+
         /// <summary>
         /// Función que realiza el envío de la trama de respuesta al cliente desde los estado del proveedor
         /// </summary>
@@ -1436,9 +1445,6 @@ namespace ServerCore
             }
 
         }
-
-
-
 
         #endregion
 
@@ -1568,19 +1574,16 @@ namespace ServerCore
             switch (tipoLog)
             {
                 case tipoLog.INFORMACION:
-                    if (!Utileria.modoTest)
-                        Trace.TraceInformation(mensaje);
+                    Trace.TraceInformation(mensaje);
                     break;
                 case tipoLog.ALERTA:
-                    if (!Utileria.modoTest)
-                        Trace.TraceWarning(mensaje);
+                    Trace.TraceWarning(mensaje);
                     break;
                 case tipoLog.ERROR:
                     Trace.TraceError(mensaje);
                     break;
                 default:
-                    if (!Utileria.modoTest)
-                        Trace.WriteLine(mensaje);
+                    Trace.WriteLine(mensaje);
                     break;
             }
         }

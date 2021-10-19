@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace ServerCore
+namespace UServerCore
 {
     /// <summary>
     /// Clase que contiene las propiedades y métodos para poder agregar a la lista de clientes bloqueados

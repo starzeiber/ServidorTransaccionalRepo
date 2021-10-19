@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace ServerCore
+namespace UServerCore
 {
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
@@ -102,7 +102,7 @@ namespace ServerCore
             ipProveedor = "";
             socketDeTrabajo = null;
             estadoDelClienteOrigen = null;
-            timeOut = 25;
+            timeOut = Configuracion.timeOutProveedor;
         }
 
         /// <summary>

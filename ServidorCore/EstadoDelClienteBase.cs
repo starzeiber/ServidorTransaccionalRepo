@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Threading;
 
-namespace ServerCore
+namespace UServerCore
 {
 
     /// <summary>
@@ -112,7 +112,7 @@ namespace ServerCore
             idUnicoCliente = Guid.NewGuid();
             ipCliente = "";
             socketDeTrabajo = null;
-            timeOut = 50;
+            timeOut = Configuracion.timeOutCliente;
             esConsulta = false;
         }
 
