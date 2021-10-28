@@ -62,12 +62,12 @@ namespace UServerCore
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
         /// </summary>
-        public object objPeticion { get; set; }
+        public object objSolicitud;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
         /// </summary>
-        public object objRespuesta { get; set; }
+        public object objRespuesta;
 
         /// <summary>
         /// Tiempo de espera general del lado del proveedor

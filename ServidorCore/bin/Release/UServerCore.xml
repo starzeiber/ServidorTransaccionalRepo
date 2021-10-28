@@ -202,12 +202,12 @@
             Trama de respuesta de un proveedor
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelProveedorBase.objPeticion">
+        <member name="F:UServerCore.EstadoDelProveedorBase.objSolicitud">
             <summary>
             Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelProveedorBase.objRespuesta">
+        <member name="F:UServerCore.EstadoDelProveedorBase.objRespuesta">
             <summary>
             Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
             </summary>
@@ -465,11 +465,6 @@
         <member name="F:UServerCore.ServidorTransaccional`3.NOTLICENCE">
             <summary>
             Mensaje de aviso
-            </summary>
-        </member>
-        <member name="F:UServerCore.ServidorTransaccional`3.modoRouter">
-            <summary>
-            Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor
             </summary>
         </member>
         <member name="M:UServerCore.ServidorTransaccional`3.#ctor(System.Int32,System.Int32,System.Int32)">
@@ -783,27 +778,27 @@
             Socket asignado de trabajo sobre la conexión del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.codigoRespuesta">
+        <member name="F:UServerCore.EstadoDelClienteBase.codigoRespuesta">
             <summary>
             Codigo de respuesta sobre el proceso del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.codigoAutorizacion">
+        <member name="F:UServerCore.EstadoDelClienteBase.codigoAutorizacion">
             <summary>
             Codigo de autorización sobre el proceso del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.objPeticion">
+        <member name="F:UServerCore.EstadoDelClienteBase.objSolicitud">
             <summary>
             Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.objRespuesta">
+        <member name="F:UServerCore.EstadoDelClienteBase.objRespuesta">
             <summary>
             Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.fechaInicioTrx">
+        <member name="F:UServerCore.EstadoDelClienteBase.fechaInicioTrx">
             <summary>
             Fecha marcada como inicio de operaciones con el cliente
             </summary>

@@ -55,29 +55,27 @@ namespace UServerCore
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// </summary>
-        public int codigoRespuesta { get; set; }
+        public int codigoRespuesta;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int codigoAutorizacion { get; set; }
-
-        //public int cabeceraMensaje { get; set; }
+        public int codigoAutorizacion;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
         /// </summary>
-        public object objPeticion { get; set; }
+        public object objSolicitud;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
         /// </summary>
-        public object objRespuesta { get; set; }
+        public object objRespuesta;
 
         /// <summary>
         /// Fecha marcada como inicio de operaciones con el cliente
         /// </summary>
-        public DateTime fechaInicioTrx { get; set; }
+        public DateTime fechaInicioTrx;
 
         /// <summary>
         /// Tiempo de espera general del lado del cliente

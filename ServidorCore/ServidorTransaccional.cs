@@ -255,12 +255,12 @@ namespace UServerCore
         /// <summary>
         /// Mensaje de aviso
         /// </summary>
-        private const string NOTLICENCE = "No cuenta con licencia válida";
+        private const string NOTLICENCE = "No cuenta con permisos";
 
-        /// <summary>
-        /// Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor
-        /// </summary>
-        private bool modoRouter = false;
+        ///// <summary>
+        ///// Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor
+        ///// </summary>
+        //private bool modoRouter = false;
 
         #endregion
 
@@ -611,9 +611,9 @@ namespace UServerCore
                         }
                         else
                         {
-                            EscribirLog("No hay datos que recibir", tipoLog.ALERTA);
+                            //EscribirLog("No hay datos que recibir", tipoLog.ALERTA);
                             // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
-                            //CerrarSocketCliente(estadoDelCliente);
+                            CerrarSocketCliente(estadoDelCliente);
                         }
                     }
                     else
@@ -734,11 +734,19 @@ namespace UServerCore
 
                             X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
                             // ingreso la información de peticion para llenar las clases al proveedor
-                            estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objPeticion);
+                            estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);                            
                             estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
                             // Para medir el inicio del proceso y tener control de time out
                             estadoDelProveedor.fechaInicioTrx = DateTime.Now;
-
+                            if (estadoDelProveedor.codigoRespuesta != 0)
+                            {
+                                ResponderAlCliente(estadoDelProveedor);
+                                // se libera el semaforo por si otra petición está solicitando acceso
+                                semaforoParaAceptarProveedores.Release();
+                                // el SAEA del proveedor se ingresa nuevamente al pool para ser re utilizado
+                                adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                                return;
+                            }
 
                             saeaProveedor.UserToken = estadoDelProveedor;
 
@@ -1546,9 +1554,7 @@ namespace UServerCore
             listaDeClientesEliminar.Clear();
 
             enEjecucion = false;
-            desconectado = false;
-
-            // Se marca en log que se detiene el servidor            
+            desconectado = false;          
         }
 
         //private void CerrarConexionForzadaProveedor(Socket socketProveedor)
@@ -1648,7 +1654,7 @@ namespace UServerCore
             FileStream fileStream;
             try
             {
-                EscribirLog(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt", tipoLog.INFORMACION);
+                //EscribirLog(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt", tipoLog.INFORMACION);
                 using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt"))
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
