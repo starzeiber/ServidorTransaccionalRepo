@@ -38,6 +38,9 @@ using System.Runtime.InteropServices;
 //@UMB      06/10/21    2.0.1.0     Se verifican los códigos de respuesta y se enlazan a un enum
 //@UMB      15/10/21    2.1.0.0     Se implementa el modo test
 //@UMB      19/10/21    2.2.0.0     Se implementa el modo router y se divide la utileria para tener una clase configuracion
+//@UMB      04/11/21    2.2.0.1     pequeña corrección en el log
 
-[assembly: AssemblyVersion("2.2.0.0")]
-[assembly: AssemblyFileVersion("2.2.0.0")]
+
+
+[assembly: AssemblyVersion("2.2.0.1")]
+[assembly: AssemblyFileVersion("2.2.0.1")]

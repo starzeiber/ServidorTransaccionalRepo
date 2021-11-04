@@ -680,7 +680,22 @@ namespace UServerCore
             // se obtiene el mensaje y se decodifica para entenderlo
             String mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
 
-            EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+            try
+            {
+                if (int.TryParse(mensajeRecibido.Substring(0, 2), out int encabezado))
+                {
+                    EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                }
+                else
+                {
+                    EscribirLog("Mensaje recibido: " + mensajeRecibido.Substring(2) + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                }
+            }
+            catch (Exception)
+            {
+                EscribirLog("Mensaje recibido: " + mensajeRecibido.Substring(2) + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+            }
+
 
             // incrementa el contador de bytes totales recibidos para tener estadísticas nada más
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
@@ -712,15 +727,14 @@ namespace UServerCore
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
+                if (estadoDelCliente.esConsulta)
+                {
+                    ResponderAlCliente(estadoDelCliente);
+                    return;
+                }
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
                 {
-                    if (estadoDelCliente.esConsulta)
-                    {
-                        ResponderAlCliente(estadoDelCliente);
-                        return;
-                    }
-
                     if (!modoTest)
                     {
                         if (modoRouter)
@@ -834,7 +848,22 @@ namespace UServerCore
             {
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
-                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                try
+                {
+                    if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
+                    {
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    }
+                    else
+                    {
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    }
+                }
+                catch (Exception)
+                {
+                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                }
+                
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
@@ -877,7 +906,6 @@ namespace UServerCore
             }
             else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
             {
-                EscribirLog("Sin respuesta", tipoLog.ALERTA);
                 if (estadoDelCliente.socketDeTrabajo.Connected)
                 {
                     try
@@ -1092,7 +1120,7 @@ namespace UServerCore
                 try
                 {
                     string mensajeAlProveedor = estadoDelProveedor.tramaSolicitud;
-                    //EscribirLog(mensajeAlProveedor.Substring(2), tipoLog.INFORMACION);
+                    EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
 
                     // se obtiene la cantidad de bytes de la trama completa
                     int numeroDeBytes = Encoding.Default.GetBytes(mensajeAlProveedor, 0, mensajeAlProveedor.Length, estadoDelProveedor.saeaDeEnvioRecepcion.Buffer, estadoDelProveedor.saeaDeEnvioRecepcion.Offset);
@@ -1163,8 +1191,8 @@ namespace UServerCore
             // se determina que operación se está llevando a cabo para indicar que manejador de eventos se ejecuta
             switch (e.LastOperation)
             {
-                case SocketAsyncOperation.Send:
-                    EscribirLog("Mensaje enviado al proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                case SocketAsyncOperation.Send:                   
+                    
                     // se comprueba que no hay errores con el socket
                     if (e.SocketError == SocketError.Success)
                     {
@@ -1270,7 +1298,7 @@ namespace UServerCore
 
             // se obtiene el mensaje y se decodifica
             String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
-            EscribirLog("Mensaje recibido del proveedor: " + estadoDelProveedor.tramaRespuesta + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+            EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
 
             // incrementa el contador de bytes totales recibidos
             // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
@@ -1385,7 +1413,22 @@ namespace UServerCore
 
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
-                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                try
+                {
+                    if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
+                    {
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    }
+                    else
+                    {
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    }
+                }
+                catch (Exception)
+                {
+                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                }
+                //EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
 
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
