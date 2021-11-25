@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using static UServerCore.Configuracion;
 using static UServerCore.Utileria;
+using System.Linq;
 
 namespace UServerCore
 {
@@ -106,10 +107,12 @@ namespace UServerCore
         /// </summary>
         public string ipProveedor { get; set; }
 
-        /// <summary>
-        /// Puerto del proveedor para la conexión
-        /// </summary>
-        public int puertoProveedor { get; set; }
+        ///// <summary>
+        ///// Puerto del proveedor para la conexión
+        ///// </summary>
+        //public int puertoProveedor { get; set; }
+
+        public List<int> listaPuertosProveedor { get; set; }
 
         /// <summary>
         /// Bytes que se han transmitido desde el inicio de la aplicación
@@ -126,7 +129,6 @@ namespace UServerCore
         /// IP de escucha
         /// </summary>
         public string ipLocal;
-
 
         #endregion
 
@@ -261,6 +263,9 @@ namespace UServerCore
         ///// Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor
         ///// </summary>
         //private bool modoRouter = false;
+
+
+        internal int contadorPuertos = 0;
 
         #endregion
 
@@ -407,7 +412,7 @@ namespace UServerCore
         /// <param name="puertoProveedor">Puerto del proveedor</param>
         /// <param name="modoTest">Modo pruebas</param>
         /// <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
-        public void IniciarServidor(Int32 puertoLocal, string ipProveedor, int puertoProveedor, bool modoTest, bool modoRouter)
+        public void IniciarServidor(Int32 puertoLocal, string ipProveedor, List<int> listaPuertosProveedor, bool modoTest, bool modoRouter)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             desconectado = false;
@@ -418,7 +423,8 @@ namespace UServerCore
             estadoDelServidorBase.OnInicio();
 
             this.ipProveedor = ipProveedor;
-            this.puertoProveedor = puertoProveedor;
+            //this.puertoProveedor = puertoProveedor;
+            this.listaPuertosProveedor = listaPuertosProveedor;
 
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);
 
@@ -432,6 +438,8 @@ namespace UServerCore
 
             // se inicia la escucha de conexiones con un backlog de 100 conexiones
             this.socketDeEscucha.Listen(backLog);
+
+            contadorPuertos = listaPuertosProveedor.Count;
 
             // Se indica al sistema que se empiezan a aceptar conexiones, se envía una referencia a null para que se indique que es la primera vez
             this.IniciarAceptaciones(null);
@@ -748,7 +756,7 @@ namespace UServerCore
 
                             X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
                             // ingreso la información de peticion para llenar las clases al proveedor
-                            estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);                            
+                            estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);
                             estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
                             // Para medir el inicio del proceso y tener control de time out
                             estadoDelProveedor.fechaInicioTrx = DateTime.Now;
@@ -763,10 +771,35 @@ namespace UServerCore
                             }
 
                             saeaProveedor.UserToken = estadoDelProveedor;
-
-                            //TODO que la ip y puerto del proveedor sean dinámicas
+                            
                             IPAddress iPAddress = IPAddress.Parse(ipProveedor);
-                            IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
+                            //IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
+
+                            bool seSincronzo = Monitor.TryEnter(listaPuertosProveedor, 5000);
+                            IPEndPoint endPointProveedor;
+                            if (seSincronzo)
+                            {
+                                try
+                                {
+                                    endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor[contadorPuertos - 1]);
+                                }
+                                finally
+                                {
+                                    Monitor.Exit(listaPuertosProveedor);
+                                }
+                            }
+                            else
+                            {
+                                EscribirLog("Timeout de 5 seg para obtener un puerto de listaPuertosProveedor", tipoLog.ALERTA);
+                                endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
+                            }
+                            
+
+                            if (contadorPuertos == listaPuertosProveedor.Count)
+                            {
+                                Interlocked.Exchange(ref contadorPuertos, 0);
+                            }
+                            Interlocked.Increment(ref contadorPuertos);
                             saeaProveedor.RemoteEndPoint = endPointProveedor;
 
                             // se genera un socket que será usado en el envío y recepción
@@ -863,7 +896,7 @@ namespace UServerCore
                 {
                     EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
                 }
-                
+
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
@@ -1191,8 +1224,8 @@ namespace UServerCore
             // se determina que operación se está llevando a cabo para indicar que manejador de eventos se ejecuta
             switch (e.LastOperation)
             {
-                case SocketAsyncOperation.Send:                   
-                    
+                case SocketAsyncOperation.Send:
+
                     // se comprueba que no hay errores con el socket
                     if (e.SocketError == SocketError.Success)
                     {
@@ -1597,7 +1630,7 @@ namespace UServerCore
             listaDeClientesEliminar.Clear();
 
             enEjecucion = false;
-            desconectado = false;          
+            desconectado = false;
         }
 
         //private void CerrarConexionForzadaProveedor(Socket socketProveedor)

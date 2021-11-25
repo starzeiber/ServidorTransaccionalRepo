@@ -340,11 +340,6 @@
             Ip a la cual se apuntarán todas las transacciones del proveedor
             </summary>
         </member>
-        <member name="P:UServerCore.ServidorTransaccional`3.puertoProveedor">
-            <summary>
-            Puerto del proveedor para la conexión
-            </summary>
-        </member>
         <member name="P:UServerCore.ServidorTransaccional`3.totalDeBytesTransferidos">
             <summary>
             Bytes que se han transmitido desde el inicio de la aplicación
@@ -481,7 +476,7 @@
             Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
             </summary>
         </member>
-        <member name="M:UServerCore.ServidorTransaccional`3.IniciarServidor(System.Int32,System.String,System.Int32,System.Boolean,System.Boolean)">
+        <member name="M:UServerCore.ServidorTransaccional`3.IniciarServidor(System.Int32,System.String,System.Collections.Generic.List{System.Int32},System.Boolean,System.Boolean)">
             <summary>
             Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
             </summary>

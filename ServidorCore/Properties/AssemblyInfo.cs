@@ -39,8 +39,8 @@ using System.Runtime.InteropServices;
 //@UMB      15/10/21    2.1.0.0     Se implementa el modo test
 //@UMB      19/10/21    2.2.0.0     Se implementa el modo router y se divide la utileria para tener una clase configuracion
 //@UMB      04/11/21    2.2.0.1     pequeña corrección en el log
+//@UMB      25/11/21    2.3.0.0     Se agrega el multipuerto a la ip de proveedor para balanceo     
 
 
-
-[assembly: AssemblyVersion("2.2.0.1")]
-[assembly: AssemblyFileVersion("2.2.0.1")]
+[assembly: AssemblyVersion("2.3.0.0")]
+[assembly: AssemblyFileVersion("2.3.0.0")]
