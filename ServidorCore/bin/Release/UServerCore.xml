@@ -340,6 +340,11 @@
             Ip a la cual se apuntarán todas las transacciones del proveedor
             </summary>
         </member>
+        <member name="P:UServerCore.ServidorTransaccional`3.listaPuertosProveedor">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="P:UServerCore.ServidorTransaccional`3.totalDeBytesTransferidos">
             <summary>
             Bytes que se han transmitido desde el inicio de la aplicación
@@ -471,7 +476,7 @@
             <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
             <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
         </member>
-        <member name="M:UServerCore.ServidorTransaccional`3.ConfigInicioServidor">
+        <member name="M:UServerCore.ServidorTransaccional`3.ConfigInicioServidor(System.Int32,System.Int32)">
             <summary>
             Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
             </summary>
@@ -482,7 +487,7 @@
             </summary>
             <param name="puertoLocal">Puerto de escucha del servidor</param>
             <param name="ipProveedor">Ip del servidor del proveedor</param>
-            <param name="puertoProveedor">Puerto del proveedor</param>
+            <param name="listaPuertosProveedor">Puertos del proveedor</param>
             <param name="modoTest">Modo pruebas</param>
             <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
         </member>

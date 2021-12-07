@@ -3,6 +3,7 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Relea
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\UServerCore.pdb
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.pdb
+C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.AssemblyReference.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CoreCompileInputs.cache
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\UServerCore.dll

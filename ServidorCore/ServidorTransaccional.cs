@@ -112,6 +112,9 @@ namespace UServerCore
         ///// </summary>
         //public int puertoProveedor { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public List<int> listaPuertosProveedor { get; set; }
 
         /// <summary>
@@ -324,10 +327,12 @@ namespace UServerCore
         /// <summary>
         /// Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
         /// </summary>
-        public void ConfigInicioServidor()
+        public void ConfigInicioServidor(int timeOutCliente, int timeOutProveedor)
         {
             try
             {
+                Configuracion.timeOutCliente = timeOutCliente;
+                Configuracion.timeOutProveedor = timeOutProveedor;
                 peformanceConexionesEntrantes = new PerformanceCounter("TN", "conexionesEntrantesUserver", false);
                 peformanceConexionesEntrantes.IncrementBy(1);
             }
@@ -409,7 +414,7 @@ namespace UServerCore
         /// </summary>
         /// <param name="puertoLocal">Puerto de escucha del servidor</param>
         /// <param name="ipProveedor">Ip del servidor del proveedor</param>
-        /// <param name="puertoProveedor">Puerto del proveedor</param>
+        /// <param name="listaPuertosProveedor">Puertos del proveedor</param>
         /// <param name="modoTest">Modo pruebas</param>
         /// <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
         public void IniciarServidor(Int32 puertoLocal, string ipProveedor, List<int> listaPuertosProveedor, bool modoTest, bool modoRouter)
@@ -417,7 +422,7 @@ namespace UServerCore
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             desconectado = false;
             Configuracion.modoTest = modoTest;
-            Configuracion.modoRouter = modoRouter;
+            Configuracion.modoRouter = modoRouter;            
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
             estadoDelServidorBase.OnInicio();
@@ -735,11 +740,20 @@ namespace UServerCore
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
-                if (estadoDelCliente.esConsulta)
+                //Verifico que sea una consulta y que no haya sido con código 71, porque si tuviera ese código, tengo que formar el 220 al proveedor
+                if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta!=(int)CodigosRespuesta.SinRespuestaCarrier)
                 {
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
+                else
+                {
+                    //Fue 71, entonces tengo que dejar seguir el flujo y solamente cuando guarde la respuesta del proveedor, actualizar el registro
+                    estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TransaccionExitosa;
+                }
+
+
+
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
                 {
@@ -1678,6 +1692,8 @@ namespace UServerCore
         private bool SeVencioTO(T estadoDelCliente)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
+            EscribirLog("Comprobación de tiempo transcurrido para el cliente: " + estadoDelCliente.idUnicoCliente + ". " + timeSpan.Seconds + " segundos, TO:" + estadoDelCliente.timeOut, tipoLog.INFORMACION);
+
             return timeSpan.Seconds > estadoDelCliente.timeOut;
         }
 
@@ -1689,6 +1705,7 @@ namespace UServerCore
         private bool SeVencioTO(X estadoDelProveedor)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
+            EscribirLog("Comprobación de tiempo transcurrido cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", en espera del proveedor. " + timeSpan.Seconds + " segundos, TO:" + estadoDelProveedor.timeOut, tipoLog.INFORMACION);
             return timeSpan.Seconds > estadoDelProveedor.timeOut;
         }
 
@@ -1729,9 +1746,8 @@ namespace UServerCore
         {
             FileStream fileStream;
             try
-            {
-                //EscribirLog(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt", tipoLog.INFORMACION);
-                using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\Licence" + PROGRAM + ".txt"))
+            {                
+                using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\" + PROGRAM + ".txt"))
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
                     {
