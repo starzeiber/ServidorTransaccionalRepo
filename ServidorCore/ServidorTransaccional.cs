@@ -740,19 +740,19 @@ namespace UServerCore
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
+                
                 //Verifico que sea una consulta y que no haya sido con código 71, porque si tuviera ese código, tengo que formar el 220 al proveedor
                 if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta!=(int)CodigosRespuesta.SinRespuestaCarrier)
                 {
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
-                else
+                else if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.SinRespuestaCarrier)
                 {
                     //Fue 71, entonces tengo que dejar seguir el flujo y solamente cuando guarde la respuesta del proveedor, actualizar el registro
                     estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TransaccionExitosa;
+                    estadoDelCliente.esConsulta = false;
                 }
-
-
 
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
@@ -771,10 +771,11 @@ namespace UServerCore
                             X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
                             // ingreso la información de peticion para llenar las clases al proveedor
                             estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);
+                            
                             estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
                             // Para medir el inicio del proceso y tener control de time out
                             estadoDelProveedor.fechaInicioTrx = DateTime.Now;
-                            if (estadoDelProveedor.codigoRespuesta != 0)
+                            if (estadoDelProveedor.codigoRespuesta != (int)CodigosRespuesta.TransaccionExitosa)
                             {
                                 ResponderAlCliente(estadoDelProveedor);
                                 // se libera el semaforo por si otra petición está solicitando acceso
@@ -864,7 +865,7 @@ namespace UServerCore
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
                 else if (estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.ErrorFormato && estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.ErrorProceso)
                 {
-                    EscribirLog("Error en la identificación de la trama", tipoLog.ALERTA);
+                    EscribirLog("Error en el proceso de validación de la trama", tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente);
                 }
             }

@@ -42,7 +42,7 @@ using System.Runtime.InteropServices;
 //@UMB      25/11/21    2.3.0.0     Se agrega el multipuerto a la ip de proveedor para balanceo     
 //@UMB      06/12/21    2.3.1.0     Corrección  sobre el time out del cliente y proveedor
 //@UMB      06/12/21    3.0.0.0     Se agrega que consulte al proveedor en caso de que en base de datos tenga código 71 la operación
+//@UMB      08/12/21    3.0.1.0     Corrección en la variable esConsulta
 
-
-[assembly: AssemblyVersion("3.0.0.0")]
-[assembly: AssemblyFileVersion("3.0.0.0")]
+[assembly: AssemblyVersion("3.0.1.0")]
+[assembly: AssemblyFileVersion("3.0.1.0")]
