@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.Sockets;
@@ -9,7 +10,6 @@ using System.Text;
 using System.Threading;
 using static UServerCore.Configuracion;
 using static UServerCore.Utileria;
-using System.Linq;
 
 namespace UServerCore
 {
@@ -270,6 +270,11 @@ namespace UServerCore
 
         internal int contadorPuertos = 0;
 
+        [ThreadStatic]
+        static Timer clientTimer;
+        [ThreadStatic]
+        static Timer providerTimer;
+
         #endregion
 
         /// <summary>
@@ -422,7 +427,7 @@ namespace UServerCore
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             desconectado = false;
             Configuracion.modoTest = modoTest;
-            Configuracion.modoRouter = modoRouter;            
+            Configuracion.modoRouter = modoRouter;
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
             estadoDelServidorBase.OnInicio();
@@ -451,7 +456,7 @@ namespace UServerCore
             enEjecucion = true;
         }
 
-
+        
         #region ProcesoDePeticionesCliente
 
         /// <summary>
@@ -667,6 +672,7 @@ namespace UServerCore
         /// <param name="estadoDelCliente">Objeto que tiene la información y socket de trabajo del cliente</param>
         private void ProcesarRecepcion(T estadoDelCliente)
         {
+            estadoDelCliente.seHaRespondido = false;
             //Para ir midiendo el TO por cada recepción
             bool bloqueo = Monitor.TryEnter(estadoDelCliente.fechaInicioTrx, 5000);
             if (bloqueo)
@@ -740,10 +746,11 @@ namespace UServerCore
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
-                
+
                 //Verifico que sea una consulta y que no haya sido con código 71, porque si tuviera ese código, tengo que formar el 220 al proveedor
-                if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta!=(int)CodigosRespuesta.SinRespuestaCarrier)
+                if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.SinRespuestaCarrier)
                 {
+                    //regresa la respuesta de la base
                     ResponderAlCliente(estadoDelCliente);
                     return;
                 }
@@ -771,7 +778,7 @@ namespace UServerCore
                             X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
                             // ingreso la información de peticion para llenar las clases al proveedor
                             estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);
-                            
+
                             estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
                             // Para medir el inicio del proceso y tener control de time out
                             estadoDelProveedor.fechaInicioTrx = DateTime.Now;
@@ -786,7 +793,7 @@ namespace UServerCore
                             }
 
                             saeaProveedor.UserToken = estadoDelProveedor;
-                            
+
                             IPAddress iPAddress = IPAddress.Parse(ipProveedor);
                             //IPEndPoint endPointProveedor = new IPEndPoint(iPAddress, puertoProveedor);
 
@@ -808,7 +815,7 @@ namespace UServerCore
                                 EscribirLog("Timeout de 5 seg para obtener un puerto de listaPuertosProveedor", tipoLog.ALERTA);
                                 endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
                             }
-                            
+
 
                             if (contadorPuertos == listaPuertosProveedor.Count)
                             {
@@ -881,10 +888,9 @@ namespace UServerCore
         /// </summary>
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
         private void ResponderAlCliente(T estadoDelCliente)
-        {
-            if (estadoDelCliente == null)
+        {            
+            if (estadoDelCliente == null||estadoDelCliente.seHaRespondido)
             {
-                EscribirLog("estadoDelCliente null", tipoLog.ERROR);
                 return;
             }
 
@@ -894,62 +900,70 @@ namespace UServerCore
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
             {
-                // se obtiene el mensaje de respuesta que se enviará cliente
-                string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
-                try
+                if (!estadoDelCliente.seHaRespondido)
                 {
-                    if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
+                    // se obtiene el mensaje de respuesta que se enviará cliente
+                    string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
+                    try
                     {
-                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
+                        {
+                            EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        }
+                        else
+                        {
+                            EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
                         EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
                     }
-                }
-                catch (Exception)
-                {
-                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
-                }
 
-                // se obtiene la cantidad de bytes de la trama completa
-                int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
-                // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
-                if (numeroDeBytes > tamanoBufferPorPeticion)
-                {
-                    EscribirLog("La respuesta es más grande que el buffer", tipoLog.ALERTA);
-                    CerrarSocketCliente(estadoDelCliente);
-                    return;
-                }
-                try
-                {
-                    // Se solicita el espacio de buffer para los bytes que se van a enviar                    
-                    estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
-                }
-                catch (Exception ex)
-                {
-                    EscribirLog("Error asignando buffer para la respuesta al cliente: " + ex.Message, tipoLog.ERROR);
-                    return;
-                }
+                    // se obtiene la cantidad de bytes de la trama completa
+                    int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
+                    // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
+                    if (numeroDeBytes > tamanoBufferPorPeticion)
+                    {
+                        EscribirLog("La respuesta es más grande que el buffer", tipoLog.ALERTA);
+                        CerrarSocketCliente(estadoDelCliente);
+                        return;
+                    }
+                    try
+                    {
+                        // Se solicita el espacio de buffer para los bytes que se van a enviar                    
+                        estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog("Error asignando buffer para la respuesta al cliente: " + ex.Message, tipoLog.ERROR);
+                        return;
+                    }
 
-                try
-                {
+                    try
+                    {
 
-                    // se envía asincronamente por medio del socket copia de recepción que es
-                    // con el que se está trabajando en esta operación, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
-                    // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
-                    bool seHizoAsync = estadoDelCliente.socketDeTrabajo.SendAsync(estadoDelCliente.saeaDeEnvioRecepcion);
-                    if (!seHizoAsync)
-                        // Si se tiene una respuesta False de que el proceso está pendiente, se completa el flujo,
-                        // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-                        // en su evento callback
-                        RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
-                }
-                catch (Exception ex)
-                {
-                    EscribirLog("ResponderAlCliente: " + ex.Message, tipoLog.ERROR);
-                    CerrarSocketCliente(estadoDelCliente);
-                    return;
+                        // se envía asincronamente por medio del socket copia de recepción que es
+                        // con el que se está trabajando en esta operación, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
+                        // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
+                        bool seHizoAsync = estadoDelCliente.socketDeTrabajo.SendAsync(estadoDelCliente.saeaDeEnvioRecepcion);
+                        if (!seHizoAsync)
+                            // Si se tiene una respuesta False de que el proceso está pendiente, se completa el flujo,
+                            // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
+                            // en su evento callback
+                            RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog("ResponderAlCliente: " + ex.Message, tipoLog.ERROR);
+                        CerrarSocketCliente(estadoDelCliente);
+                        return;
+                    }
+                    finally
+                    {
+                        StopTimerClient();
+                        StopTimerProvider();
+                    }
                 }
             }
             else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
@@ -973,6 +987,11 @@ namespace UServerCore
                     {
                         EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketCliente(estadoDelCliente);
+                    }
+                    finally
+                    {
+                        StopTimerClient();
+                        StopTimerProvider();
                     }
                 }
             }
@@ -1065,7 +1084,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en CerrarSocketCliente, shutdown el socket de trabajo", tipoLog.ERROR);
+                EscribirLog(ex.Message + " en CerrarSocketCliente, shutdown el socket de trabajo", tipoLog.ALERTA);
             }
             socketDeTrabajoACerrar.Close();
 
@@ -1288,7 +1307,8 @@ namespace UServerCore
         /// <param name="estadoDelProveedor">Estado del proveedor con la información de conexión</param>
         private void ProcesarRecepcionEnvioCiclicoProveedor(X estadoDelProveedor)
         {
-            //estadoDelProveedor.fechaHoraUltimoMensajeAlProveedor = DateTime.Now;
+            clientTimer = new Timer(new TimerCallback(TickTimerClient), estadoDelProveedor, 1000, 1000);
+            providerTimer = new Timer(new TimerCallback(TickTimerProvider), estadoDelProveedor, 1000, 1000);
 
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
@@ -1442,11 +1462,12 @@ namespace UServerCore
         /// <param name="estadoDelProveedor">EstadoDelProveedor</param>
         private void ResponderAlCliente(X estadoDelProveedor)
         {
-            T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;
+            T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;            
             if (estadoDelCliente == null)
             {
                 return;
             }
+
             estadoDelCliente.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
             estadoDelCliente.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
 
@@ -1456,67 +1477,75 @@ namespace UServerCore
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
             {
-                // se guarda la transacción sin importar si pudiera existir un error porque al cliente siempre se le debe responder
-                estadoDelProveedor.GuardarTransaccion();
-
-                // se obtiene el mensaje de respuesta que se enviará cliente
-                string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
-                try
+                if (!estadoDelCliente.seHaRespondido)
                 {
-                    if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
+                    // se guarda la transacción sin importar si pudiera existir un error porque al cliente siempre se le debe responder
+                    estadoDelProveedor.GuardarTransaccion();
+
+                    // se obtiene el mensaje de respuesta que se enviará cliente
+                    string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
+                    try
                     {
-                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
+                        {
+                            EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        }
+                        else
+                        {
+                            EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
                         EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
                     }
-                }
-                catch (Exception)
-                {
-                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
-                }
-                //EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    //EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
 
-                // se obtiene la cantidad de bytes de la trama completa
-                int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
-                // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
-                if (numeroDeBytes > tamanoBufferPorPeticion)
-                {
-                    EscribirLog("La respuesta es más grande que el buffer", tipoLog.ALERTA);
-                    CerrarSocketCliente(estadoDelCliente);
-                    return;
-                }
-                try
-                {
-                    // Se solicita el espacio de buffer para los bytes que se van a enviar                    
-                    estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
-                }
-                catch (Exception ex)
-                {
-                    EscribirLog(ex.Message, tipoLog.ERROR);
-                    return;
-                }
+                    // se obtiene la cantidad de bytes de la trama completa
+                    int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
+                    // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
+                    if (numeroDeBytes > tamanoBufferPorPeticion)
+                    {
+                        EscribirLog("La respuesta es más grande que el buffer", tipoLog.ALERTA);
+                        CerrarSocketCliente(estadoDelCliente);
+                        return;
+                    }
+                    try
+                    {
+                        // Se solicita el espacio de buffer para los bytes que se van a enviar                    
+                        estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer(estadoDelCliente.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog(ex.Message, tipoLog.ERROR);
+                        return;
+                    }
 
-                try
-                {
+                    try
+                    {
 
-                    // se envía asincronamente por medio del socket copia de recepción que es
-                    // con el que se está trabajando en esta operación, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
-                    // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
-                    bool seHizoAsync = estadoDelCliente.socketDeTrabajo.SendAsync(estadoDelCliente.saeaDeEnvioRecepcion);
-                    if (!seHizoAsync)
-                        // Si se tiene una respuesta False de que el proceso está pendiente, se completa el flujo,
-                        // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
-                        // en su evento callback
-                        RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
-                }
-                catch (Exception ex)
-                {
-                    EscribirLog("ResponderAlCliente del lado proveedor: " + ex.Message, tipoLog.ERROR);
-                    CerrarSocketCliente(estadoDelCliente);
-                    return;
-                }
+                        // se envía asincronamente por medio del socket copia de recepción que es
+                        // con el que se está trabajando en esta operación, el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
+                        // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
+                        bool seHizoAsync = estadoDelCliente.socketDeTrabajo.SendAsync(estadoDelCliente.saeaDeEnvioRecepcion);
+                        if (!seHizoAsync)
+                            // Si se tiene una respuesta False de que el proceso está pendiente, se completa el flujo,
+                            // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
+                            // en su evento callback
+                            RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog("ResponderAlCliente del lado proveedor: " + ex.Message, tipoLog.ERROR);
+                        CerrarSocketCliente(estadoDelCliente);
+                        return;
+                    }
+                    finally
+                    {
+                        StopTimerClient();
+                        StopTimerProvider();
+                    }
+                }                
             }
             else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
             {
@@ -1539,6 +1568,11 @@ namespace UServerCore
                     {
                         EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketCliente(estadoDelCliente);
+                    }
+                    finally
+                    {
+                        StopTimerClient();
+                        StopTimerProvider();
                     }
                 }
             }
@@ -1693,8 +1727,7 @@ namespace UServerCore
         private bool SeVencioTO(T estadoDelCliente)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
-            EscribirLog("Comprobación de tiempo transcurrido para el cliente: " + estadoDelCliente.idUnicoCliente + ". " + timeSpan.Seconds + " segundos, TO:" + estadoDelCliente.timeOut, tipoLog.INFORMACION);
-
+            //EscribirLog("Comprobación de tiempo transcurrido para el cliente: " + estadoDelCliente.idUnicoCliente + ". " + timeSpan.Seconds + " segundos, TO:" + estadoDelCliente.timeOut, tipoLog.INFORMACION);
             return timeSpan.Seconds > estadoDelCliente.timeOut;
         }
 
@@ -1706,7 +1739,7 @@ namespace UServerCore
         private bool SeVencioTO(X estadoDelProveedor)
         {
             TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
-            EscribirLog("Comprobación de tiempo transcurrido cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", en espera del proveedor. " + timeSpan.Seconds + " segundos, TO:" + estadoDelProveedor.timeOut, tipoLog.INFORMACION);
+            //EscribirLog("Comprobación de tiempo transcurrido cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", en espera del proveedor. " + timeSpan.Seconds + " segundos, TO:" + estadoDelProveedor.timeOut, tipoLog.INFORMACION);
             return timeSpan.Seconds > estadoDelProveedor.timeOut;
         }
 
@@ -1747,7 +1780,7 @@ namespace UServerCore
         {
             FileStream fileStream;
             try
-            {                
+            {
                 using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\" + PROGRAM + ".txt"))
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
@@ -1813,6 +1846,73 @@ namespace UServerCore
                 }
             }
             return "";
+        }
+
+
+        private void TickTimerClient(object state)
+        {
+            X estadoDelProveedor = (X)state;
+            if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
+            {                
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+                estadoDelProveedor.codigoAutorizacion = 0;                
+                ResponderAlCliente(estadoDelProveedor);                
+                estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
+                //CerrarSocketProveedor(estadoDelProveedor);
+            }
+        }
+
+        private void StopTimerClient()
+        {
+            try
+            {                
+                if (clientTimer!=null)
+                {                    
+                    bool seSincroniza = Monitor.TryEnter(clientTimer);
+                    if (seSincroniza)
+                    {
+                        clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                        clientTimer.Dispose();
+                    }
+                }                
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message, tipoLog.ALERTA);
+            }
+        }
+
+        private void TickTimerProvider(object state)
+        {
+            X estadoDelProveedor = (X)state;
+            if (SeVencioTO(estadoDelProveedor))
+            {
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
+                estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
+                //CerrarSocketProveedor(estadoDelProveedor);
+            }
+        }
+
+        private void StopTimerProvider()
+        {
+            try
+            {
+                if (providerTimer != null)
+                {
+                    bool seSincroniza = Monitor.TryEnter(providerTimer);
+                    if (seSincroniza)
+                    {
+                        providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                        providerTimer.Dispose();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message, tipoLog.ALERTA);
+            }
         }
 
         #endregion

@@ -88,6 +88,12 @@ namespace UServerCore
         public bool esConsulta { get; set; }
 
         /// <summary>
+        /// Bandera  para indicar que el proceso de responder se ha concluido correctamente
+        /// </summary>
+        public bool seHaRespondido { get; set; }
+        
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public EstadoDelClienteBase()
@@ -112,6 +118,7 @@ namespace UServerCore
             socketDeTrabajo = null;
             timeOut = Configuracion.timeOutCliente;
             esConsulta = false;
+            seHaRespondido = false;
         }
 
         /// <summary>
@@ -141,6 +148,12 @@ namespace UServerCore
 
         }
 
-
+        /// <summary>
+        /// Se ingresa el valor para indicar que ya se ha respondido este estado
+        /// </summary>
+        public virtual void SetResponsed()
+        {            
+            if (!seHaRespondido) seHaRespondido = true;
+        }
     }
 }

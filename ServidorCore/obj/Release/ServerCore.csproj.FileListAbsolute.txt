@@ -7,3 +7,12 @@ C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Relea
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CopyComplete
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\UServerCore.dll
 C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\UServerCore.pdb
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\UServerCore.xml
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\UServerCore.dll
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\UServerCore.pdb
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.dll
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.pdb
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CopyComplete
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Release\UServerCore.dll
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Release\UServerCore.pdb

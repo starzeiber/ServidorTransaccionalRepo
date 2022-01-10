@@ -813,6 +813,11 @@
             Bandera para identificar si el proceso solo es de consulta sobre una transacción
             </summary>
         </member>
+        <member name="P:UServerCore.EstadoDelClienteBase.seHaRespondido">
+            <summary>
+            Bandera  para indicar que el proceso de responder se ha concluido correctamente
+            </summary>
+        </member>
         <member name="M:UServerCore.EstadoDelClienteBase.#ctor">
             <summary>
             Constructor
@@ -841,6 +846,11 @@
         <member name="M:UServerCore.EstadoDelClienteBase.ObtenerTramaRespuesta">
             <summary>
             Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
+            </summary>
+        </member>
+        <member name="M:UServerCore.EstadoDelClienteBase.SetResponsed">
+            <summary>
+            Se ingresa el valor para indicar que ya se ha respondido este estado
             </summary>
         </member>
         <member name="F:UServerCore.Utileria.CodigosRespuesta.TransaccionExitosa">
