@@ -91,7 +91,7 @@ namespace UServerCore
         /// Bandera  para indicar que el proceso de responder se ha concluido correctamente
         /// </summary>
         public bool seHaRespondido { get; set; }
-        
+
 
         /// <summary>
         /// Constructor
@@ -152,7 +152,7 @@ namespace UServerCore
         /// Se ingresa el valor para indicar que ya se ha respondido este estado
         /// </summary>
         public virtual void SetResponsed()
-        {            
+        {
             if (!seHaRespondido) seHaRespondido = true;
         }
     }

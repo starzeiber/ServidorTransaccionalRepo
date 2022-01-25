@@ -58,6 +58,7 @@ namespace UServerCore
         ///// Obtiene o ingresa una ip a bloquear
         ///// </summary>
         //public Dictionary<IPAddress, ClienteBloqueo> listaClientesBloqueados { get; set; }
+               
 
         ///// <summary>
         ///// Ingresa u obtiene a la lista de ip permitidas, como simulando un firewall
@@ -107,10 +108,6 @@ namespace UServerCore
         /// </summary>
         public string ipProveedor { get; set; }
 
-        ///// <summary>
-        ///// Puerto del proveedor para la conexión
-        ///// </summary>
-        //public int puertoProveedor { get; set; }
 
         /// <summary>
         /// 
@@ -295,6 +292,7 @@ namespace UServerCore
             //listaClientesBloqueados = new Dictionary<IPAddress, ClienteBloqueo>();
             //listaClientesPermitidos = new List<Regex>();
             listaClientesPendientesDesconexion = new List<T>();
+
             this.tamanoBufferPorPeticion = tamanoBuffer;
 
             localValidity = DateTime.Now;
@@ -343,7 +341,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + "ConfigInicioServidor", tipoLog.ERROR);
+                EscribirLog(ex.Message + ", ConfigInicioServidor", tipoLog.ERROR);
                 throw;
             }
 
@@ -456,7 +454,7 @@ namespace UServerCore
             enEjecucion = true;
         }
 
-        
+
         #region ProcesoDePeticionesCliente
 
         /// <summary>
@@ -587,7 +585,7 @@ namespace UServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + "AceptarConexionCallBack, recibiendo mensaje del cliente", tipoLog.ERROR);
+                    EscribirLog(ex.Message + ", AceptarConexionCallBack, recibiendo mensaje del cliente", tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                 }
             }
@@ -760,6 +758,7 @@ namespace UServerCore
                     estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TransaccionExitosa;
                     estadoDelCliente.esConsulta = false;
                 }
+                
 
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
@@ -846,10 +845,12 @@ namespace UServerCore
                                     // en su evento callback                    
                                     ConexionProveedorCallBack(socketDeTrabajoProveedor, saeaProveedor);
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
+                                EscribirLog(ex.Message + ",ProcesarRecepcion, ConnectAsync", tipoLog.ERROR);
+
                                 socketDeTrabajoProveedor.Close();
-                                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
+                                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                                 estadoDelProveedor.codigoAutorizacion = 0;
                                 ResponderAlCliente(estadoDelProveedor);
                                 // se libera el semaforo por si otra petición está solicitando acceso
@@ -888,8 +889,8 @@ namespace UServerCore
         /// </summary>
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
         private void ResponderAlCliente(T estadoDelCliente)
-        {            
-            if (estadoDelCliente == null||estadoDelCliente.seHaRespondido)
+        {
+            if (estadoDelCliente == null || estadoDelCliente.seHaRespondido)
             {
                 return;
             }
@@ -1021,7 +1022,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, tipoLog.ERROR);
+                EscribirLog(ex.Message + ", ProcesarRecepcionEnvioCiclicoCliente", tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
             }
         }
@@ -1134,14 +1135,14 @@ namespace UServerCore
             {
                 if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
                 {
-                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
 
                 }
                 else
                 {
-                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorConexionServer;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
 
@@ -1344,7 +1345,7 @@ namespace UServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog("error al ponerse en espera de respuesta del proveedor: " + ex.Message, tipoLog.ERROR);
+                    EscribirLog("error al ponerse en espera de respuesta del proveedor: " + ex.Message + ", ProcesarRecepcionEnvioCiclicoProveedor", tipoLog.ERROR);
                     estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
@@ -1462,7 +1463,7 @@ namespace UServerCore
         /// <param name="estadoDelProveedor">EstadoDelProveedor</param>
         private void ResponderAlCliente(X estadoDelProveedor)
         {
-            T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;            
+            T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;
             if (estadoDelCliente == null)
             {
                 return;
@@ -1517,7 +1518,7 @@ namespace UServerCore
                     }
                     catch (Exception ex)
                     {
-                        EscribirLog(ex.Message, tipoLog.ERROR);
+                        EscribirLog(ex.Message + ", en estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer, ResponderAlCliente(estadoDelProveedor)", tipoLog.ALERTA);
                         return;
                     }
 
@@ -1545,7 +1546,7 @@ namespace UServerCore
                         StopTimerClient();
                         StopTimerProvider();
                     }
-                }                
+                }
             }
             else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
             {
@@ -1643,6 +1644,7 @@ namespace UServerCore
         //{
         //    return listaClientesBloqueados.ContainsKey(ip);
         //}
+               
 
         /// <summary>
         /// Se detiene el servidor
@@ -1767,7 +1769,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, tipoLog.ERROR);
+                EscribirLog(ex.Message + ",Validate permissions", tipoLog.ERROR);
                 return false;
             }
         }
@@ -1796,7 +1798,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, tipoLog.ERROR);
+                EscribirLog(ex.Message + ", permissions", tipoLog.ERROR);
                 return false;
             }
         }
@@ -1819,7 +1821,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, tipoLog.ERROR);
+                EscribirLog(ex.Message + ", GetInfoPc", tipoLog.ERROR);
                 return false;
             }
         }
@@ -1853,10 +1855,10 @@ namespace UServerCore
         {
             X estadoDelProveedor = (X)state;
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
-            {                
+            {
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
-                estadoDelProveedor.codigoAutorizacion = 0;                
-                ResponderAlCliente(estadoDelProveedor);                
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
                 estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
                 //CerrarSocketProveedor(estadoDelProveedor);
             }
@@ -1865,20 +1867,20 @@ namespace UServerCore
         private void StopTimerClient()
         {
             try
-            {                
-                if (clientTimer!=null)
-                {                    
+            {
+                if (clientTimer != null)
+                {
                     bool seSincroniza = Monitor.TryEnter(clientTimer);
                     if (seSincroniza)
                     {
                         clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
                         clientTimer.Dispose();
                     }
-                }                
+                }
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, tipoLog.ALERTA);
+                EscribirLog(ex.Message + ", StopTimerClient", tipoLog.ALERTA);
             }
         }
 
@@ -1911,7 +1913,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, tipoLog.ALERTA);
+                EscribirLog(ex.Message + ", StopTimerProvider", tipoLog.ALERTA);
             }
         }
 
