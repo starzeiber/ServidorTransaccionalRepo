@@ -58,7 +58,7 @@ namespace UServerCore
         ///// Obtiene o ingresa una ip a bloquear
         ///// </summary>
         //public Dictionary<IPAddress, ClienteBloqueo> listaClientesBloqueados { get; set; }
-               
+
 
         ///// <summary>
         ///// Ingresa u obtiene a la lista de ip permitidas, como simulando un firewall
@@ -340,7 +340,7 @@ namespace UServerCore
                 peformanceConexionesEntrantes.IncrementBy(1);
             }
             catch (Exception ex)
-            {
+            {                
                 EscribirLog(ex.Message + ", ConfigInicioServidor", tipoLog.ERROR);
                 throw;
             }
@@ -710,7 +710,7 @@ namespace UServerCore
             }
             catch (Exception)
             {
-                EscribirLog("Mensaje recibido: " + mensajeRecibido.Substring(2) + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente:" + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
             }
 
 
@@ -758,7 +758,7 @@ namespace UServerCore
                     estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TransaccionExitosa;
                     estadoDelCliente.esConsulta = false;
                 }
-                
+
 
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
@@ -918,7 +918,7 @@ namespace UServerCore
                     }
                     catch (Exception)
                     {
-                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
                     }
 
                     // se obtiene la cantidad de bytes de la trama completa
@@ -1188,7 +1188,15 @@ namespace UServerCore
                 try
                 {
                     string mensajeAlProveedor = estadoDelProveedor.tramaSolicitud;
-                    EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                    try
+                    {
+                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                    }
+                    catch (Exception)
+                    {
+                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                    }
+                    
 
                     // se obtiene la cantidad de bytes de la trama completa
                     int numeroDeBytes = Encoding.Default.GetBytes(mensajeAlProveedor, 0, mensajeAlProveedor.Length, estadoDelProveedor.saeaDeEnvioRecepcion.Buffer, estadoDelProveedor.saeaDeEnvioRecepcion.Offset);
@@ -1308,6 +1316,14 @@ namespace UServerCore
         /// <param name="estadoDelProveedor">Estado del proveedor con la información de conexión</param>
         private void ProcesarRecepcionEnvioCiclicoProveedor(X estadoDelProveedor)
         {
+            if (estadoDelProveedor==null)
+            {
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorTELCELTablaLLena;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelProveedor);
+                CerrarSocketProveedor(estadoDelProveedor);
+                return;
+            }
             clientTimer = new Timer(new TimerCallback(TickTimerClient), estadoDelProveedor, 1000, 1000);
             providerTimer = new Timer(new TimerCallback(TickTimerProvider), estadoDelProveedor, 1000, 1000);
 
@@ -1360,23 +1376,20 @@ namespace UServerCore
         /// <param name="estadoDelProveedor">Estado del proveedor con la información de conexión</param>
         private void ProcesarRecepcion(X estadoDelProveedor)
         {
+            if (estadoDelProveedor == null) return;
             // se obtiene el SAEA de recepción
             SocketAsyncEventArgs saeaRecepcion = estadoDelProveedor.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
             Int32 bytesTransferred = saeaRecepcion.BytesTransferred;
 
             // se obtiene el mensaje y se decodifica
-            String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
-            EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
-
-            // incrementa el contador de bytes totales recibidos
-            // debido a que la variable está compartida entre varios procesos, se utiliza interlocked que ayuda a que no se revuelvan
-            //Interlocked.Add(ref this.totalBytesLeidos, bytesTransferred);
+            String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);            
 
             // el mensaje recibido llevará un proceso, que no debe ser llevado por el core, se coloca en la función virtual
             // para que se consuma en otra capa, se procese y se entregue una respuesta
             try
             {
+                EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
                 estadoDelProveedor.ProcesarTramaDelProveeedor(mensajeRecibido);
                 estadoDelProveedor.ObtenerTramaRespuesta();
             }
@@ -1463,6 +1476,10 @@ namespace UServerCore
         /// <param name="estadoDelProveedor">EstadoDelProveedor</param>
         private void ResponderAlCliente(X estadoDelProveedor)
         {
+            if (estadoDelProveedor == null)
+            {
+                return;
+            }
             T estadoDelCliente = (T)estadoDelProveedor.estadoDelClienteOrigen;
             if (estadoDelCliente == null)
             {
@@ -1498,7 +1515,7 @@ namespace UServerCore
                     }
                     catch (Exception)
                     {
-                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
                     }
                     //EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
 
@@ -1644,7 +1661,7 @@ namespace UServerCore
         //{
         //    return listaClientesBloqueados.ContainsKey(ip);
         //}
-               
+
 
         /// <summary>
         /// Se detiene el servidor
@@ -1728,9 +1745,17 @@ namespace UServerCore
         /// <returns></returns>
         private bool SeVencioTO(T estadoDelCliente)
         {
-            TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
-            //EscribirLog("Comprobación de tiempo transcurrido para el cliente: " + estadoDelCliente.idUnicoCliente + ". " + timeSpan.Seconds + " segundos, TO:" + estadoDelCliente.timeOut, tipoLog.INFORMACION);
-            return timeSpan.Seconds > estadoDelCliente.timeOut;
+            try
+            {
+                TimeSpan timeSpan = DateTime.Now - estadoDelCliente.fechaInicioTrx;
+                return timeSpan.Seconds > estadoDelCliente.timeOut;
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + ", SeVencioTOCliente", tipoLog.ALERTA);
+                return true;
+            }
+            
         }
 
         /// <summary>
@@ -1740,9 +1765,17 @@ namespace UServerCore
         /// <returns></returns>
         private bool SeVencioTO(X estadoDelProveedor)
         {
-            TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;
-            //EscribirLog("Comprobación de tiempo transcurrido cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", en espera del proveedor. " + timeSpan.Seconds + " segundos, TO:" + estadoDelProveedor.timeOut, tipoLog.INFORMACION);
-            return timeSpan.Seconds > estadoDelProveedor.timeOut;
+            try
+            {
+                TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.fechaInicioTrx;                
+                return timeSpan.Seconds > estadoDelProveedor.timeOut;
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + ", SeVencioTOProveedor", tipoLog.ALERTA);
+                return true;
+            }
+            
         }
 
         /// <summary>
@@ -1833,7 +1866,7 @@ namespace UServerCore
         /// <param name="MethodName"></param>
         /// <returns></returns>
         private string RunQuery(string TableName, string MethodName)
-        {
+        {            
             ManagementObjectSearcher MOS =
               new ManagementObjectSearcher("Select * from Win32_" + TableName);
             foreach (ManagementObject MO in MOS.Get())
@@ -1853,15 +1886,23 @@ namespace UServerCore
 
         private void TickTimerClient(object state)
         {
-            X estadoDelProveedor = (X)state;
-            if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
+            try
             {
-                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
-                estadoDelProveedor.codigoAutorizacion = 0;
-                ResponderAlCliente(estadoDelProveedor);
-                estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
-                //CerrarSocketProveedor(estadoDelProveedor);
+                X estadoDelProveedor = (X)state;
+                if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
+                {
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
+                    estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
+                    //CerrarSocketProveedor(estadoDelProveedor);
+                }
             }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + ", TickTimerClient", tipoLog.ALERTA);
+            }
+            
         }
 
         private void StopTimerClient()
@@ -1886,15 +1927,23 @@ namespace UServerCore
 
         private void TickTimerProvider(object state)
         {
-            X estadoDelProveedor = (X)state;
-            if (SeVencioTO(estadoDelProveedor))
+            try
             {
-                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
-                estadoDelProveedor.codigoAutorizacion = 0;
-                ResponderAlCliente(estadoDelProveedor);
-                estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
-                //CerrarSocketProveedor(estadoDelProveedor);
+                X estadoDelProveedor = (X)state;
+                if (SeVencioTO(estadoDelProveedor))
+                {
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    ResponderAlCliente(estadoDelProveedor);
+                    estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
+                    //CerrarSocketProveedor(estadoDelProveedor);
+                }
             }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + ", TickTimerProvider", tipoLog.ALERTA);
+            }
+            
         }
 
         private void StopTimerProvider()

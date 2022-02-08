@@ -45,6 +45,8 @@ using System.Runtime.InteropServices;
 //@UMB      08/12/21    3.0.1.0     Corrección en la variable esConsulta
 //@UMB      10/12/21    4.0.0.0     Re estructura de los TimeOuts, y el corte de la operación cuando se generan
 //@UMB      21/01/22    4.1.0.0     Se agrega un mayor detalle a los logs
+//@UMB      03/02/22    4.1.1.0     Se  evaluan los objetos a null para  evitar  errores
+//@UMB      08/02/22    4.1.2.0     Control de un error al parsear una trama
 
-[assembly: AssemblyVersion("4.1.0.0")]
-[assembly: AssemblyFileVersion("4.1.0.0")]
+[assembly: AssemblyVersion("4.1.2.0")]
+[assembly: AssemblyFileVersion("4.1.2.0")]

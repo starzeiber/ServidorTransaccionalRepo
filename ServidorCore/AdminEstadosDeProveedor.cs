@@ -14,7 +14,7 @@ namespace UServerCore
         /// <summary>
         /// El conjunto de estados se almacena como una pila
         /// </summary>
-        private Stack<X> pilaEstadosDeProveedor;
+        private readonly Stack<X> pilaEstadosDeProveedor;
 
         /// <summary>
         /// Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
