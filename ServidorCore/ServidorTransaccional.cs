@@ -1516,8 +1516,7 @@ namespace UServerCore
                     catch (Exception)
                     {
                         EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
-                    }
-                    //EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    }                    
 
                     // se obtiene la cantidad de bytes de la trama completa
                     int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
@@ -1724,16 +1723,16 @@ namespace UServerCore
             switch (tipoLog)
             {
                 case tipoLog.INFORMACION:
-                    Trace.TraceInformation(mensaje);
+                    Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
                     break;
                 case tipoLog.ALERTA:
-                    Trace.TraceWarning(mensaje);
+                    Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
                     break;
                 case tipoLog.ERROR:
-                    Trace.TraceError(mensaje);
+                    Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
                     break;
                 default:
-                    Trace.WriteLine(mensaje);
+                    Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
                     break;
             }
         }

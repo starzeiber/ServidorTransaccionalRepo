@@ -47,6 +47,7 @@ using System.Runtime.InteropServices;
 //@UMB      21/01/22    4.1.0.0     Se agrega un mayor detalle a los logs
 //@UMB      03/02/22    4.1.1.0     Se  evaluan los objetos a null para  evitar  errores
 //@UMB      08/02/22    4.1.2.0     Control de un error al parsear una trama
+//@UMB      08/02/22    4.1.3.0     Se le agrega la fecha en el log
 
-[assembly: AssemblyVersion("4.1.2.0")]
-[assembly: AssemblyFileVersion("4.1.2.0")]
+[assembly: AssemblyVersion("4.1.3.0")]
+[assembly: AssemblyFileVersion("4.1.3.0")]
