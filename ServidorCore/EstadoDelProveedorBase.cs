@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace UServerCore
 {
@@ -80,6 +81,9 @@ namespace UServerCore
         public DateTime fechaInicioTrx { get; set; }
 
 
+        public System.Threading.Timer providerTimer;
+
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -154,6 +158,14 @@ namespace UServerCore
         public virtual void GuardarTransaccion()
         {
 
+        }
+
+        public void InitializeTimer()
+        {
+            ManualResetEvent waitHandle = new ManualResetEvent(false);
+            providerTimer.Dispose(waitHandle);
+            waitHandle.WaitOne();
+            providerTimer = null;
         }
     }
 }

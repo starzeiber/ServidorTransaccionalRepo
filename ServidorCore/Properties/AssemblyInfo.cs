@@ -48,6 +48,10 @@ using System.Runtime.InteropServices;
 //@UMB      03/02/22    4.1.1.0     Se  evaluan los objetos a null para  evitar  errores
 //@UMB      08/02/22    4.1.2.0     Control de un error al parsear una trama
 //@UMB      08/02/22    4.1.3.0     Se le agrega la fecha en el log
+//@UMB      11/05/22    5.0.0.0     Cambio importante en cuanto a la escritura de logs y cerrado de sockets
+//@UMB      12/05/22    6.0.0.0     Se implementa un ajuste total a los timers de TO, cambio importante
 
-[assembly: AssemblyVersion("4.1.3.0")]
-[assembly: AssemblyFileVersion("4.1.3.0")]
+
+
+[assembly: AssemblyVersion("6.0.0.0")]
+[assembly: AssemblyFileVersion("6.0.0.0")]

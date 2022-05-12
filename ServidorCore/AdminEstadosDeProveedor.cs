@@ -63,6 +63,7 @@ namespace UServerCore
             // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
             lock (this.pilaEstadosDeProveedor)
             {
+                if (!pilaEstadosDeProveedor.Contains(estadoDelProveedorBase))
                 this.pilaEstadosDeProveedor.Push(estadoDelProveedorBase);
             }
         }
