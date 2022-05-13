@@ -93,7 +93,6 @@ namespace UServerCore
         public bool seHaRespondido { get; set; }
 
 
-        public System.Threading.Timer clientTimer;
 
         /// <summary>
         /// Constructor
@@ -156,14 +155,6 @@ namespace UServerCore
         public virtual void SetResponsed()
         {
             if (!seHaRespondido) seHaRespondido = true;
-        }
-
-        public void InitializeTimer()
-        {
-            ManualResetEvent waitHandle = new ManualResetEvent(false);
-            clientTimer.Dispose(waitHandle);
-            waitHandle.WaitOne();
-            clientTimer = null;
-        }
+        }       
     }
 }

@@ -81,7 +81,11 @@ namespace UServerCore
         public DateTime fechaInicioTrx { get; set; }
 
 
-        public System.Threading.Timer providerTimer;
+        public Timer providerTimer;
+
+        public bool seHaRecibidoRespuestaProveedor { get; set; }=false;
+
+        public bool seHaLiberado { get; set; } = false;
 
 
         /// <summary>
@@ -158,14 +162,6 @@ namespace UServerCore
         public virtual void GuardarTransaccion()
         {
 
-        }
-
-        public void InitializeTimer()
-        {
-            ManualResetEvent waitHandle = new ManualResetEvent(false);
-            providerTimer.Dispose(waitHandle);
-            waitHandle.WaitOne();
-            providerTimer = null;
-        }
+        }        
     }
 }

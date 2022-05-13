@@ -913,6 +913,11 @@
             
             </summary>
         </member>
+        <member name="F:UServerCore.Utileria.CodigosRespuesta.ErrorProcesoSockts">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="F:UServerCore.Utileria.CodigosRespuesta.ClienteBloqueado">
             <summary>
             

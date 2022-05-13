@@ -265,12 +265,7 @@ namespace UServerCore
         //private bool modoRouter = false;
 
 
-        internal int contadorPuertos = 0;
-
-        //[ThreadStatic]
-        //private Timer clientTimer;
-        //[ThreadStatic]
-        //private Timer providerTimer;
+        internal int contadorPuertos = 0;        
 
         #endregion
 
@@ -654,7 +649,7 @@ namespace UServerCore
                         // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
                         estadoDelCliente.seHaRespondido = true;
                         CerrarSocketCliente(estadoDelCliente);
-                        //TODO detener o no los timers?                        
+                                             
                     }
                     break;
                 default:
@@ -778,6 +773,7 @@ namespace UServerCore
                             saeaProveedor.Completed += new EventHandler<SocketAsyncEventArgs>(ConexionProveedorCallBack);
 
                             X estadoDelProveedor = adminEstadosDeProveedor.obtenerUnElemento();
+                            estadoDelProveedor.seHaLiberado = false;
                             // ingreso la información de peticion para llenar las clases al proveedor
                             estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);
 
@@ -911,11 +907,6 @@ namespace UServerCore
             {
                 if (!estadoDelCliente.seHaRespondido)
                 {
-                    //EscribirLog("Intentando detener el timer del cliente en ResponderAlCliente(T estadoDelCliente)", tipoLog.ALERTA);
-                    //StopTimerClient(ref clientTimer);
-                    //EscribirLog("Intentando detener el timer del proveedor en ResponderAlCliente(T estadoDelCliente)", tipoLog.ALERTA);
-                    //StopTimerProvider(ref providerTimer);
-
                     // se obtiene el mensaje de respuesta que se enviará cliente
                     string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
                     try
@@ -966,6 +957,8 @@ namespace UServerCore
                             // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
                             // en su evento callback
                             RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
+
+                        estadoDelCliente.SetResponsed();
                     }
                     catch (Exception ex)
                     {
@@ -973,11 +966,6 @@ namespace UServerCore
                         CerrarSocketCliente(estadoDelCliente);
                         return;
                     }
-                    //finally
-                    //{
-                    //    StopTimerClient();
-                    //    StopTimerProvider();
-                    //}
                 }
             }
             else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
@@ -1002,11 +990,6 @@ namespace UServerCore
                         EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketCliente(estadoDelCliente);
                     }
-                    //finally
-                    //{
-                    //    StopTimerClient();
-                    //    StopTimerProvider();
-                    //}
                 }
             }
         }
@@ -1228,6 +1211,9 @@ namespace UServerCore
                     // Se prepara el buffer del SAEA con el tamaño predefinido                         
                     estadoDelProveedor.saeaDeEnvioRecepcion.SetBuffer(estadoDelProveedor.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
 
+                    estadoDelProveedor.providerTimer = new Timer(new TimerCallback(TickTimerProvider), estadoDelProveedor, 1000, 1000);
+
+
                     // se procede a la recepción asincrona del mensaje,el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
                     // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
                     bool seHizoAsync = estadoDelProveedor.socketDeTrabajo.SendAsync(estadoDelProveedor.saeaDeEnvioRecepcion);
@@ -1294,7 +1280,8 @@ namespace UServerCore
                     }
                     else
                     {
-                        EscribirLog("Error en el envío, RecepcionEnvioSalienteCallBack" + e.SocketError.ToString() + ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                        EscribirLog("Error en el envío al puerto "+ estadoDelProveedor.socketDeTrabajo.RemoteEndPoint + ", RecepcionEnvioSalienteCallBack" + e.SocketError.ToString() + 
+                            ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
                         estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelProveedor);
@@ -1314,15 +1301,15 @@ namespace UServerCore
                         estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelProveedor);
-                        //CerrarSocketProveedor(estadoDelProveedor);
+                        CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
                 default:
                     EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioSalienteCallBack, " + e.LastOperation.ToString(), tipoLog.ALERTA);
-                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProceso;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockts;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelProveedor);
-                    CerrarSocketProveedor(estadoDelProveedor);
+                    //CerrarSocketProveedor(estadoDelProveedor);
                     break;
             }
         }
@@ -1341,19 +1328,7 @@ namespace UServerCore
                 CerrarSocketProveedor(estadoDelProveedor);
                 return;
             }
-
-            if (estadoDelProveedor.estadoDelClienteOrigen.clientTimer != null)            
-            {
-                estadoDelProveedor.estadoDelClienteOrigen.InitializeTimer();
-            }            
-            estadoDelProveedor.estadoDelClienteOrigen.clientTimer = new Timer(new TimerCallback(TickTimerClient), estadoDelProveedor, 1000, 1000);
-
-            if (estadoDelProveedor.providerTimer != null)
-            {
-                estadoDelProveedor.InitializeTimer();
-            }
-            estadoDelProveedor.providerTimer = new Timer(new TimerCallback(TickTimerProvider), estadoDelProveedor, 1000, 1000);            
-
+            
             if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
             {
                 EscribirLog("Se venció el TimeOut para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", ProcesarRecepcionEnvioCiclicoProveedor", tipoLog.ALERTA);
@@ -1406,6 +1381,9 @@ namespace UServerCore
         private void ProcesarRecepcion(X estadoDelProveedor)
         {
             if (estadoDelProveedor == null) return;
+            estadoDelProveedor.seHaRecibidoRespuestaProveedor = true;
+
+
             // se obtiene el SAEA de recepción
             SocketAsyncEventArgs saeaRecepcion = estadoDelProveedor.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
@@ -1460,54 +1438,61 @@ namespace UServerCore
             // de una operación de E / S sin valores
             if (estadoDelProveedor == null) return;
 
-            // se obtiene el socket específico del cliente en cuestión
-            Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
+            if (!estadoDelProveedor.seHaLiberado)
+            {
+                // se obtiene el socket específico del cliente en cuestión
+                Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
 
-            // se inhabilita y se cierra dicho socket
-            try
-            {
-                socketDeTrabajoACerrar.Shutdown(SocketShutdown.Send);
-            }
-            catch (Exception)
-            {
-                //EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
-            }
-            try
-            {
-                socketDeTrabajoACerrar.Close();
-            }
-            catch (Exception)
-            {
-                //EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
-            }
-
-
-            // se espera a que un cliente acaba de recibir la última información y se cierra
-            int tiempoInicial, tiempoFinal;
-            tiempoInicial = Environment.TickCount;
-            //bool receivedSignal = estadoDelProveedor.esperandoEnvio.WaitOne(10000, false);
-            bool receivedSignal = true;
-            tiempoFinal = Environment.TickCount;
-            // la señal debe ser false si excedió el TO
-            if (!receivedSignal)
-            {
-                // se mide el tiempo de espera para el envío de la información y si supera el establecido es un error
-                if (tiempoFinal - tiempoInicial > maxRetrasoParaEnvio)
+                if (socketDeTrabajoACerrar.Connected)
                 {
-                    maxRetrasoParaEnvio = tiempoFinal - tiempoInicial;
-                    EscribirLog("maximo tiempo de espera para el envío de información: " + maxRetrasoParaEnvio + " ms, CerrarSocketCliente", tipoLog.ALERTA);
-                }
-                EscribirLog("No se puede esperar para terminar el envío de información al cliente, CerrarSocketCliente, cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ALERTA);
-                // como no puedo esperar tanto al envío se deja pendiente, esto para no perder ninguna transacción
-                listaProveedoresPendientesDesconexion.Add(estadoDelProveedor);
-                return;
-            }
+                    // se inhabilita y se cierra dicho socket
+                    try
+                    {
+                        socketDeTrabajoACerrar.Shutdown(SocketShutdown.Send);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                    }
 
-            // se libera la instancia de socket de trabajo para reutilizarlo
-            adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
-            // se marca el semáforo de que puede aceptar otro cliente
-            if (this.semaforoParaAceptarProveedores.CurrentCount< this.numeroConexionesSimultaneas)
-            this.semaforoParaAceptarProveedores.Release();
+                    try
+                    {
+                        socketDeTrabajoACerrar.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                    }
+                }
+
+                // se espera a que un cliente acaba de recibir la última información y se cierra
+                int tiempoInicial, tiempoFinal;
+                tiempoInicial = Environment.TickCount;
+                //bool receivedSignal = estadoDelProveedor.esperandoEnvio.WaitOne(10000, false);
+                bool receivedSignal = true;
+                tiempoFinal = Environment.TickCount;
+                // la señal debe ser false si excedió el TO
+                if (!receivedSignal)
+                {
+                    // se mide el tiempo de espera para el envío de la información y si supera el establecido es un error
+                    if (tiempoFinal - tiempoInicial > maxRetrasoParaEnvio)
+                    {
+                        maxRetrasoParaEnvio = tiempoFinal - tiempoInicial;
+                        EscribirLog("maximo tiempo de espera para el envío de información: " + maxRetrasoParaEnvio + " ms, CerrarSocketCliente", tipoLog.ALERTA);
+                    }
+                    EscribirLog("No se puede esperar para terminar el envío de información al cliente, CerrarSocketCliente, cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ALERTA);
+                    // como no puedo esperar tanto al envío se deja pendiente, esto para no perder ninguna transacción
+                    listaProveedoresPendientesDesconexion.Add(estadoDelProveedor);
+                    return;
+                }
+
+                // se libera la instancia de socket de trabajo para reutilizarlo
+                adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                // se marca el semáforo de que puede aceptar otro cliente
+                if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneas)
+                    this.semaforoParaAceptarProveedores.Release();
+                estadoDelProveedor.seHaLiberado = true;
+            }            
         }
 
         /// <summary>
@@ -1528,12 +1513,6 @@ namespace UServerCore
             
             if (!estadoDelCliente.seHaRespondido)
             {
-                //EscribirLog("Intentando detener el timer del cliente en ResponderAlCliente(X estadoDelProveedor)", tipoLog.ALERTA);
-                //StopTimerClient(ref clientTimer);
-                //EscribirLog("Intentando detener el timer del proveedor en ResponderAlCliente(X estadoDelProveedor)", tipoLog.ALERTA);
-                //StopTimerProvider(ref providerTimer);
-
-
                 estadoDelCliente.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
                 estadoDelCliente.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
 
@@ -1597,6 +1576,8 @@ namespace UServerCore
                             // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
                             // en su evento callback
                             RecepcionEnvioEntranteCallBack(estadoDelCliente.socketDeTrabajo, estadoDelCliente.saeaDeEnvioRecepcion);
+
+                        estadoDelCliente.SetResponsed();
                     }
                     catch (Exception ex)
                     {
@@ -1604,11 +1585,6 @@ namespace UServerCore
                         CerrarSocketCliente(estadoDelCliente);
                         return;
                     }
-                    //finally
-                    //{
-                    //    StopTimerClient();
-                    //    StopTimerProvider();
-                    //}
                 }
                 else  // Si el proceso no tuvo una respuesta o se descartó por error, se procede a volver a escuchar para recibir la siguiente trama del mismo cliente
                 {
@@ -1632,11 +1608,6 @@ namespace UServerCore
                             EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
                             CerrarSocketCliente(estadoDelCliente);
                         }
-                        //finally
-                        //{
-                        //    StopTimerClient();
-                        //    StopTimerProvider();
-                        //}
                     }
                 }
             }            
@@ -1928,134 +1899,152 @@ namespace UServerCore
             return "";
         }
 
-        private void TickTimerClient(object state)
-        {
-            try
-            {                
-                X estadoDelProveedor = (X)state;
-                if (!estadoDelProveedor.estadoDelClienteOrigen.seHaRespondido)
-                {
-                    if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
-                    {
-                        EscribirLog("Se venció el TimeOut para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimerClient", tipoLog.ALERTA);
-                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
-                        estadoDelProveedor.codigoAutorizacion = 0;
-                        ResponderAlCliente(estadoDelProveedor);
-                        estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
-                        //CerrarSocketProveedor(estadoDelProveedor);
-                        estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        //estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Dispose();
-                    }
-                }
-                else
-                {
-                    estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    //estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Dispose();
-                }
-            }
-            catch (Exception)
-            {
-                //EscribirLog(ex.Message + ", TickTimerClient", tipoLog.ALERTA);
-            }
+        //private void TickTimerClient(object state)
+        //{
+        //    try
+        //    {                
+        //        X estadoDelProveedor = (X)state;
+        //        if (!estadoDelProveedor.estadoDelClienteOrigen.seHaRespondido)
+        //        {
+        //            if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
+        //            {
+        //                EscribirLog("Se venció el TimeOut para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimerClient", tipoLog.ALERTA);
+        //                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+        //                estadoDelProveedor.codigoAutorizacion = 0;
+        //                ResponderAlCliente(estadoDelProveedor);
+        //                estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
+        //                //CerrarSocketProveedor(estadoDelProveedor);
+        //                estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //                //estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Dispose();
+        //            }
+        //        }
+        //        else
+        //        {
+        //            estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //            //estadoDelProveedor.estadoDelClienteOrigen.clientTimer.Dispose();
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        //EscribirLog(ex.Message + ", TickTimerClient", tipoLog.ALERTA);
+        //    }
 
-        }
+        //}
 
-        private void StopTimerClient(ref Timer clientTimer)
-        {
-            try
-            {
-                //EscribirLog("Intentando detener el timer del cliente, StopTimerClient", tipoLog.ALERTA);
-                //if (clientTimer != null)
-                //{                    
-                    bool seSincroniza = Monitor.TryEnter(clientTimer);
-                    if (seSincroniza)
-                    {
-                        clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        clientTimer.Dispose();
-                    }
-                    else
-                    {
-                        //Lo tengo  que intenter detener de cualquier forma
-                        EscribirLog("Intentando detener el timer del cliente forzosamente, StopTimerClient", tipoLog.ALERTA);
-                        clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        clientTimer.Dispose();
-                    }
-                //}
-            }
-            catch (ObjectDisposedException objectDisposedException)
-            {
-                EscribirLog(objectDisposedException.Message + ". Se intento liberar el recurso pero ya no estaba disponible, no afecta, StopTimerClient", tipoLog.ALERTA);
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + ", StopTimerClient", tipoLog.ERROR);
-            }
-        }
+        //private void StopTimerClient(ref Timer clientTimer)
+        //{
+        //    try
+        //    {
+        //        //EscribirLog("Intentando detener el timer del cliente, StopTimerClient", tipoLog.ALERTA);
+        //        //if (clientTimer != null)
+        //        //{                    
+        //            bool seSincroniza = Monitor.TryEnter(clientTimer);
+        //            if (seSincroniza)
+        //            {
+        //                clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //                clientTimer.Dispose();
+        //            }
+        //            else
+        //            {
+        //                //Lo tengo  que intenter detener de cualquier forma
+        //                EscribirLog("Intentando detener el timer del cliente forzosamente, StopTimerClient", tipoLog.ALERTA);
+        //                clientTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //                clientTimer.Dispose();
+        //            }
+        //        //}
+        //    }
+        //    catch (ObjectDisposedException objectDisposedException)
+        //    {
+        //        EscribirLog(objectDisposedException.Message + ". Se intento liberar el recurso pero ya no estaba disponible, no afecta, StopTimerClient", tipoLog.ALERTA);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        EscribirLog(ex.Message + ", StopTimerClient", tipoLog.ERROR);
+        //    }
+        //}
 
         private void TickTimerProvider(object state)
         {
             try
             {
                 X estadoDelProveedor = (X)state;
-                if (!estadoDelProveedor.estadoDelClienteOrigen.seHaRespondido)
+
+                if (SeVencioTO(estadoDelProveedor))
                 {
-                    if (SeVencioTO(estadoDelProveedor))
+                    if (estadoDelProveedor.seHaRecibidoRespuestaProveedor)
+                    {
+                        estadoDelProveedor.providerTimer.Dispose();
+                    }
+                    else
                     {
                         EscribirLog("Se venció el TimeOut para el proveedor: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimerProvider", tipoLog.ALERTA);
                         estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         ResponderAlCliente(estadoDelProveedor);
-                        estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
                         CerrarSocketProveedor(estadoDelProveedor);
-                        //EscribirLog("Se ha cerrado la conexión al proveedor, del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimerProvider", tipoLog.ALERTA);
-                        estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        //estadoDelProveedor.providerTimer.Dispose();
+                        estadoDelProveedor.providerTimer.Dispose();
                     }
                 }
-                else
-                {
-                    estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    //estadoDelProveedor.providerTimer.Dispose();
-                }
-            }
-            catch (Exception)
-            {
-                //EscribirLog(ex.Message + ", TickTimerProvider", tipoLog.ALERTA);
-            }
 
-        }
-
-        private void StopTimerProvider(ref Timer providerTimer)
-        {
-            try
-            {
-                //EscribirLog("Intentando detener el timer del proveedor, StopTimerProvider", tipoLog.ALERTA);
-                //if (providerTimer != null)
+                //if (!estadoDelProveedor.estadoDelClienteOrigen.seHaRespondido)
                 //{
-                    bool seSincroniza = Monitor.TryEnter(providerTimer);
-                    if (seSincroniza)
-                    {
-                        providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        providerTimer.Dispose();
-                    }
-                    else
-                    {
-                        //Lo tengo  que intenter detener de cualquier forma
-                        EscribirLog("Intentando detener el timer del proveedor forzosamente, StopTimerProvider", tipoLog.ALERTA);
-                        providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        providerTimer.Dispose();
-                    }
+                //    if (SeVencioTO(estadoDelProveedor))
+                //    {
+                //        EscribirLog("Se venció el TimeOut para el proveedor: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimerProvider", tipoLog.ALERTA);
+                //        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+                //        estadoDelProveedor.codigoAutorizacion = 0;
+                //        ResponderAlCliente(estadoDelProveedor);
+                //        estadoDelProveedor.estadoDelClienteOrigen.SetResponsed();
+                //        CerrarSocketProveedor(estadoDelProveedor);
+                //        //EscribirLog("Se ha cerrado la conexión al proveedor, del cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimerProvider", tipoLog.ALERTA);
+                //        estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                //        //estadoDelProveedor.providerTimer.Dispose();
+                //    }
                 //}
-            }
-            catch (ObjectDisposedException objectDisposedException) 
-            {
-                EscribirLog(objectDisposedException.Message + ". Se intento liberar el recurso pero ya no estaba disponible, no afecta, StopTimerProvider", tipoLog.ALERTA);
+                //else
+                //{
+                //    estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                //    //estadoDelProveedor.providerTimer.Dispose();
+                //}
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", StopTimerProvider", tipoLog.ERROR);
+                EscribirLog(ex.Message + ", TickTimerProvider", tipoLog.ALERTA);
             }
+
         }
+
+        //private void StopTimerProvider(ref Timer providerTimer)
+        //{
+        //    try
+        //    {
+        //        //EscribirLog("Intentando detener el timer del proveedor, StopTimerProvider", tipoLog.ALERTA);
+        //        //if (providerTimer != null)
+        //        //{
+        //            bool seSincroniza = Monitor.TryEnter(providerTimer);
+        //            if (seSincroniza)
+        //            {
+        //                providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //                providerTimer.Dispose();
+        //            }
+        //            else
+        //            {
+        //                //Lo tengo  que intenter detener de cualquier forma
+        //                EscribirLog("Intentando detener el timer del proveedor forzosamente, StopTimerProvider", tipoLog.ALERTA);
+        //                providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //                providerTimer.Dispose();
+        //            }
+        //        //}
+        //    }
+        //    catch (ObjectDisposedException objectDisposedException) 
+        //    {
+        //        EscribirLog(objectDisposedException.Message + ". Se intento liberar el recurso pero ya no estaba disponible, no afecta, StopTimerProvider", tipoLog.ALERTA);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        EscribirLog(ex.Message + ", StopTimerProvider", tipoLog.ERROR);
+        //    }
+        //}
 
         #endregion
 

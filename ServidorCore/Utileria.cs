@@ -56,6 +56,10 @@
             /// <summary>
             /// 
             /// </summary>
+            ErrorProcesoSockts=51,
+            /// <summary>
+            /// 
+            /// </summary>
             ClienteBloqueado = 65,
             /// <summary>
             /// 

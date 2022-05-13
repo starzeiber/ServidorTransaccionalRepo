@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace UServerCore
 {
@@ -36,7 +37,7 @@ namespace UServerCore
         /// </summary>
         public virtual void OnInicio()
         {
-            Trace.TraceInformation("Se ha iniciado el servidor");
+            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha iniciado el servidor");
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace UServerCore
         /// <param name="args"></param>
         public virtual void OnClienteCerrado(object args)
         {
-            Trace.TraceInformation("Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() +
+            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() +
                 ", desde la IP:" + (args as EstadoDelClienteBase).ipCliente);
         }
 
@@ -62,7 +63,7 @@ namespace UServerCore
         /// <param name="args"></param>
         public virtual void OnAceptacion(object args)
         {
-            Trace.TraceInformation("Se ha conectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() +
+            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha conectado el cliente: " + (args as EstadoDelClienteBase).idUnicoCliente.ToString() +
                 ", desde la IP:" + (args as EstadoDelClienteBase).ipCliente);
         }
 
