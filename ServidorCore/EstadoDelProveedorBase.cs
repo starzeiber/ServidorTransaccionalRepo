@@ -81,9 +81,7 @@ namespace UServerCore
         public DateTime fechaInicioTrx { get; set; }
 
 
-        public Timer providerTimer;
-
-        public bool seHaRecibidoRespuestaProveedor { get; set; }=false;
+        public Timer providerTimer;        
 
         public bool seHaLiberado { get; set; } = false;
 

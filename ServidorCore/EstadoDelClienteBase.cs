@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -92,6 +93,9 @@ namespace UServerCore
         /// </summary>
         public bool seHaRespondido { get; set; }
 
+        public bool seEstaRespondiendo { get; set; }=false;
+
+        Mutex mutex;
 
 
         /// <summary>
@@ -100,6 +104,7 @@ namespace UServerCore
         public EstadoDelClienteBase()
         {
             esperandoEnvio = new ManualResetEvent(true);
+            mutex = new Mutex();
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InicializarEstadoDelClienteBase();
         }
@@ -154,7 +159,33 @@ namespace UServerCore
         /// </summary>
         public virtual void SetResponsed()
         {
+            mutex.WaitOne();
             if (!seHaRespondido) seHaRespondido = true;
-        }       
+            mutex.ReleaseMutex();
+
+        }
+
+        public virtual void SetNotResponsed()
+        {
+            mutex.WaitOne();
+            if (seHaRespondido) seHaRespondido = false;
+            mutex.ReleaseMutex();            
+        }
+
+
+        public virtual void SetProcessingResponse()
+        {
+            mutex.WaitOne();
+            if (!seEstaRespondiendo) seEstaRespondiendo = true;
+            mutex.ReleaseMutex();
+        }
+
+        public virtual void SetFinishedProcessingResponse()
+        {
+            mutex.WaitOne();
+            if (seEstaRespondiendo) seEstaRespondiendo = false;
+            mutex.ReleaseMutex();          
+            
+        }
     }
 }
