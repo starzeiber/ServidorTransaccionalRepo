@@ -64,7 +64,7 @@ namespace UServerCore
             lock (this.pilaEstadosDeProveedor)
             {
                 if (!pilaEstadosDeProveedor.Contains(estadoDelProveedorBase))
-                this.pilaEstadosDeProveedor.Push(estadoDelProveedorBase);
+                    this.pilaEstadosDeProveedor.Push(estadoDelProveedorBase);
             }
         }
     }

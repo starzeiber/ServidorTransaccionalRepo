@@ -56,7 +56,7 @@
             /// <summary>
             /// 
             /// </summary>
-            ErrorProcesoSockts=51,
+            ErrorProcesoSockets = 51,
             /// <summary>
             /// 
             /// </summary>

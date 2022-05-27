@@ -70,29 +70,19 @@ namespace UServerCore
         /// </summary>
         public object objRespuesta;
 
-        /// <summary>
-        /// Tiempo de espera general del lado del proveedor
-        /// </summary>
-        public int timeOut { get; set; }
-
-        /// <summary>
-        /// Fecha marcada como inicio de operaciones con el proveedor
-        /// </summary>
-        public DateTime fechaInicioTrx { get; set; }
-
-
-        public Timer providerTimer;        
+        public Timer providerTimer;
 
         public bool seHaLiberado { get; set; } = false;
 
+
+        Mutex mutex;
 
         /// <summary>
         /// Constructor
         /// </summary>
         public EstadoDelProveedorBase()
         {
-            // waitSend = new AutoResetEvent(true);
-            //esperandoEnvio = new ManualResetEvent(true);
+            mutex = new Mutex();
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InicializarEstadoDelProveedorBase();
         }
@@ -108,7 +98,6 @@ namespace UServerCore
             ipProveedor = "";
             socketDeTrabajo = null;
             estadoDelClienteOrigen = null;
-            timeOut = Configuracion.timeOutProveedor;
         }
 
         /// <summary>
@@ -160,6 +149,20 @@ namespace UServerCore
         public virtual void GuardarTransaccion()
         {
 
-        }        
+        }
+
+        //public virtual void SetReleaseResource()
+        //{
+        //    mutex.WaitOne();
+        //    if (!seHaLiberado) seHaLiberado = true;
+        //    mutex.ReleaseMutex();
+        //}
+
+        //public virtual void SetBusyResource()
+        //{
+        //    mutex.WaitOne();
+        //    if (seHaLiberado) seHaLiberado = false;
+        //    mutex.ReleaseMutex();
+        //}
     }
 }

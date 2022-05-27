@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -88,12 +87,12 @@ namespace UServerCore
         /// </summary>
         public bool esConsulta { get; set; }
 
-        /// <summary>
-        /// Bandera  para indicar que el proceso de responder se ha concluido correctamente
-        /// </summary>
-        public bool seHaRespondido { get; set; }
+        ///// <summary>
+        ///// Bandera  para indicar que el proceso de responder se ha concluido correctamente
+        ///// </summary>
+        //public bool seHaRespondido { get; set; } = false;
 
-        public bool seEstaRespondiendo { get; set; }=false;
+        public bool seEstaRespondiendo { get; set; } = false;
 
         Mutex mutex;
 
@@ -124,7 +123,6 @@ namespace UServerCore
             socketDeTrabajo = null;
             timeOut = Configuracion.timeOutCliente;
             esConsulta = false;
-            seHaRespondido = false;
         }
 
         /// <summary>
@@ -154,23 +152,23 @@ namespace UServerCore
 
         }
 
-        /// <summary>
-        /// Se ingresa el valor para indicar que ya se ha respondido este estado
-        /// </summary>
-        public virtual void SetResponsed()
-        {
-            mutex.WaitOne();
-            if (!seHaRespondido) seHaRespondido = true;
-            mutex.ReleaseMutex();
+        ///// <summary>
+        ///// Se ingresa el valor para indicar que ya se ha respondido este estado
+        ///// </summary>
+        //public virtual void SetResponsed()
+        //{
+        //    mutex.WaitOne();
+        //    if (!seHaRespondido) seHaRespondido = true;
+        //    mutex.ReleaseMutex();
 
-        }
+        //}
 
-        public virtual void SetNotResponsed()
-        {
-            mutex.WaitOne();
-            if (seHaRespondido) seHaRespondido = false;
-            mutex.ReleaseMutex();            
-        }
+        //public virtual void SetNotResponsed()
+        //{
+        //    mutex.WaitOne();
+        //    if (seHaRespondido) seHaRespondido = false;
+        //    mutex.ReleaseMutex();
+        //}
 
 
         public virtual void SetProcessingResponse()
@@ -184,8 +182,8 @@ namespace UServerCore
         {
             mutex.WaitOne();
             if (seEstaRespondiendo) seEstaRespondiendo = false;
-            mutex.ReleaseMutex();          
-            
+            mutex.ReleaseMutex();
+
         }
     }
 }
