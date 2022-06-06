@@ -177,12 +177,12 @@
             Socket asignado de trabajo sobre la conexión del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelProveedorBase.codigoRespuesta">
+        <member name="F:UServerCore.EstadoDelProveedorBase.codigoRespuesta">
             <summary>
             Codigo de respuesta sobre el proceso del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelProveedorBase.codigoAutorizacion">
+        <member name="F:UServerCore.EstadoDelProveedorBase.codigoAutorizacion">
             <summary>
             Codigo de autorización sobre el proceso del cliente
             </summary>
@@ -192,12 +192,12 @@
             Estado del cliente desde donde proviene la petición para un retorno
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelProveedorBase.tramaSolicitud">
+        <member name="F:UServerCore.EstadoDelProveedorBase.tramaSolicitud">
             <summary>
             Trama de petición a un proveedor
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelProveedorBase.tramaRespuesta">
+        <member name="F:UServerCore.EstadoDelProveedorBase.tramaRespuesta">
             <summary>
             Trama de respuesta de un proveedor
             </summary>
@@ -210,6 +210,11 @@
         <member name="F:UServerCore.EstadoDelProveedorBase.objRespuesta">
             <summary>
             Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
+            </summary>
+        </member>
+        <member name="P:UServerCore.EstadoDelProveedorBase.seVencioElTimeOut">
+            <summary>
+            Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
             </summary>
         </member>
         <member name="M:UServerCore.EstadoDelProveedorBase.#ctor">
@@ -457,7 +462,7 @@
             Mensaje de aviso
             </summary>
         </member>
-        <member name="M:UServerCore.ServidorTransaccional`3.#ctor(System.Int32,System.Int32,System.Int32)">
+        <member name="M:UServerCore.ServidorTransaccional`3.#ctor(System.Int32,System.Int32,System.Int32,System.Boolean)">
             <summary>
             Crea una instancia del administrador de sockets, posterior se tiene que llamar al método
             ConfigInicioServidor para iniciar el proceso de asignacion de recursos        
@@ -557,6 +562,12 @@
             Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
             </summary>
         </member>
+        <member name="M:UServerCore.ServidorTransaccional`3.TickTimer(System.Object)">
+            <summary>
+            Evento asincrono del timer para medir el timeout del servidor
+            </summary>
+            <param name="state"></param>
+        </member>
         <member name="M:UServerCore.ServidorTransaccional`3.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
@@ -569,7 +580,7 @@
             Se detiene el servidor
             </summary>
         </member>
-        <member name="M:UServerCore.ServidorTransaccional`3.EscribirLog(System.String,UServerCore.Utileria.tipoLog)">
+        <member name="M:UServerCore.ServidorTransaccional`3.EscribirLog(System.String,UServerCore.Utileria.tipoLog,System.Boolean)">
             <summary>
             Funcion que el guardado de logs en el event log de windows
             </summary>
@@ -608,12 +619,6 @@
             <param name="TableName"></param>
             <param name="MethodName"></param>
             <returns></returns>
-        </member>
-        <member name="M:UServerCore.ServidorTransaccional`3.TickTimer(System.Object)">
-            <summary>
-            Evento asincrono del timer para medir el timeout del servidor
-            </summary>
-            <param name="state"></param>
         </member>
         <member name="T:UServerCore.ClienteBloqueo">
             <summary>
@@ -720,7 +725,7 @@
             que será el de trabajo para el envío y recepción de mensajes
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.idUnicoCliente">
+        <member name="P:UServerCore.EstadoDelClienteBase.IdUnicoCliente">
             <summary>
             Identificador único para un cliente
             </summary>
@@ -746,12 +751,12 @@
             el flujo cuando el fin de un envío ocurre
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.ipCliente">
+        <member name="P:UServerCore.EstadoDelClienteBase.IpCliente">
             <summary>
             Ip del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.puertoCliente">
+        <member name="P:UServerCore.EstadoDelClienteBase.PuertoCliente">
             <summary>
             Puerto del cliente
             </summary>
@@ -781,17 +786,17 @@
             Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
             </summary>
         </member>
-        <member name="F:UServerCore.EstadoDelClienteBase.fechaInicioTrx">
+        <member name="P:UServerCore.EstadoDelClienteBase.fechaInicioTrx">
             <summary>
             Fecha marcada como inicio de operaciones con el cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.timeOut">
+        <member name="F:UServerCore.EstadoDelClienteBase.timeOut">
             <summary>
             Tiempo de espera general del lado del cliente
             </summary>
         </member>
-        <member name="P:UServerCore.EstadoDelClienteBase.esConsulta">
+        <member name="F:UServerCore.EstadoDelClienteBase.esConsulta">
             <summary>
             Bandera para identificar si el proceso solo es de consulta sobre una transacción
             </summary>
@@ -824,6 +829,11 @@
         <member name="M:UServerCore.EstadoDelClienteBase.ObtenerTramaRespuesta">
             <summary>
             Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
+            </summary>
+        </member>
+        <member name="M:UServerCore.EstadoDelClienteBase.ActualizarTransaccion">
+            <summary>
+            Función que guardará el resultado de la transacción
             </summary>
         </member>
         <member name="F:UServerCore.Utileria.CodigosRespuesta.TransaccionExitosa">

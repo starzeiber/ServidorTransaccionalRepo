@@ -23,12 +23,12 @@ namespace UServerCore
         /// <summary>
         /// Ip del proveedor
         /// </summary>
-        public string ipProveedor { get; set; }
+        public string ipProveedor { get; set; } = "127.0.0.0";
 
         /// <summary>
         /// Puerto del proveedor
         /// </summary>
-        public Int32 puertoProveedor { get; set; }
+        public Int32 puertoProveedor { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
@@ -38,12 +38,12 @@ namespace UServerCore
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// </summary>
-        public int codigoRespuesta { get; set; }
+        public int codigoRespuesta;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int codigoAutorizacion { get; set; }
+        public int codigoAutorizacion;
 
         /// <summary>
         /// Estado del cliente desde donde proviene la petición para un retorno
@@ -53,12 +53,12 @@ namespace UServerCore
         /// <summary>
         /// Trama de petición a un proveedor
         /// </summary>
-        public string tramaSolicitud { get; set; }
+        public string tramaSolicitud;
 
         /// <summary>
         /// Trama de respuesta de un proveedor
         /// </summary>
-        public string tramaRespuesta { get; set; }
+        public string tramaRespuesta;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
@@ -70,19 +70,23 @@ namespace UServerCore
         /// </summary>
         public object objRespuesta;
 
+        
+
         public Timer providerTimer;
 
-        public bool seHaLiberado { get; set; } = false;
+        /// <summary>
+        /// Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
+        /// </summary>
+        internal bool seVencioElTimeOut { get; set; } = false;
 
 
-        Mutex mutex;
+        private readonly object objetoDeBloqueo = new object();
 
         /// <summary>
         /// Constructor
         /// </summary>
         public EstadoDelProveedorBase()
         {
-            mutex = new Mutex();
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InicializarEstadoDelProveedorBase();
         }
@@ -94,10 +98,14 @@ namespace UServerCore
         public virtual void InicializarEstadoDelProveedorBase()
         {
             referenciaSocketPrincipal = null;
-            puertoProveedor = 0;
-            ipProveedor = "";
             socketDeTrabajo = null;
+            codigoRespuesta = 0;
+            codigoAutorizacion = 0;
+            tramaSolicitud = "";
+            tramaRespuesta = "";
             estadoDelClienteOrigen = null;
+            objSolicitud = null;
+            objRespuesta = null;
         }
 
         /// <summary>
@@ -151,18 +159,17 @@ namespace UServerCore
 
         }
 
-        //public virtual void SetReleaseResource()
-        //{
-        //    mutex.WaitOne();
-        //    if (!seHaLiberado) seHaLiberado = true;
-        //    mutex.ReleaseMutex();
-        //}
+        public void IndicarVencimientoPorTimeOut()
+        {
+            lock (objetoDeBloqueo)
+                if (!seVencioElTimeOut) seVencioElTimeOut = true;
 
-        //public virtual void SetBusyResource()
-        //{
-        //    mutex.WaitOne();
-        //    if (seHaLiberado) seHaLiberado = false;
-        //    mutex.ReleaseMutex();
-        //}
+        }
+
+        public void ReinicioBanderaTimeOut()
+        {
+            lock (objetoDeBloqueo)
+                if (seVencioElTimeOut) seVencioElTimeOut = false;
+        }
     }
 }

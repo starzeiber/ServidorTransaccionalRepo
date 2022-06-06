@@ -52,6 +52,7 @@ using System.Runtime.InteropServices;
 //@UMB      12/05/22    6.0.0.0     Se implementa un ajuste total a los timers de TO, cambio importante
 //@UMB      16/05/22    7.0.0.0     Corrección del time out en el timer (un rudo desafío)     
 //@UMB      25/05/22    8.0.0.0     Se continuan las modificaciones al timer de TimeOut, ahora solo tendrá 1
+//@UMB      25/05/22    9.0.0.0     Se re construye todo el guardado y el timeout por temas de errores cuando existe intermitencia
 
-[assembly: AssemblyVersion("8.0.0.0")]
-[assembly: AssemblyFileVersion("8.0.0.0")]
+[assembly: AssemblyVersion("9.0.0.0")]
+[assembly: AssemblyFileVersion("9.0.0.0")]

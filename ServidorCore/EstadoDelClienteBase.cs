@@ -14,7 +14,7 @@ namespace UServerCore
         /// <summary>
         /// Identificador único para un cliente
         /// </summary>
-        public Guid idUnicoCliente { get; set; }
+        public Guid IdUnicoCliente { get; set; }
 
         /// <summary>
         /// Referencia al servidor de socket principal
@@ -40,12 +40,12 @@ namespace UServerCore
         /// <summary>
         /// Ip del cliente
         /// </summary>
-        public string ipCliente { get; set; }
+        public string IpCliente { get; set; } = "127.0.0.0";
 
         /// <summary>
         /// Puerto del cliente
         /// </summary>
-        public Int32 puertoCliente { get; set; }
+        public Int32 PuertoCliente { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
@@ -72,29 +72,34 @@ namespace UServerCore
         /// </summary>
         public object objRespuesta;
 
+        public object objSolicitudProveedor;
+        public object objRespuestaProveedor;
+
         /// <summary>
         /// Fecha marcada como inicio de operaciones con el cliente
         /// </summary>
-        public DateTime fechaInicioTrx;
+        public DateTime fechaInicioTrx { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Tiempo de espera general del lado del cliente
         /// </summary>
-        public int timeOut { get; set; }
+        public int timeOut;
 
         /// <summary>
         /// Bandera para identificar si el proceso solo es de consulta sobre una transacción
         /// </summary>
-        public bool esConsulta { get; set; }
+        public bool esConsulta;
 
         ///// <summary>
         ///// Bandera  para indicar que el proceso de responder se ha concluido correctamente
         ///// </summary>
         //public bool seHaRespondido { get; set; } = false;
 
-        public bool seEstaRespondiendo { get; set; } = false;
+        public bool seEstaRespondiendo;
 
-        Mutex mutex;
+        public int idTrxBD;
+
+        private readonly object objetoDeBloqueo = new object();
 
 
         /// <summary>
@@ -103,7 +108,6 @@ namespace UServerCore
         public EstadoDelClienteBase()
         {
             esperandoEnvio = new ManualResetEvent(true);
-            mutex = new Mutex();
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InicializarEstadoDelClienteBase();
         }
@@ -114,15 +118,18 @@ namespace UServerCore
         /// </summary>
         public virtual void InicializarEstadoDelClienteBase()
         {
+            IdUnicoCliente = Guid.NewGuid();
             referenciaSocketPrincipal = null;
             tramaRespuesta = "";
-            puertoCliente = 0;
             esperandoEnvio.Set();
-            idUnicoCliente = Guid.NewGuid();
-            ipCliente = "";
             socketDeTrabajo = null;
+            codigoRespuesta = 0;
+            codigoAutorizacion = 0;
+            objSolicitud = null;
+            objRespuesta = null;
             timeOut = Configuracion.timeOutCliente;
             esConsulta = false;
+            //este no porque hay una función con lock para hacerlo seEstaRespondiendo = false;
         }
 
         /// <summary>
@@ -152,38 +159,24 @@ namespace UServerCore
 
         }
 
-        ///// <summary>
-        ///// Se ingresa el valor para indicar que ya se ha respondido este estado
-        ///// </summary>
-        //public virtual void SetResponsed()
-        //{
-        //    mutex.WaitOne();
-        //    if (!seHaRespondido) seHaRespondido = true;
-        //    mutex.ReleaseMutex();
-
-        //}
-
-        //public virtual void SetNotResponsed()
-        //{
-        //    mutex.WaitOne();
-        //    if (seHaRespondido) seHaRespondido = false;
-        //    mutex.ReleaseMutex();
-        //}
-
-
-        public virtual void SetProcessingResponse()
+        /// <summary>
+        /// Función que guardará el resultado de la transacción
+        /// </summary>
+        public virtual void ActualizarTransaccion()
         {
-            mutex.WaitOne();
-            if (!seEstaRespondiendo) seEstaRespondiendo = true;
-            mutex.ReleaseMutex();
+
         }
 
-        public virtual void SetFinishedProcessingResponse()
+        public void SeEstaProcesandoRespuesta()
         {
-            mutex.WaitOne();
-            if (seEstaRespondiendo) seEstaRespondiendo = false;
-            mutex.ReleaseMutex();
+            lock (objetoDeBloqueo)
+                if (!seEstaRespondiendo) seEstaRespondiendo = true;
+        }
 
+        public void SeFinalizaProcesoRespuesta()
+        {
+            lock (objetoDeBloqueo)
+                if (seEstaRespondiendo) seEstaRespondiendo = false;
         }
     }
 }

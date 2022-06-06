@@ -267,6 +267,8 @@ namespace UServerCore
 
         internal int contadorPuertos = 0;
 
+        bool conLogsParaDepuracion = false;
+
         #endregion
 
         /// <summary>
@@ -276,8 +278,9 @@ namespace UServerCore
         /// <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
         /// <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
         /// <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
-        public ServidorTransaccional(Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100)
+        public ServidorTransaccional(Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
         {
+            this.conLogsParaDepuracion = conLogsParaDepuracion;
             totalBytesLeidos = 0;
             this.numeroConexionesSimultaneas = numeroConexSimultaneas;
             //Se coloca ilimitado para fines no restrictivos
@@ -518,16 +521,17 @@ namespace UServerCore
 
             // si el cliente pasó todas las Utileria entonces se le asigna ya un estado de trabajo del pool de estados de cliente listo con todas sus propiedes
             T estadoDelCliente = adminEstadosCliente.obtenerUnElemento();
+            // limpio el estado para reutilizar solo el saea no los parámetros
             estadoDelCliente.InicializarEstadoDelClienteBase();
             //por precaución se coloca que no se está procesando respuesta
-            estadoDelCliente.SetFinishedProcessingResponse();
+            estadoDelCliente.SeFinalizaProcesoRespuesta();
             // debo colocar la referencia del proceso principal donde genero el estado del cliente para tenerlo como referencia de retorno
             estadoDelCliente.IngresarReferenciaSocketPrincipal(this);
             // Del SAEA de aceptación de conexión, se recupera el socket para asignarlo al estado del cliente obtenido del pool de estados
             estadoDelCliente.socketDeTrabajo = saea.AcceptSocket;
             //  de la misma forma se ingresa la ip y puerto del cliente que se aceptó
-            estadoDelCliente.ipCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Address.ToString();
-            estadoDelCliente.puertoCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Port;
+            estadoDelCliente.IpCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Address.ToString();
+            estadoDelCliente.PuertoCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Port;
 
             // con estas instrucciones puedo controlar las acciones en cada fase del proceso de recepción y envío de ser necesario
             estadoDelServidorBase.OnAceptacion(estadoDelCliente);
@@ -539,9 +543,9 @@ namespace UServerCore
             {
                 try
                 {
-                    if (!listaClientes.ContainsKey(estadoDelCliente.idUnicoCliente))
+                    if (!listaClientes.ContainsKey(estadoDelCliente.IdUnicoCliente))
                     {
-                        listaClientes.Add(estadoDelCliente.idUnicoCliente, estadoDelCliente);
+                        listaClientes.Add(estadoDelCliente.IdUnicoCliente, estadoDelCliente);
                     }
                     else
                     {
@@ -581,7 +585,7 @@ namespace UServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + ", AceptarConexionCallBack, recibiendo mensaje del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                    EscribirLog(ex.Message + ", AceptarConexionCallBack, recibiendo mensaje del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                 }
             }
@@ -630,7 +634,7 @@ namespace UServerCore
                     }
                     else
                     {
-                        EscribirLog("Error en el proceso de recepción, socket no conectado correctamente, cliente:" + estadoDelCliente.idUnicoCliente + ", " + saea.SocketError.ToString(), tipoLog.ALERTA);
+                        EscribirLog("Error en el proceso de recepción, socket no conectado correctamente, cliente:" + estadoDelCliente.IdUnicoCliente + ", " + saea.SocketError.ToString(), tipoLog.ALERTA);
                         //se cierra el cliente porque puede perdurar indefinidamente la conexión
                         CerrarSocketCliente(estadoDelCliente);
                     }
@@ -646,7 +650,7 @@ namespace UServerCore
                     }
                     else
                     {
-                        EscribirLog("el socket no esta conectado correctamente para el cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+                        EscribirLog("el socket no esta conectado correctamente para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                         // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión                        
                         CerrarSocketCliente(estadoDelCliente);
 
@@ -667,26 +671,26 @@ namespace UServerCore
         /// <param name="estadoDelCliente">Objeto que tiene la información y socket de trabajo del cliente</param>
         private void ProcesarRecepcion(T estadoDelCliente)
         {
-            estadoDelCliente.SetFinishedProcessingResponse();
+            //por precaución se coloca que no se está procesando respuesta
+            estadoDelCliente.SeFinalizaProcesoRespuesta();
 
             //Para ir midiendo el TO por cada recepción
             bool bloqueo = Monitor.TryEnter(estadoDelCliente.fechaInicioTrx, 5000);
             if (bloqueo)
             {
                 try
-                {                    
+                {
                     estadoDelCliente.fechaInicioTrx = DateTime.Now;
-                    EscribirLog("Se coloca la fecha de recepción "+ estadoDelCliente.fechaInicioTrx+ " al cliente: " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.fechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + ", ProcesarRecepcion, bloqueo para ingresar la fecha de inicio del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                    EscribirLog(ex.Message + ", ProcesarRecepcion, bloqueo para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 }
             }
             else
             {
-                //TODO verificar que cuando no se pueda setear la fecha si el server toma la 01/01/0001 o cuál?
-                EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, para ingresar la fecha de inicio del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
             // se obtiene el SAEA de trabajo
@@ -695,22 +699,22 @@ namespace UServerCore
             Int32 bytesTransferred = saeaDeEnvioRecepcion.BytesTransferred;
 
             // se obtiene el mensaje y se decodifica para entenderlo
-            String mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
+            string mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
 
             try
             {
                 if (int.TryParse(mensajeRecibido.Substring(0, 2), out int encabezado))
                 {
-                    EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente: " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
                 else
                 {
-                    EscribirLog("Mensaje recibido: " + mensajeRecibido.Substring(2) + " del cliente: " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Mensaje recibido: " + mensajeRecibido.Substring(2) + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
             }
             catch (Exception)
             {
-                EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente: " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
             }
 
 
@@ -738,7 +742,7 @@ namespace UServerCore
 
                 if (SeVencioTO(estadoDelCliente))
                 {
-                    EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.idUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
+                    EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
                     estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
                     estadoDelCliente.codigoAutorizacion = 0;
                     ResponderAlCliente(estadoDelCliente);
@@ -778,9 +782,11 @@ namespace UServerCore
                             // ingreso la información de peticion para llenar las clases al proveedor
                             estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);
                             estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
+                            //por seguridad, se coloca la bandera de vencimiento por TimeOut en false
+                            estadoDelProveedor.ReinicioBanderaTimeOut();
+
                             if (estadoDelProveedor.codigoRespuesta != (int)CodigosRespuesta.TransaccionExitosa)
                             {
-                                estadoDelProveedor.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                                 estadoDelProveedor.codigoAutorizacion = 0;
                                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                                 estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
@@ -820,8 +826,9 @@ namespace UServerCore
                                 Interlocked.Exchange(ref contadorPuertos, 0);
                             }
                             Interlocked.Increment(ref contadorPuertos);
-                            saeaProveedor.RemoteEndPoint = endPointProveedor;
 
+
+                            saeaProveedor.RemoteEndPoint = endPointProveedor;
                             // se genera un socket que será usado en el envío y recepción
                             Socket socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -838,7 +845,7 @@ namespace UServerCore
                             }
                             catch (Exception ex)
                             {
-                                EscribirLog(ex.Message + ",ProcesarRecepcion, ConnectAsync, " + saeaProveedor.RemoteEndPoint.ToString() + ", cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                                EscribirLog(ex.Message + ",ProcesarRecepcion, ConnectAsync, " + saeaProveedor.RemoteEndPoint.ToString() + ", cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
 
                                 socketDeTrabajoProveedor.Close();
                                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.CarrierAbajo;
@@ -866,13 +873,13 @@ namespace UServerCore
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
                 else if (estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.ErrorFormato && estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.ErrorProceso)
                 {
-                    EscribirLog("Error en el proceso de validación de la trama del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+                    EscribirLog("Error en el proceso de validación de la trama del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente);
                 }
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", ProcesarRecepcion, cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                EscribirLog(ex.Message + ", ProcesarRecepcion, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
             }
         }
@@ -888,7 +895,7 @@ namespace UServerCore
                 return;
             }
 
-            estadoDelCliente.SetProcessingResponse();
+            estadoDelCliente.SeEstaProcesandoRespuesta();
 
             // trato de obtener la trama que se le responderá al cliente
             estadoDelCliente.ObtenerTramaRespuesta();
@@ -896,22 +903,25 @@ namespace UServerCore
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
             {
+                if (!modoTest)
+                    estadoDelCliente.ActualizarTransaccion();
+
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.tramaRespuesta;
                 try
                 {
                     if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
                     {
-                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                     }
                     else
                     {
-                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                     }
                 }
                 catch (Exception)
                 {
-                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
 
                 // se obtiene la cantidad de bytes de la trama completa
@@ -919,7 +929,7 @@ namespace UServerCore
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
                 if (numeroDeBytes > tamanoBufferPorPeticion)
                 {
-                    EscribirLog("La respuesta es más grande que el buffer, cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+                    EscribirLog("La respuesta es más grande que el buffer, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
@@ -930,7 +940,7 @@ namespace UServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog("Error asignando buffer para la respuesta al cliente " + estadoDelCliente.idUnicoCliente + ". " + ex.Message, tipoLog.ERROR);
+                    EscribirLog("Error asignando buffer para la respuesta al cliente " + estadoDelCliente.IdUnicoCliente + ". " + ex.Message, tipoLog.ERROR);
                     return;
                 }
 
@@ -949,7 +959,7 @@ namespace UServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + ", ResponderAlCliente, cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                    EscribirLog(ex.Message + ", ResponderAlCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
@@ -973,7 +983,7 @@ namespace UServerCore
                     }
                     catch (Exception ex)
                     {
-                        EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+                        EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketCliente(estadoDelCliente);
                     }
                 }
@@ -1003,7 +1013,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", ProcesarRecepcionEnvioCiclicoCliente, cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                EscribirLog(ex.Message + ", ProcesarRecepcionEnvioCiclicoCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
             }
         }
@@ -1031,14 +1041,14 @@ namespace UServerCore
                 try
                 {
                     // se busca en la lista el cliente y se remueve porque se va a desconectar
-                    if (listaClientes.ContainsKey(estadoDelCliente.idUnicoCliente))
-                        listaClientes.Remove(estadoDelCliente.idUnicoCliente);
+                    if (listaClientes.ContainsKey(estadoDelCliente.IdUnicoCliente))
+                        listaClientes.Remove(estadoDelCliente.IdUnicoCliente);
                     else
                         return;     // quiere decir que ya está desconectado
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + " en CerrarSocketCliente, listaClientes, cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                    EscribirLog(ex.Message + " en CerrarSocketCliente, listaClientes, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 }
                 finally
                 {
@@ -1061,7 +1071,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en CerrarSocketCliente, shutdown de envío en el socket de trabajo del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+                EscribirLog(ex.Message + " en CerrarSocketCliente, shutdown de envío en el socket de trabajo del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
             }
 
             try
@@ -1070,7 +1080,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en CerrarSocketCliente, close en el socket de trabajo del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+                EscribirLog(ex.Message + " en CerrarSocketCliente, close en el socket de trabajo del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
             // se llama a la secuencia de cerrando para tener un flujo de eventos
@@ -1114,17 +1124,28 @@ namespace UServerCore
         /// <param name="e"></param>
         private void ConexionProveedorCallBack(object sender, SocketAsyncEventArgs e)
         {
+            // obtengo el estado del socket
+            // se comprueba que el estado haya sido obtenido correctamente
+            if (!(e.UserToken is X estadoDelProveedor))
+            {
+                EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
+                return;
+            }
             // Si hay errores, debo regresar el estado del proveedor que se está usando a la pila de estados para ser reutilizado
-            X estadoDelProveedor = e.UserToken as X;
+            //X estadoDelProveedor = e.UserToken as X;
+
             // se valida que existan errores registrados
             if (e.SocketError != SocketError.Success && e.SocketError != SocketError.IsConnected)
             {
-                EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.saeaDeEnvioRecepcion.RemoteEndPoint + ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.saeaDeEnvioRecepcion.RemoteEndPoint + ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
 
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.CarrierAbajo;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
+
+                estadoDelProveedor.GuardarTransaccion();
+
                 ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
                 adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
                 semaforoParaAceptarProveedores.Release();
@@ -1139,12 +1160,19 @@ namespace UServerCore
 
             // obtengo las tramas para considerar cualquier evento antes de enviar la petición al proveedor.
             // se puede actualizar más adelante
-            estadoDelProveedor.ObtenerTramaPeticion();
+            // solo por precaución se inicializan los valores
             estadoDelProveedor.codigoRespuesta = 0;
             estadoDelProveedor.codigoAutorizacion = 0;
+            estadoDelProveedor.ObtenerTramaPeticion();
 
-            estadoDelProveedor.ObtenerTramaRespuesta();
-                      
+            //// solo por precaución se inicializan los valores
+            //estadoDelProveedor.codigoRespuesta = 0;
+            //estadoDelProveedor.codigoAutorizacion = 0;
+            //estadoDelProveedor.ObtenerTramaRespuesta();
+
+            // Se guarda  la transacción para posterior actualizarla
+            estadoDelProveedor.GuardarTransaccion();
+
 
             if (estadoDelProveedor.socketDeTrabajo.Connected)
             {
@@ -1153,11 +1181,11 @@ namespace UServerCore
                     string mensajeAlProveedor = estadoDelProveedor.tramaSolicitud;
                     try
                     {
-                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
                     }
                     catch (Exception)
                     {
-                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
                     }
 
 
@@ -1166,7 +1194,7 @@ namespace UServerCore
                     // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
                     if (numeroDeBytes > tamanoBufferPorPeticion)
                     {
-                        EscribirLog("El mensaje al proveedor es más grande que el buffer, cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ALERTA);
+                        EscribirLog("El mensaje al proveedor es más grande que el buffer, cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketProveedor(estadoDelProveedor);
                         return;
                     }
@@ -1175,8 +1203,7 @@ namespace UServerCore
                     estadoDelProveedor.saeaDeEnvioRecepcion.SetBuffer(estadoDelProveedor.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
 
                     estadoDelProveedor.providerTimer = new Timer(new TimerCallback(TickTimer), estadoDelProveedor, 1000, 1000);
-                    EscribirLog("Se inicia el timer para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", con una fecha inicial de comparación " + estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx, tipoLog.INFORMACION);
-
+                    EscribirLog("Se inicia el timer para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente + ", con una fecha inicial de comparación " + estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx, tipoLog.INFORMACION, true);
 
                     // se procede a la recepción asincrona del mensaje,el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
                     // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
@@ -1189,7 +1216,7 @@ namespace UServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión, cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                    EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión, cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                     estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
@@ -1247,14 +1274,14 @@ namespace UServerCore
                     else
                     {
                         EscribirLog("Error en el envío a " + estadoDelProveedor.saeaDeEnvioRecepcion.RemoteEndPoint + ", RecepcionEnvioSalienteCallBack" + e.SocketError.ToString() +
-                            ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
-                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
+                            ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                        estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                         estadoDelProveedor.codigoAutorizacion = 0;
                         estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                         estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
                         ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
-                        estadoDelProveedor.GuardarTransaccion();
-                        CerrarSocketProveedor(estadoDelProveedor);
+                        if (!estadoDelProveedor.seVencioElTimeOut)
+                            CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
                 case SocketAsyncOperation.Receive:
@@ -1272,13 +1299,13 @@ namespace UServerCore
                         estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                         estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
                         ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
-                        estadoDelProveedor.GuardarTransaccion();
-                        CerrarSocketProveedor(estadoDelProveedor);
+                        if (!estadoDelProveedor.seVencioElTimeOut)
+                            CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
                 default:
                     EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioSalienteCallBack, " + e.LastOperation.ToString(), tipoLog.ALERTA);
-                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                     estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
@@ -1316,7 +1343,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog("Error al ponerse en espera de respuesta del proveedor: " + ex.Message + ", ProcesarRecepcionEnvioCiclicoProveedor, cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                EscribirLog("Error al ponerse en espera de respuesta del proveedor: " + ex.Message + ", ProcesarRecepcionEnvioCiclicoProveedor, cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
@@ -1342,22 +1369,24 @@ namespace UServerCore
             // se obtiene el SAEA de recepción
             SocketAsyncEventArgs saeaRecepcion = estadoDelProveedor.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
-            Int32 bytesTransferred = saeaRecepcion.BytesTransferred;
+            int bytesTransferred = saeaRecepcion.BytesTransferred;
 
             // se obtiene el mensaje y se decodifica
-            String mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
+            string mensajeRecibido = Encoding.ASCII.GetString(saeaRecepcion.Buffer, saeaRecepcion.Offset, bytesTransferred);
 
             // el mensaje recibido llevará un proceso, que no debe ser llevado por el core, se coloca en la función virtual
             // para que se consuma en otra capa, se procese y se entregue una respuesta
             try
             {
-                EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.INFORMACION);
+                EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
                 estadoDelProveedor.ProcesarTramaDelProveeedor(mensajeRecibido);
-                estadoDelProveedor.ObtenerTramaRespuesta();                
+                estadoDelProveedor.ObtenerTramaRespuesta();
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", procesando trama del proveedor, ProcesarRecepcion, cliente " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProceso;
+                estadoDelProveedor.codigoAutorizacion = 0;
+                EscribirLog(ex.Message + ", procesando trama del proveedor, ProcesarRecepcion, cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 return;
             }
 
@@ -1369,7 +1398,6 @@ namespace UServerCore
             estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
             estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
             ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
-            estadoDelProveedor.GuardarTransaccion();
             CerrarSocketProveedor(estadoDelProveedor);
         }
 
@@ -1382,40 +1410,36 @@ namespace UServerCore
             // de una operación de E / S sin valores
             if (estadoDelProveedor == null) return;
 
-            if (!estadoDelProveedor.seHaLiberado)
+            // se obtiene el socket específico del cliente en cuestión
+            Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
+
+            if (socketDeTrabajoACerrar.Connected)
             {
-                // se obtiene el socket específico del cliente en cuestión
-                Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
-
-                if (socketDeTrabajoACerrar.Connected)
+                // se inhabilita y se cierra dicho socket
+                try
                 {
-                    // se inhabilita y se cierra dicho socket
-                    try
-                    {
-                        socketDeTrabajoACerrar.Shutdown(SocketShutdown.Both);
-                    }
-                    catch (Exception ex)
-                    {
-                        EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
-                    }
-
-                    try
-                    {
-                        socketDeTrabajoACerrar.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente, tipoLog.ERROR);
-                    }
+                    socketDeTrabajoACerrar.Shutdown(SocketShutdown.Both);
+                }
+                catch (Exception ex)
+                {
+                    EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 }
 
-                // se libera la instancia de socket de trabajo para reutilizarlo
-                adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
-                // se marca el semáforo de que puede aceptar otro cliente
-                if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneas)
-                    this.semaforoParaAceptarProveedores.Release();
-
+                try
+                {
+                    socketDeTrabajoACerrar.Close();
+                }
+                catch (Exception ex)
+                {
+                    EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                }
             }
+
+            // se libera la instancia de socket de trabajo para reutilizarlo
+            adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+            // se marca el semáforo de que puede aceptar otro cliente
+            if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneas)
+                this.semaforoParaAceptarProveedores.Release();
         }
 
         ///// <summary>
@@ -1540,8 +1564,51 @@ namespace UServerCore
 
         #endregion
 
+        #region Timeout
 
-        #region FuncionesDeAyuda       
+        /// <summary>
+        /// Evento asincrono del timer para medir el timeout del servidor
+        /// </summary>
+        /// <param name="state"></param>
+        private void TickTimer(object state)
+        {
+            try
+            {
+                X estadoDelProveedor = (X)state;
+                if (estadoDelProveedor.estadoDelClienteOrigen.seEstaRespondiendo)
+                {
+                    estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    estadoDelProveedor.providerTimer.Dispose();
+                }
+                else if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
+                {
+                    TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx;
+                    EscribirLog("Se venció el TimeOut para el proveedor: " +
+                            estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente +
+                            ", TickTimer, fecha hora inicial " + estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx +
+                            ", segundos transcurridos " + timeSpan.Seconds +
+                            ", TimeOut configurado " + estadoDelProveedor.estadoDelClienteOrigen.timeOut, tipoLog.ALERTA);
+
+                    estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    estadoDelProveedor.providerTimer.Dispose();
+
+                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
+                    estadoDelProveedor.codigoAutorizacion = 0;
+                    estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
+                    estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
+                    estadoDelProveedor.IndicarVencimientoPorTimeOut();
+                    CerrarSocketProveedor(estadoDelProveedor);
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribirLog("TickTimer, " + ex.Message, tipoLog.ERROR, true);
+            }
+        }
+
+        #endregion
+
+        #region FuncionesDeAyuda     
 
         /// <summary>
         /// Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
@@ -1660,22 +1727,46 @@ namespace UServerCore
         /// </summary>
         /// <param name="mensaje"></param>
         /// <param name="tipoLog"></param>
-        private void EscribirLog(string mensaje, tipoLog tipoLog)
+        private void EscribirLog(string mensaje, tipoLog tipoLog, bool porDepuracion = false)
         {
-            switch (tipoLog)
+            if (conLogsParaDepuracion)
             {
-                case tipoLog.INFORMACION:
-                    Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
-                    break;
-                case tipoLog.ALERTA:
-                    Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
-                    break;
-                case tipoLog.ERROR:
-                    Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
-                    break;
-                default:
-                    Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
-                    break;
+                switch (tipoLog)
+                {
+                    case tipoLog.INFORMACION:
+                        Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                    case tipoLog.ALERTA:
+                        Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                    case tipoLog.ERROR:
+                        Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                    default:
+                        Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                }
+            }
+            {
+                switch (tipoLog)
+                {
+                    case tipoLog.INFORMACION:
+                        if (!porDepuracion)
+                            Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                    case tipoLog.ALERTA:
+                        if (!porDepuracion)
+                            Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                    case tipoLog.ERROR:
+                        if (!porDepuracion)
+                            Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                    default:
+                        if (!porDepuracion)
+                            Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
+                        break;
+                }
             }
         }
 
@@ -1693,7 +1784,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", SeVencioTOCliente, cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+                EscribirLog(ex.Message + ", SeVencioTOCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                 return true;
             }
 
@@ -1804,52 +1895,7 @@ namespace UServerCore
             return "";
         }
 
-        /// <summary>
-        /// Evento asincrono del timer para medir el timeout del servidor
-        /// </summary>
-        /// <param name="state"></param>
-        private void TickTimer(object state)
-        {
-            try
-            {
-                X estadoDelProveedor = (X)state;
-                //EscribirLog("entrada al timer " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimer", tipoLog.ALERTA);
-                if (estadoDelProveedor.estadoDelClienteOrigen.seEstaRespondiendo)
-                {
-                    //EscribirLog("proceso de respuesta en curso en otra instancia " + estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente + ", TickTimer", tipoLog.ALERTA);
-                    estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    estadoDelProveedor.providerTimer.Dispose();
-                }
-                else if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
-                {
-                    TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx;
-                    EscribirLog("Se venció el TimeOut para el proveedor: " +
-                            estadoDelProveedor.estadoDelClienteOrigen.idUnicoCliente +
-                            ", TickTimer, fecha hora inicial " + estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx +
-                            ", segundos transcurridos " + timeSpan.Seconds +
-                            ", TimeOut configurado " + estadoDelProveedor.estadoDelClienteOrigen.timeOut, tipoLog.ALERTA);
 
-                    estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    estadoDelProveedor.providerTimer.Dispose();
-
-                    estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
-                    estadoDelProveedor.codigoAutorizacion = 0;
-                    estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
-                    estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
-                    ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
-                    estadoDelProveedor.GuardarTransaccion();
-                    CerrarSocketProveedor(estadoDelProveedor);
-                }
-            }
-            catch (Exception ex)
-            {
-                using (EventLog eventLog = new EventLog("Application"))
-                {
-                    eventLog.Source = "Application";
-                    eventLog.WriteEntry(ex.Message, EventLogEntryType.Error);
-                }
-            }
-        }
 
 
         #endregion
