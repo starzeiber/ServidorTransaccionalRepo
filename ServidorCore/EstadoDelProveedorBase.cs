@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -70,7 +71,7 @@ namespace UServerCore
         /// </summary>
         public object objRespuesta;
 
-        
+
 
         public Timer providerTimer;
 
@@ -81,6 +82,9 @@ namespace UServerCore
 
 
         private readonly object objetoDeBloqueo = new object();
+
+
+        internal IPEndPoint endPoint;
 
         /// <summary>
         /// Constructor

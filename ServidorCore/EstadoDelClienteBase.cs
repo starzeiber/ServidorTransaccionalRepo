@@ -99,6 +99,9 @@ namespace UServerCore
 
         public int idTrxBD;
 
+        public string msg210 = "";
+        public string msg230 = "";
+
         private readonly object objetoDeBloqueo = new object();
 
 

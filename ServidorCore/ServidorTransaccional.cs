@@ -697,6 +697,7 @@ namespace UServerCore
             SocketAsyncEventArgs saeaDeEnvioRecepcion = estadoDelCliente.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
             Int32 bytesTransferred = saeaDeEnvioRecepcion.BytesTransferred;
+                      
 
             // se obtiene el mensaje y se decodifica para entenderlo
             string mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
@@ -735,6 +736,8 @@ namespace UServerCore
             {
                 // bloqueo los procesos sobre este mismo cliente hasta no terminar con esta petición para no tener revolturas de mensajes
                 estadoDelCliente.esperandoEnvio.Reset();
+                estadoDelCliente.msg210 = "";
+                estadoDelCliente.msg230 = "";
                 estadoDelCliente.esConsulta = false;
 
                 // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la variable tramaEnvioProveedor
@@ -829,6 +832,7 @@ namespace UServerCore
 
 
                             saeaProveedor.RemoteEndPoint = endPointProveedor;
+                            estadoDelProveedor.endPoint = endPointProveedor;
                             // se genera un socket que será usado en el envío y recepción
                             Socket socketDeTrabajoProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -848,7 +852,7 @@ namespace UServerCore
                                 EscribirLog(ex.Message + ",ProcesarRecepcion, ConnectAsync, " + saeaProveedor.RemoteEndPoint.ToString() + ", cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
 
                                 socketDeTrabajoProveedor.Close();
-                                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.CarrierAbajo;
+                                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                                 estadoDelProveedor.codigoAutorizacion = 0;
                                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                                 estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
@@ -1137,9 +1141,9 @@ namespace UServerCore
             // se valida que existan errores registrados
             if (e.SocketError != SocketError.Success && e.SocketError != SocketError.IsConnected)
             {
-                EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.saeaDeEnvioRecepcion.RemoteEndPoint + ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.endPoint + ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
 
-                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.CarrierAbajo;
+                estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
@@ -1395,6 +1399,8 @@ namespace UServerCore
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProceso;
                 estadoDelProveedor.codigoAutorizacion = 0;
             }
+            estadoDelProveedor.estadoDelClienteOrigen.msg210 = estadoDelProveedor.tramaRespuesta;
+            estadoDelProveedor.estadoDelClienteOrigen.msg230 = estadoDelProveedor.tramaRespuesta;
             estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
             estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
             ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
