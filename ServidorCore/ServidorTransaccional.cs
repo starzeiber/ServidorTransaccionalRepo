@@ -697,7 +697,7 @@ namespace UServerCore
             SocketAsyncEventArgs saeaDeEnvioRecepcion = estadoDelCliente.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
             Int32 bytesTransferred = saeaDeEnvioRecepcion.BytesTransferred;
-                      
+
 
             // se obtiene el mensaje y se decodifica para entenderlo
             string mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
@@ -883,7 +883,7 @@ namespace UServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", ProcesarRecepcion, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                EscribirLog(ex.Message + ". " + ex.StackTrace + ". ProcesarRecepcion, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
             }
         }
