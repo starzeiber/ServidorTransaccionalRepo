@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Threading;
 
-namespace UServerCore
+namespace ServerCore
 {
 
     /// <summary>

@@ -8,10 +8,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using static UServerCore.Configuracion;
-using static UServerCore.Utileria;
+using static ServerCore.Configuracion;
+using static ServerCore.Utileria;
 
-namespace UServerCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 

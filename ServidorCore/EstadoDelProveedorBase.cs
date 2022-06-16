@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace UServerCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor

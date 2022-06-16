@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace UServerCore
+namespace ServerCore
 {
     /// <summary>
     /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor

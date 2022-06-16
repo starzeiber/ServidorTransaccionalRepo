@@ -7,8 +7,8 @@
     <ProjectGuid>{1684CA50-C181-4396-B92C-9A6098798DCD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UServerCore</RootNamespace>
-    <AssemblyName>UServerCore</AssemblyName>
+    <RootNamespace>ServerCore</RootNamespace>
+    <AssemblyName>ServerCore</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -29,7 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\UServerCore.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\ServerCore.xml</DocumentationFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>

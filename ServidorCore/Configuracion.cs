@@ -1,4 +1,4 @@
-﻿namespace UServerCore
+﻿namespace ServerCore
 {
     internal static class Configuracion
     {
