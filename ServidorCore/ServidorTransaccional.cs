@@ -98,7 +98,7 @@ namespace ServerCore
         public int numeroclientesConectados
         {
             get
-            {
+            {                
                 return listaClientes.Values.Count;
             }
         }
@@ -278,6 +278,7 @@ namespace ServerCore
         /// <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
         /// <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
         /// <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
+        /// <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
         public ServidorTransaccional(Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
         {
             this.conLogsParaDepuracion = conLogsParaDepuracion;
@@ -1046,9 +1047,14 @@ namespace ServerCore
                 {
                     // se busca en la lista el cliente y se remueve porque se va a desconectar
                     if (listaClientes.ContainsKey(estadoDelCliente.IdUnicoCliente))
+                    {
                         listaClientes.Remove(estadoDelCliente.IdUnicoCliente);
+                    }
                     else
+                    {
+                        EscribirLog("el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + " no se encuentra en listaClientes a desconectar, ya ha sido desconectado en otro proceso", tipoLog.ALERTA);
                         return;     // quiere decir que ya está desconectado
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1061,7 +1067,7 @@ namespace ServerCore
             }
             else
             {
-                EscribirLog("Error obteniendo el bloqueo, CerrarSocketCliente, listaClientes", tipoLog.ALERTA);
+                EscribirLog("Error obteniendo el bloqueo, CerrarSocketCliente, listaClientes", tipoLog.ERROR);
             }
 
 
@@ -1733,6 +1739,7 @@ namespace ServerCore
         /// </summary>
         /// <param name="mensaje"></param>
         /// <param name="tipoLog"></param>
+        /// <param name="porDepuracion"></param>
         private void EscribirLog(string mensaje, tipoLog tipoLog, bool porDepuracion = false)
         {
             if (conLogsParaDepuracion)
@@ -1900,8 +1907,6 @@ namespace ServerCore
             }
             return "";
         }
-
-
 
 
         #endregion
