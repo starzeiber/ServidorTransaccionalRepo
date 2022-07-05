@@ -183,7 +183,7 @@ namespace ServerCore
         /// <summary>
         /// Bandera para identificar que la conexión está bien establecida
         /// </summary>
-        private bool desconectado = false;
+        private bool desconectando = false;
 
         /// <summary>
         /// Parámetros que  indica el máximo de pedidos que pueden encolarse simultáneamente en caso que el servidor 
@@ -421,7 +421,7 @@ namespace ServerCore
         public void IniciarServidor(Int32 puertoLocal, string ipProveedor, List<int> listaPuertosProveedor, bool modoTest, bool modoRouter)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
-            desconectado = false;
+            desconectando = false;
             Configuracion.modoTest = modoTest;
             Configuracion.modoRouter = modoRouter;
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
@@ -505,7 +505,7 @@ namespace ServerCore
             if (saea.SocketError != SocketError.Success)
             {
                 // se comprueba que no hay un proceso de cierre del programa o desconexión en curso para no dejar sockets en segundo plano
-                if (desconectado)
+                if (desconectando)
                 {
                     EscribirLog("Socket de escucha desconectado porque el programa principal se está cerrando, AceptarConexionCallBack", tipoLog.ERROR);
                     // se le indica al semáforo que puede permitir la siguiente conexion....al final se cerrará pero no se bloqueará el proceso
@@ -679,15 +679,8 @@ namespace ServerCore
             bool bloqueo = Monitor.TryEnter(estadoDelCliente.fechaInicioTrx, 5000);
             if (bloqueo)
             {
-                try
-                {
-                    estadoDelCliente.fechaInicioTrx = DateTime.Now;
-                    EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.fechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);
-                }
-                catch (Exception ex)
-                {
-                    EscribirLog(ex.Message + ", ProcesarRecepcion, bloqueo para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
-                }
+                estadoDelCliente.fechaInicioTrx = DateTime.Now;
+                EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.fechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);                
             }
             else
             {
@@ -705,18 +698,20 @@ namespace ServerCore
 
             try
             {
-                if (int.TryParse(mensajeRecibido.Substring(0, 2), out int encabezado))
+                if ((mensajeRecibido.Trim().Length > 4) && int.TryParse(mensajeRecibido.Trim().Substring(0, 2), out int encabezado) == true)
                 {
-                    EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Mensaje recibido: " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
                 else
                 {
-                    EscribirLog("Mensaje recibido: " + mensajeRecibido.Substring(2) + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog("Mensaje recibido: " + mensajeRecibido.Trim().Substring(2) + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
             }
             catch (Exception)
             {
-                EscribirLog("Mensaje recibido: " + mensajeRecibido + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
+                EscribirLog("Error al identificar si tiene encabezado el mensaje recibido, se intenta escribir pero se descarta " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                CerrarSocketCliente(estadoDelCliente);
+                return;
             }
 
 
@@ -1689,7 +1684,7 @@ namespace ServerCore
         public void DetenerServidor()
         {
             // se indica que se está ejecutando el proceso de desconexión de los clientes
-            desconectado = true;
+            desconectando = true;
             List<T> listaDeClientesEliminar = new List<T>();
 
             // Primero se detiene y se cierra el socket de escucha
@@ -1699,9 +1694,18 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en detenerServidor", tipoLog.ERROR);
+                EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
             }
-            socketDeEscucha.Close();
+
+            try
+            {
+                socketDeEscucha.Close();
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);
+            }
+
 
             // se recorre la lista de clientes conectados y se adiciona a la lista de clientes para desconectar
             foreach (T socketDeTrabajoPorCliente in listaClientes.Values)
@@ -1716,9 +1720,10 @@ namespace ServerCore
             }
             // se limpia la lista
             listaDeClientesEliminar.Clear();
+            listaClientes.Clear();
 
             enEjecucion = false;
-            desconectado = false;
+            desconectando = false;
         }
 
         //private void CerrarConexionForzadaProveedor(Socket socketProveedor)

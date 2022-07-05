@@ -396,7 +396,7 @@
             Socket de escucha para las conexiones de clientes
             </summary>
         </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.desconectado">
+        <member name="F:ServerCore.ServidorTransaccional`3.desconectando">
             <summary>
             Bandera para identificar que la conexión está bien establecida
             </summary>
@@ -470,6 +470,7 @@
             <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
             <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
             <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
+            <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
         </member>
         <member name="M:ServerCore.ServidorTransaccional`3.ConfigInicioServidor(System.Int32)">
             <summary>
@@ -586,6 +587,7 @@
             </summary>
             <param name="mensaje"></param>
             <param name="tipoLog"></param>
+            <param name="porDepuracion"></param>
         </member>
         <member name="M:ServerCore.ServidorTransaccional`3.SeVencioTO(`0)">
             <summary>
@@ -834,6 +836,16 @@
         <member name="M:ServerCore.EstadoDelClienteBase.ActualizarTransaccion">
             <summary>
             Función que guardará el resultado de la transacción
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.SeEstaProcesandoRespuesta">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.SeFinalizaProcesoRespuesta">
+            <summary>
+            
             </summary>
         </member>
         <member name="F:ServerCore.Utileria.CodigosRespuesta.TransaccionExitosa">

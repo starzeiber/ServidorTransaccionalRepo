@@ -170,12 +170,18 @@ namespace ServerCore
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void SeEstaProcesandoRespuesta()
         {
             lock (objetoDeBloqueo)
                 if (!seEstaRespondiendo) seEstaRespondiendo = true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void SeFinalizaProcesoRespuesta()
         {
             lock (objetoDeBloqueo)
