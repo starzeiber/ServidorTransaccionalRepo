@@ -876,6 +876,10 @@ namespace ServerCore
                     EscribirLog("Error en el proceso de validación de la trama del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente);
                 }
+                else
+                {
+                    CerrarSocketCliente(estadoDelCliente);
+                }
             }
             catch (Exception ex)
             {

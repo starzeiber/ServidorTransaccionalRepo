@@ -55,5 +55,5 @@ using System.Runtime.InteropServices;
 //@UMB      20/06/22    9.0.0.0     Se re construye todo el guardado y el timeout por temas de errores cuando existe intermitencia
 //@UMB      05/07/22    9.0.1.0     Se corrige un log con substring
 
-[assembly: AssemblyVersion("9.0.1.0")]
-[assembly: AssemblyFileVersion("9.0.1.0")]
+[assembly: AssemblyVersion("9.0.1.1")]
+[assembly: AssemblyFileVersion("9.0.1.1")]
