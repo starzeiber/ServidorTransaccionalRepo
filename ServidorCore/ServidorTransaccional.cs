@@ -98,7 +98,7 @@ namespace ServerCore
         public int numeroclientesConectados
         {
             get
-            {                
+            {
                 return listaClientes.Values.Count;
             }
         }
@@ -680,7 +680,7 @@ namespace ServerCore
             if (bloqueo)
             {
                 estadoDelCliente.fechaInicioTrx = DateTime.Now;
-                EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.fechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);                
+                EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.fechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);
             }
             else
             {
@@ -728,41 +728,41 @@ namespace ServerCore
 
             // el mensaje recibido llevará un proceso, que no debe ser llevado por el core, se coloca en la función virtual
             // para que se consuma en otra capa, se procese y se entregue una respuesta
+
+            // bloqueo los procesos sobre este mismo cliente hasta no terminar con esta petición para no tener revolturas de mensajes
+            estadoDelCliente.esperandoEnvio.Reset();
+            estadoDelCliente.msg210 = "";
+            estadoDelCliente.msg230 = "";
+            estadoDelCliente.esConsulta = false;
+
+            // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la variable tramaEnvioProveedor
+            estadoDelCliente.ProcesarTrama(mensajeRecibido);
+
+            if (SeVencioTO(estadoDelCliente))
+            {
+                EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
+                estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
+                estadoDelCliente.codigoAutorizacion = 0;
+                ResponderAlCliente(estadoDelCliente);
+                return;
+            }
+
+            //Verifico que sea una consulta y que no haya sido con código 71, porque si tuviera ese código, tengo que formar el 220 al proveedor
+            if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.SinRespuestaCarrier)
+            {
+                //regresa la respuesta de la base
+                ResponderAlCliente(estadoDelCliente);
+                return;
+            }
+            else if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.SinRespuestaCarrier)
+            {
+                //Fue 71, entonces tengo que dejar seguir el flujo y solamente cuando guarde la respuesta del proveedor, actualizar el registro
+                estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TransaccionExitosa;
+                estadoDelCliente.esConsulta = false;
+            }
+
             try
             {
-                // bloqueo los procesos sobre este mismo cliente hasta no terminar con esta petición para no tener revolturas de mensajes
-                estadoDelCliente.esperandoEnvio.Reset();
-                estadoDelCliente.msg210 = "";
-                estadoDelCliente.msg230 = "";
-                estadoDelCliente.esConsulta = false;
-
-                // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la variable tramaEnvioProveedor
-                estadoDelCliente.ProcesarTrama(mensajeRecibido);
-
-                if (SeVencioTO(estadoDelCliente))
-                {
-                    EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
-                    estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
-                    estadoDelCliente.codigoAutorizacion = 0;
-                    ResponderAlCliente(estadoDelCliente);
-                    return;
-                }
-
-                //Verifico que sea una consulta y que no haya sido con código 71, porque si tuviera ese código, tengo que formar el 220 al proveedor
-                if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta != (int)CodigosRespuesta.SinRespuestaCarrier)
-                {
-                    //regresa la respuesta de la base
-                    ResponderAlCliente(estadoDelCliente);
-                    return;
-                }
-                else if (estadoDelCliente.esConsulta && estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.SinRespuestaCarrier)
-                {
-                    //Fue 71, entonces tengo que dejar seguir el flujo y solamente cuando guarde la respuesta del proveedor, actualizar el registro
-                    estadoDelCliente.codigoRespuesta = (int)CodigosRespuesta.TransaccionExitosa;
-                    estadoDelCliente.esConsulta = false;
-                }
-
-
                 // cuando haya terminado la clase estadoDelCliente de procesar la trama, se debe evaluar su éxito para enviar la solicitud al proveedor
                 if (estadoDelCliente.codigoRespuesta == (int)CodigosRespuesta.TransaccionExitosa)
                 {
@@ -806,7 +806,18 @@ namespace ServerCore
                             {
                                 try
                                 {
-                                    endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor[contadorPuertos - 1]);
+                                    if (contadorPuertos==0)
+                                    {
+                                        endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
+                                    }
+                                    else
+                                    {
+                                        endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor[contadorPuertos - 1]);
+                                    }
+                                }
+                                catch
+                                {
+                                    endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
                                 }
                                 finally
                                 {
@@ -824,8 +835,10 @@ namespace ServerCore
                             {
                                 Interlocked.Exchange(ref contadorPuertos, 0);
                             }
-                            Interlocked.Increment(ref contadorPuertos);
-
+                            else
+                            {
+                                Interlocked.Increment(ref contadorPuertos);
+                            }
 
                             saeaProveedor.RemoteEndPoint = endPointProveedor;
                             estadoDelProveedor.endPoint = endPointProveedor;
