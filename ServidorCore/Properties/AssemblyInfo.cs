@@ -57,5 +57,5 @@ using System.Runtime.InteropServices;
 //@UMB      18/07/22    9.0.2.0     Existia un error muy poco probable en el balanceo de puertos del proveedor, se le colocó una validación unicamente
 
 
-[assembly: AssemblyVersion("9.0.2.0")]
-[assembly: AssemblyFileVersion("9.0.2.0")]
+[assembly: AssemblyVersion("9.0.2.1")]
+[assembly: AssemblyFileVersion("9.0.2.1")]

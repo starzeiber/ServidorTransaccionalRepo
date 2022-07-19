@@ -1434,6 +1434,8 @@ namespace ServerCore
             // de una operación de E / S sin valores
             if (estadoDelProveedor == null) return;
 
+            if (estadoDelProveedor.socketDeTrabajo == null) return;
+
             // se obtiene el socket específico del cliente en cuestión
             Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
 
