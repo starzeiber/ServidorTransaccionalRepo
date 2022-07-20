@@ -1146,15 +1146,14 @@ namespace ServerCore
         /// <param name="e"></param>
         private void ConexionProveedorCallBack(object sender, SocketAsyncEventArgs e)
         {
-            // obtengo el estado del socket
-            // se comprueba que el estado haya sido obtenido correctamente
-            if (!(e.UserToken is X estadoDelProveedor))
+            // Si hay errores, debo regresar el estado del proveedor que se está usando a la pila de estados para ser reutilizado
+            //X estadoDelProveedor = e.UserToken as X;
+            if (e == null || !(e.UserToken is X estadoDelProveedor) || estadoDelProveedor.socketDeTrabajo == null)
             {
                 EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
-            // Si hay errores, debo regresar el estado del proveedor que se está usando a la pila de estados para ser reutilizado
-            //X estadoDelProveedor = e.UserToken as X;
+
 
             // se valida que existan errores registrados
             if (e.SocketError != SocketError.Success && e.SocketError != SocketError.IsConnected)
