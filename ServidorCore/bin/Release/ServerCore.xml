@@ -350,7 +350,7 @@
             IP de escucha
             </summary>
         </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.numeroConexionesSimultaneas">
+        <member name="F:ServerCore.ServidorTransaccional`3.numeroConexionesSimultaneasCliente">
             <summary>
             Número de conexiones simultaneas que podrá manejar el servidor por defecto
             </summary>
@@ -417,9 +417,14 @@
             Retraso en el envío, es para uso en Debug
             </summary>
         </member>
-        <member name="P:ServerCore.ServidorTransaccional`3.numeroDeConexionesRestantesPosible">
+        <member name="P:ServerCore.ServidorTransaccional`3.numeroDeRecursosDisponiblesCliente">
             <summary>
-            Numero que muestra cuantas conexiones puede aún soportar el servidor
+            Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.numeroDeRecursosDisponiblesProveedor">
+            <summary>
+            Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del proveedor
             </summary>
         </member>
         <member name="T:ServerCore.ServidorTransaccional`3.Licence">
