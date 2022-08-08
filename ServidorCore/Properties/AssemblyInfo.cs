@@ -58,5 +58,5 @@ using System.Runtime.InteropServices;
 //@UMB      20/07/22    9.0.3.0     Se le agrega una validación de nulidad sobre el SocketAsyncEventArgs  en ConexionProveedorCallBack
 //@UMB      28/07/22    9.1.0.0     Mejora en el rendimiento, colocando la escritura de logs en Tasks
 
-[assembly: AssemblyVersion("9.0.3.0")]
-[assembly: AssemblyFileVersion("9.0.3.0")]
+[assembly: AssemblyVersion("9.1.0.0")]
+[assembly: AssemblyFileVersion("9.1.0.0")]
