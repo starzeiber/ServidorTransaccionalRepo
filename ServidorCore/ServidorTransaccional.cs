@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using static ServerCore.Configuracion;
 using static ServerCore.Utileria;
 
@@ -821,7 +822,7 @@ namespace ServerCore
                             {
                                 try
                                 {
-                                    if (contadorPuertos==0)
+                                    if (contadorPuertos == 0)
                                     {
                                         endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
                                     }
@@ -1126,7 +1127,7 @@ namespace ServerCore
             // se libera la instancia de socket de trabajo para reutilizarlo
             adminEstadosCliente.ingresarUnElemento(estadoDelCliente);
             // se marca el semáforo de que puede aceptar otro cliente
-            
+
             if (semaforoParaAceptarClientes.CurrentCount < numeroConexionesSimultaneasCliente)
             {
                 //EscribirLog("Se libera semaforoParaAceptarClientes " + semaforoParaAceptarClientes.CurrentCount.ToString() + ", para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
@@ -1202,7 +1203,7 @@ namespace ServerCore
             try
             {
                 estadoDelProveedor.socketDeTrabajo = e.AcceptSocket;
-                if (estadoDelProveedor.socketDeTrabajo==null)
+                if (estadoDelProveedor.socketDeTrabajo == null)
                 {
                     throw new Exception("estadoDelProveedor.socketDeTrabajo recibido es inválido para la operacion");
                 }
@@ -1222,7 +1223,7 @@ namespace ServerCore
                 semaforoParaAceptarProveedores.Release();
                 return;
             }
-            
+
             estadoDelProveedor.saeaDeEnvioRecepcion.UserToken = estadoDelProveedor;
 
             // obtengo las tramas para considerar cualquier evento antes de enviar la petición al proveedor.
@@ -1293,7 +1294,7 @@ namespace ServerCore
                 ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
-            
+
         }
 
         ///// <summary>
@@ -1647,11 +1648,11 @@ namespace ServerCore
         /// </summary>
         /// <param name="state"></param>
         private void TickTimer(object state)
-        {            
+        {
             try
             {
                 X estadoDelProveedor = (X)state;
-                bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 1000);
+                bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
                 if (seSincronzo)
                 {
                     if (estadoDelProveedor.estadoDelClienteOrigen.seEstaRespondiendo)
@@ -1679,7 +1680,7 @@ namespace ServerCore
                         CerrarSocketProveedor(estadoDelProveedor);
                     }
                     Monitor.Exit(estadoDelProveedor);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -1826,16 +1827,16 @@ namespace ServerCore
                 switch (tipoLog)
                 {
                     case tipoLog.INFORMACION:
-                        Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
+                        Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                     case tipoLog.ALERTA:
-                        Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
+                        Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                     case tipoLog.ERROR:
-                        Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
+                        Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                     default:
-                        Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
+                        Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                 }
             }
@@ -1844,19 +1845,19 @@ namespace ServerCore
                 {
                     case tipoLog.INFORMACION:
                         if (!porDepuracion)
-                            Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
+                            Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                     case tipoLog.ALERTA:
                         if (!porDepuracion)
-                            Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
+                            Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                     case tipoLog.ERROR:
                         if (!porDepuracion)
-                            Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
+                            Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                     default:
                         if (!porDepuracion)
-                            Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
+                            Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
                         break;
                 }
             }

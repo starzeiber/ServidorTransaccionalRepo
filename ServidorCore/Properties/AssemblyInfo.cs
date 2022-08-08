@@ -56,6 +56,7 @@ using System.Runtime.InteropServices;
 //@UMB      05/07/22    9.0.1.0     Se corrige un log con substring
 //@UMB      18/07/22    9.0.2.0     Existia un error muy poco probable en el balanceo de puertos del proveedor, se le colocó una validación unicamente
 //@UMB      20/07/22    9.0.3.0     Se le agrega una validación de nulidad sobre el SocketAsyncEventArgs  en ConexionProveedorCallBack
+//@UMB      28/07/22    9.1.0.0     Mejora en el rendimiento, colocando la escritura de logs en Tasks
 
 [assembly: AssemblyVersion("9.0.3.0")]
 [assembly: AssemblyFileVersion("9.0.3.0")]
