@@ -750,9 +750,15 @@ namespace ServerCore
             estadoDelCliente.msg210 = "";
             estadoDelCliente.msg230 = "";
             estadoDelCliente.esConsulta = false;
-
-            // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la variable tramaEnvioProveedor
-            estadoDelCliente.ProcesarTrama(mensajeRecibido);
+            try
+            {
+                // aquí se debe realizar lo necesario con la trama entrante para preparar la trama al proveedor en la variable tramaEnvioProveedor
+                estadoDelCliente.ProcesarTrama(mensajeRecibido);
+            }
+            catch (Exception ex)
+            {
+                EscribirLog("Error al procesar la trama al llamar la función estadoDelCliente.ProcesarTrama" + ex.Message + ". Del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+            }            
 
             if (SeVencioTO(estadoDelCliente))
             {
