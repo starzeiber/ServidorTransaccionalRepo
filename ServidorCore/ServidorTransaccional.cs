@@ -723,9 +723,9 @@ namespace ServerCore
                     EscribirLog("Mensaje recibido: " + mensajeRecibido.Trim().Substring(2) + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                EscribirLog("Error al identificar si tiene encabezado el mensaje recibido, se intenta escribir pero se descarta " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                EscribirLog(ex.Message + ". Error al identificar si tiene encabezado el mensaje recibido, se intenta escribir pero se descarta " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
                 return;
             }
@@ -958,9 +958,9 @@ namespace ServerCore
                         EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
+                    EscribirLog(ex.Message + ". Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
                 }
 
                 // se obtiene la cantidad de bytes de la trama completa
@@ -1258,9 +1258,9 @@ namespace ServerCore
                     {
                         EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud.Substring(2) + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
+                        EscribirLog(ex.Message + ". Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
                     }
 
 
