@@ -1,0 +1,1250 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ServerCore</name>
+    </assembly>
+    <members>
+        <member name="T:ServerCore.AdminBuffer">
+            <summary>
+            Clase que administra un buffer enorme para seccionarlo y utilizar solamente lo
+            necesario en cada envío y recepción de información para después, volver a agregar la sección utilizada.
+            De esta manera, siempre se tiene un buffer justo a cada operación y reusable
+            </summary>
+        </member>
+        <member name="F:ServerCore.AdminBuffer.bufferCompleto">
+            <summary>        
+            Matriz de bytes utilizada como buffer en la operación
+            </summary>
+        </member>
+        <member name="F:ServerCore.AdminBuffer.tamanoBufferPorSeccion">
+            <summary>
+            Tamaño del arreglo de bytes usado como buffer en cada operación
+            </summary>
+        </member>
+        <member name="F:ServerCore.AdminBuffer.indiceBuffer">
+            <summary>
+            indice en el arreglo de byte (buffer).
+            </summary>
+        </member>
+        <member name="F:ServerCore.AdminBuffer.pilaDeIndicesDeDesplazamientoBuffer">
+            <summary>
+            Pila de indices para el administrador de buffer
+            </summary>
+        </member>
+        <member name="F:ServerCore.AdminBuffer.numeroBytesAdministrados">
+            <summary>
+            Número de total de bytes controlados por la pila de buffer
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminBuffer.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Constructor que inicializa los valores del administrador de buffer
+            </summary>
+            <param name="totalBytesAdministrar">Número total de bytes que tendrá la pila del buffer</param>
+            <param name="tamanoBuffer">Tamaño del buffer para la operación</param>
+        </member>
+        <member name="M:ServerCore.AdminBuffer.LiberarBuffer(System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Remueve el buffer de un objeto SocketAsyncEventArg. Al liberarlo
+            lo regresar a la pila de bufferes disponibles para volver a usarlo
+            </summary>
+            <param name="args">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
+        </member>
+        <member name="M:ServerCore.AdminBuffer.inicializarBuffer">
+            <summary>
+             Asigna el espacio de buffer usado por la pila de buffer
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminBuffer.asignarBuffer(System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Asigna un buffer desde la pila de bufferes para el objeto SocketAsyncEventArgs específico
+            </summary>
+            <param name="socketAsyncEventArgs">SocketAsyncEventArgs donde el buffer se asignará</param>
+            <returns>True si el buffer fue correctamente asignado</returns>
+        </member>
+        <member name="T:ServerCore.AdminEstadosDeProveedor`1">
+            <summary>
+            Clase que controla el almacenado y asignación de estados de un socket, que sirven en 
+            las operaciones de entrada y salida de dicho socket asincronamente
+            </summary>
+            <typeparam name="X">Instancia de la clase estadoDelClienteBase</typeparam>
+        </member>
+        <member name="F:ServerCore.AdminEstadosDeProveedor`1._pilaEstadosDeProveedor">
+            <summary>
+            El conjunto de estados se almacena como una pila
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminEstadosDeProveedor`1.#ctor(System.Int32)">
+            <summary>
+            Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
+            </summary>
+            <param name="capacidadPilaEstados">Máximo número de objetos que la pila de estados podrá almacenar</param>
+        </member>
+        <member name="P:ServerCore.AdminEstadosDeProveedor`1.ContadorElementos">
+            <summary>
+            Variable que contiene el número de elementos en la pila 
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminEstadosDeProveedor`1.ObtenerUnElemento">
+            <summary>
+            Obtiene un estadoDelClienteBase de la pila de estados del cliente
+            </summary>
+            <returns>Objeto de la pila que es también removido mientras se usa</returns>
+        </member>
+        <member name="M:ServerCore.AdminEstadosDeProveedor`1.IngresarUnElemento(`0)">
+            <summary>
+            Ingresa un estadoDelClienteBase a la pila de estados del cliente
+            </summary>
+            <param name="estadoDelProveedorBase">Objeto de EstadoDelClienteBase a ingresar</param>
+        </member>
+        <member name="T:ServerCore.AdminEstadosDeCliente`1">
+            <summary>
+            Clase que controla el almacenado y asignación de estados de un socket, que sirven en 
+            las operaciones de entrada y salida de dicho socket asincronamente
+            </summary>
+            <typeparam name="T">Instancia de la clase estadoDelClienteBase</typeparam>
+        </member>
+        <member name="F:ServerCore.AdminEstadosDeCliente`1._pilaEstadosDeCliente">
+            <summary>
+            El conjunto de estados se almacena como una pila
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminEstadosDeCliente`1.#ctor(System.Int32)">
+            <summary>
+            Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
+            </summary>
+            <param name="capacidadPilaEstadosSocket">Máximo número de objetos que la pila de estados podrá almacenar</param>
+        </member>
+        <member name="P:ServerCore.AdminEstadosDeCliente`1.ContadorElementos">
+            <summary>
+            Variable que contiene el número de elementos en la pila 
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminEstadosDeCliente`1.ObtenerUnElemento">
+            <summary>
+            Obtiene un estadoDelClienteBase de la pila de estados del cliente
+            </summary>
+            <returns>Objeto de la pila que es también removido mientras se usa</returns>
+        </member>
+        <member name="M:ServerCore.AdminEstadosDeCliente`1.IngresarUnElemento(`0)">
+            <summary>
+            Ingresa un estadoDelClienteBase a la pila de estados del cliente
+            </summary>
+            <param name="estadoDelClienteBase">Objeto de EstadoDelClienteBase a ingresar</param>
+        </member>
+        <member name="T:ServerCore.Configuracion">
+            <summary>
+            Contiene todas las constantes del sistema relavantes
+            </summary>
+        </member>
+        <member name="F:ServerCore.Configuracion.LIMITE_BYTES_CONTADOR">
+            <summary>
+            Limite para el marcador de bytes procesados en el servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.Configuracion.modoTest">
+            <summary>
+            Variable que indicará si el server entra en modo test.
+            El modo Test, responderá a toda petición bien formada, con una código de autorización 
+            y respuesta simulado sin enviar la trama a un proveedor externo
+            </summary>
+        </member>
+        <member name="F:ServerCore.Configuracion.modoRouter">
+            <summary>
+            Activación para que el servidor pueda enviar mensajes a otro proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.Configuracion.timeOutCliente">
+            <summary>
+            TimeOut en segundos sobre cualquier petición de un cliente
+            </summary>
+        </member>
+        <member name="T:ServerCore.EstadoDelProveedorBase">
+            <summary>
+            Clase que contiene las propiedades de un proveedor en el flujo del servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.referenciaSocketPrincipal">
+            <summary>
+            Referencia al servidor de socket principal
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.saeaDeEnvioRecepcion">
+            <summary>
+            SocketAsyncEventArgs que se utilizará en la recepción
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelProveedorBase.SocketDeTrabajo">
+            <summary>
+            Socket asignado de trabajo sobre la conexión del cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.codigoRespuesta">
+            <summary>
+            Codigo de respuesta sobre el proceso del cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.codigoAutorizacion">
+            <summary>
+            Codigo de autorización sobre el proceso del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelProveedorBase.EstadoDelClienteOrigen">
+            <summary>
+            Estado del cliente desde donde proviene la petición para un retorno
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.tramaSolicitud">
+            <summary>
+            Trama de petición a un proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.tramaRespuesta">
+            <summary>
+            Trama de respuesta de un proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.objSolicitud">
+            <summary>
+            Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.objRespuesta">
+            <summary>
+            Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelProveedorBase.providerTimer">
+            <summary>
+            Timer del lado del proveedor para medir el tiempo de respuesta sobre una petición
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelProveedorBase.SeVencioElTimeOut">
+            <summary>
+            Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.InicializarEstadoDelProveedorBase">
+            <summary>
+            Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
+            todas las variables del info y socket de trabajo
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.IngresarObjetoPeticionCliente(System.Object)">
+            <summary>
+            Ingresa de forma segura el valor de la instancia de socket principal para un retorno de flujo
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.ProcesarTramaDelProveeedor(System.String)">
+            <summary>
+            Función virtual para poder sobre escribirla, en esta se controla
+            toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.IngresarReferenciaSocketPrincipal(System.Object)">
+            <summary>
+            Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
+            se inició toda la operación
+            </summary>
+            <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.ObtenerTramaPeticion">
+            <summary>
+            Función que obtiene la trama de petición al proveedor
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.ObtenerTramaRespuesta">
+            <summary>
+            Función que obtiene la trama de respuesta de una proveedor
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.GuardarTransaccion">
+            <summary>
+            Función que guardará la operación con el proveedor
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.IndicarVencimientoPorTimeOut">
+            <summary>
+            Función que se utiliza para marcar un timeout de forma segura
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelProveedorBase.ReinicioBanderaTimeOut">
+            <summary>
+            Función que se utiliza para desmarcar la bandera de timeout de forma segura
+            </summary>
+        </member>
+        <member name="T:ServerCore.IEstadoDelClienteBase">
+            <summary>
+            Clase contiene toda la información relevante de un cliente así como un socket
+            que será el de trabajo para el envío y recepción de mensajes
+            </summary>
+        </member>
+        <member name="P:ServerCore.IEstadoDelClienteBase.IdUnicoCliente">
+            <summary>
+            Identificador único para un cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.IEstadoDelClienteBase.IpCliente">
+            <summary>
+            Ip del cliente de donde se recibe el mensaje
+            </summary>
+        </member>
+        <member name="P:ServerCore.IEstadoDelClienteBase.PuertoCliente">
+            <summary>
+            Puerto del cliente por donde se recibe el mensaje
+            </summary>
+        </member>
+        <member name="P:ServerCore.IEstadoDelClienteBase.SocketDeTrabajo">
+            <summary>
+            Socket asignado de trabajo sobre la conexión del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.IEstadoDelClienteBase.TimeOut">
+            <summary>
+            Tiempo de espera general del lado del cliente
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelClienteBase.ActualizarTransaccion">
+            <summary>
+            Función que podrá actualizar un registro guardado previamente en base de datos
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelClienteBase.InicializarEstadoDelClienteBase">
+            <summary>
+            Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
+            todas las variables del info y socket de trabajo
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelClienteBase.ObtenerTramaRespuesta">
+            <summary>
+            Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelClienteBase.ProcesarTrama(System.String)">
+            <summary>
+            Función virtual para poder sobre escribirla, en esta se controla
+            toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+            </summary>
+            <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
+        </member>
+        <member name="M:ServerCore.IEstadoDelClienteBase.SeEstaProcesandoRespuesta">
+            <summary>
+            Función que indica que hay una respuesta en proceso de envío al cliente
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelClienteBase.SeFinalizaProcesoRespuesta">
+            <summary>
+            indica que no hay un proceso activo de envío de respuesta al cliente
+            </summary>
+        </member>
+        <member name="T:ServerCore.IEstadoDelServidorBase">
+            <summary>
+            Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.MensajeBienvenida(System.Object)">
+            <summary>
+            Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
+            bienvenida a una conexión de un cliente
+            </summary>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.OnAceptacion(System.Object)">
+            <summary>
+            función virtual para sobre escribirla que se utiliza indicar en el flujo que se acepta una solicitud de mensaje
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.OnClienteCerrado(System.Object)">
+            <summary>
+            función virtual para sobre escribirla que se utiliza para indicar en el flujo que un cliente se cierra
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.OnConexion">
+            <summary>
+            función virtual para sobre escribirla que se utiliza para indicar en el flujo que hay una conexión
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.OnEnviado">
+            <summary>
+            función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha enviado un mensaje
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.OnInicio">
+            <summary>
+            función virtual para sobre escribirla que se utiliza para indicar el principio del flujo
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelServidorBase.OnRecibido">
+            <summary>
+            función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha recibido un mensaje
+            </summary>
+        </member>
+        <member name="T:ServerCore.IEstadoDelProveedorBase">
+            <summary>
+            Clase que contiene las propiedades de un proveedor en el flujo del servidor
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.GuardarTransaccion">
+            <summary>
+            Función que guardará la operación con el proveedor
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.IndicarVencimientoPorTimeOut">
+            <summary>
+            Función que se utiliza para marcar un timeout de forma segura
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.IngresarObjetoPeticionCliente(System.Object)">
+            <summary>
+            Ingresa de forma segura el valor de la instancia de socket principal para un retorno de flujo
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.InicializarEstadoDelProveedorBase">
+            <summary>
+            Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
+            todas las variables del info y socket de trabajo
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.ObtenerTramaPeticion">
+            <summary>
+            Función que obtiene la trama de petición al proveedor
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.ObtenerTramaRespuesta">
+            <summary>
+            Función que obtiene la trama de respuesta de una proveedor
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.ProcesarTramaDelProveeedor(System.String)">
+            <summary>
+            Función virtual para poder sobre escribirla, en esta se controla
+            toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+            </summary>
+        </member>
+        <member name="M:ServerCore.IEstadoDelProveedorBase.ReinicioBanderaTimeOut">
+            <summary>
+            Función que se utiliza para desmarcar la bandera de timeout de forma segura
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.ClientesPendientesDesconexion">
+            <summary>
+            Obtiene o ingresa a la lista de clientes pendientes de desconexión, esta lista es para la verificación de que todos los cliente
+            se desconectan adecuadamente, su uso es más para debug
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.IpDeEscuchaServidor">
+            <summary>
+            IP de escucha de la aplicación  para recibir mensajes
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.IpProveedor">
+            <summary>
+            Ip a la cual se apuntarán todas las transacciones del proveedor
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.NumeroclientesConectados">
+            <summary>
+            Obtiene el número de clientes conectados actualmente al servidor
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.NumeroDeRecursosDisponiblesCliente">
+            <summary>
+            Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.NumeroDeRecursosDisponiblesProveedor">
+            <summary>
+            Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del proveedor
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.NumeroMaximoConexionesPorIpCliente">
+            <summary>        
+            Obtiene o ingresa el número máximo de conexiones simultaneas de una misma IP del cliente (0=ilimitadas)
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.ProveedoresPendientesDesconexion">
+            <summary>
+            Obtiene o ingresa a la lista de proveedores pendientes de desconexión, esta lista es para la verificación de que todos los proveedores
+            se desconectan adecuadamente, su uso es más para debug pero queda para mejorar
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.PuertosProveedor">
+            <summary>
+            Lista de puertos en la IP configurada al proveedor para el envío de la mensajería
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.ServidorEnEjecucion">
+            <summary>
+            Obtiene o ingresa el valor de que si el servidor está o no ejecutandose
+            </summary>
+        </member>
+        <member name="P:ServerCore.IServidorTransaccional`2.TotalDeBytesTransferidos">
+            <summary>
+            Bytes que se han transmitido desde el inicio de la aplicación
+            </summary>
+        </member>
+        <member name="M:ServerCore.IServidorTransaccional`2.CerrarSocketCliente(`0)">
+            <summary>
+            Cierra el socket asociado a un cliente y retira al cliente de la lista de clientes conectados
+            </summary>
+            <param name="estadoDelCliente">Instancia del cliente a cerrar</param>
+        </member>
+        <member name="M:ServerCore.IServidorTransaccional`2.CerrarSocketProveedor(`1)">
+            <summary>
+            Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
+            </summary>
+        </member>
+        <member name="M:ServerCore.IServidorTransaccional`2.PreConfiguracionInicial(System.Int32)">
+            <summary>
+            Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
+            </summary>
+        </member>
+        <member name="M:ServerCore.IServidorTransaccional`2.DetenerServidor">
+            <summary>
+            Se detiene el servidor
+            </summary>
+        </member>
+        <member name="M:ServerCore.IServidorTransaccional`2.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
+            </summary>
+            <param name="mensaje">mensaje a enviar</param>
+            <param name="e">A client's SocketAsyncEventArgs</param>
+        </member>
+        <member name="M:ServerCore.IServidorTransaccional`2.Iniciar(System.Int32,System.Boolean,System.Boolean,System.String,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
+            </summary>
+            <param name="puertoLocalEscucha">Puerto de escucha para la recepeción de mensajes</param>
+            <param name="listaPuertosProveedor">Puertos del proveedor</param>
+            <param name="modoTest">Variable que indicará si el server entra en modo test.
+            El modo Test, responderá a toda petición bien formada, con una código de autorización
+            y respuesta simulado sin enviar la trama a un proveedor externo</param>
+            <param name="modoRouter">Activación para que el servidor pueda enviar mensajes a otro proveedor</param>
+            <param name="ipProveedor">IP del proveedor a donde se enviarán mensajes en caso de que el modoRouter esté encendido</param>
+        </member>
+        <member name="T:ServerCore.ServidorTransaccional`3">
+            <summary>
+            Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 
+            del servidor y los métodos de envío y recepción asincronos
+            </summary>
+            <typeparam name="T">Instancia sobre la clase que contiene la información de un cliente conectado y su
+            socket de trabajo una vez asignado desde el pool</typeparam>
+            <typeparam name="S">Instancia sobre la clase que contiene el estado de flujo de una operación en el servidor</typeparam>
+            <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
+            socket de trabajo una vez asignado desde el pool</typeparam>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.peformanceConexionesEntrantes">
+            <summary>
+            Instancia del performance counter de peticiones entrantes
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._clientesConectadosAlServidor">
+            <summary>
+            Obtiene una lista de clientes ordenados por un GUID
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._numeroMaximoConexionesSimultaneasPorCliente">
+            <summary>        
+            Obtiene o ingresa el número máximo de conexiones simultaneas de una misma IP del cliente (0=ilimitadas)
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.NumeroMaximoConexionesPorIpCliente">
+            <summary>        
+            Obtiene o ingresa el número máximo de conexiones simultaneas de una misma IP del cliente (0=ilimitadas)
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._enEjecucion">
+            <summary>
+            Obtiene o ingresa el valor de que si el servidor está o no ejecutandose
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.ServidorEnEjecucion">
+            <summary>
+            Obtiene o ingresa el valor de que si el servidor está o no ejecutandose
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._estadoDelServidorBase">
+            <summary>
+            Obtiene o ingresa el estado del socket del servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._clientesPendientesDesconexion">
+            <summary>
+            Obtiene o ingresa a la lista de clientes pendientes de desconexión, esta lista es para la verificación de que todos los cliente
+            se desconectan adecuadamente, su uso es más para debug
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.ClientesPendientesDesconexion">
+            <summary>
+            Obtiene o ingresa a la lista de clientes pendientes de desconexión, esta lista es para la verificación de que todos los cliente
+            se desconectan adecuadamente, su uso es más para debug
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._proveedoresPendientesDesconexion">
+            <summary>
+            Obtiene o ingresa a la lista de proveedores pendientes de desconexión, esta lista es para la verificación de que todos los proveedores
+            se desconectan adecuadamente, su uso es más para debug pero queda para mejorar
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.ProveedoresPendientesDesconexion">
+            <summary>
+            Obtiene o ingresa a la lista de proveedores pendientes de desconexión, esta lista es para la verificación de que todos los proveedores
+            se desconectan adecuadamente, su uso es más para debug pero queda para mejorar
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.NumeroclientesConectados">
+            <summary>
+            Obtiene el número de clientes conectados actualmente al servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._ipProveedor">
+            <summary>
+            Ip a la cual se apuntarán todas las transacciones del proveedor
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.IpProveedor">
+            <summary>
+            Ip a la cual se apuntarán todas las transacciones del proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._puertosProveedor">
+            <summary>
+            Lista de puertos en la IP configurada al proveedor para el envío de la mensajería
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.PuertosProveedor">
+            <summary>
+            Lista de puertos en la IP configurada al proveedor para el envío de la mensajería
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.TotalDeBytesTransferidos">
+            <summary>
+            Bytes que se han transmitido desde el inicio de la aplicación
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.IpDeEscuchaServidor">
+            <summary>
+            IP de escucha de la aplicación  para recibir mensajes
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._maxRetrasoParaEnvio">
+            <summary>
+            Retraso en el envío, es para uso en Debug
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.NumeroDeRecursosDisponiblesCliente">
+            <summary>
+            Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.ServidorTransaccional`3.NumeroDeRecursosDisponiblesProveedor">
+            <summary>
+            Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3._contadorPuertos">
+            <summary>
+            Auxiliar para el conteo de puertos y su balanceo de salida
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.numeroConexionesSimultaneasCliente">
+            <summary>
+            Número de conexiones simultaneas que podrá manejar el servidor por defecto
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.operacionesPreDisponibles">
+            <summary>
+            Número sockest para lectura y escritura sin asignación de espacio del buffer para aceptar peticiones como default
+            esto para tener siempre por lo menos sockects disponibles al inicio del servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.adminEstadosCliente">
+            <summary>
+            instancia al administrador de estados de socket de trabajo
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.adminEstadosDeProveedor">
+            <summary>
+            Instancia del administrador de estados del proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.semaforoParaAceptarClientes">
+            <summary>
+            semáforo sobre las peticiones de clientes para controlar el número total que podrá soportar el servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.semaforoParaAceptarProveedores">
+            <summary>
+            semáforo sobre las peticiones a proveedores para controlar el número total que podrá soportar el servidor
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.totalBytesLeidos">
+            <summary>
+            Número total de bytes recibido en el servidor, para uso estadístico
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.administradorBuffer">
+            <summary>
+            Representa un conjunto enorme de buffer reutilizables entre todos los sockects de trabajo
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.socketDeEscucha">
+            <summary>
+            Socket de escucha para las conexiones de clientes
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.desconectando">
+            <summary>
+            Bandera para identificar que la conexión está bien establecida
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.backLog">
+            <summary>
+            Parámetros que  indica el máximo de pedidos que pueden encolarse simultáneamente en caso que el servidor 
+            esté ocupado atendiendo una nueva conexión.
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.tamanoBufferPorPeticion">
+            <summary>
+            Tamaño del buffer por petición
+            </summary>
+        </member>
+        <member name="T:ServerCore.ServidorTransaccional`3.Licence">
+            <summary>
+            Información de la licencia
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.PROGRAM">
+            <summary>
+            Nombre del programa
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.processorId">
+            <summary>
+            Id del procesador del equipo
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.product">
+            <summary>
+            Producto que se ejecuta
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.manufacturer">
+            <summary>
+            información del fabricante
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.licence">
+            <summary>
+            Toda la licencia
+            </summary>
+        </member>
+        <member name="F:ServerCore.ServidorTransaccional`3.NOTLICENCE">
+            <summary>
+            Mensaje de aviso
+            </summary>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Crea una instancia del administrador de sockets, posterior se tiene que llamar al método
+            ConfigInicioServidor para iniciar el proceso de asignacion de recursos        
+            </summary>
+            <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
+            <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
+            <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.PreConfiguracionInicial(System.Int32)">
+            <summary>
+            Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
+            </summary>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.Iniciar(System.Int32,System.Boolean,System.Boolean,System.String,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
+            </summary>
+            <param name="puertoLocalEscucha">Puerto de escucha para la recepeción de mensajes</param>
+            <param name="listaPuertosProveedor">Puertos del proveedor</param>
+            <param name="modoTest">Variable que indicará si el server entra en modo test.
+            El modo Test, responderá a toda petición bien formada, con una código de autorización
+            y respuesta simulado sin enviar la trama a un proveedor externo</param>
+            <param name="modoRouter">Activación para que el servidor pueda enviar mensajes a otro proveedor</param>
+            <param name="ipProveedor">IP del proveedor a donde se enviarán mensajes en caso de que el modoRouter esté encendido</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.IniciarAceptaciones(System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Se inicia la operación de aceptar solicitudes por parte de un cliente
+            </summary>
+            <param name="saeaAceptarConexion">Objeto que se utilizará en cada aceptación de una solicitud</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.AceptarConexionCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Procesa la solicitud por medio de socket principal de escucha
+            </summary>
+            <param name="sender">Objeto que se tomará como quien dispara el evento principal</param>
+            <param name="saea">SocketAsyncEventArg asociado al proceso asincrono.</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.RecepcionEnvioEntranteCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Operación de callBack que se llama cuando se envía o se recibe de un socket de asincrono para completar la operación
+            </summary>
+            <param name="sender">Objeto principal para devolver la llamada</param>
+            <param name="saea">SocketAsyncEventArg asociado a la operación de envío o recepción</param>        
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ProcesarRecepcion(`0)">
+            <summary>
+            Este método se invoca cuando la operación de recepción asincrona se completa y si el cliente
+            cierra la conexión el socket también se cierra y se libera
+            </summary>
+            <param name="estadoDelCliente">Objeto que tiene la información y socket de trabajo del cliente</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ResponderAlCliente(`0)">
+            <summary>
+            Función que entrega una respuesta al cliente por medio del socket de conexión
+            </summary>
+            <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ProcesarRecepcionEnvioCiclicoCliente(`0)">
+            <summary>
+            Función callback que se utiliza cuando en un proceso ciclico de envio y recepción
+            </summary>
+            <param name="estadoDelCliente">Objeto con la información y socket de trabajo de cliente</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.CerrarSocketCliente(`0)">
+            <summary>
+            Cierra el socket asociado a un cliente y retira al cliente de la lista de clientes conectados
+            </summary>
+            <param name="estadoDelCliente">Instancia del cliente a cerrar</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ConexionProveedorCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Funcion callback para la conexión al proveedor
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.RecepcionEnvioSalienteCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Función call back para el evento de envío y recepción al proveedor
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ProcesarRecepcionEnvioCiclicoProveedor(`2)">
+            <summary>
+            Función para procesar el envío al proveedor y dejar de nuevo en escucha al socket
+            </summary>
+            <param name="estadoDelProveedor">Estado del proveedor con la información de conexión</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ProcesarRecepcion(`2)">
+            <summary>
+            Función que realiza la recepción del mensaje y lo procesa
+            </summary>
+            <param name="estadoDelProveedor">Estado del proveedor con la información de conexión</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.CerrarSocketProveedor(`2)">
+            <summary>
+            Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
+            </summary>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.TickTimer(System.Object)">
+            <summary>
+            Evento asincrono del timer para medir el timeout del servidor
+            </summary>
+            <param name="state"></param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
+            <summary>
+            Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
+            </summary>
+            <param name="mensaje">mensaje a enviar</param>
+            <param name="e">A client's SocketAsyncEventArgs</param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.DetenerServidor">
+            <summary>
+            Se detiene el servidor
+            </summary>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.EscribirLog(System.String,ServerCore.Utileria.tipoLog)">
+            <summary>
+            Funcion que el guardado de logs en el event log de windows
+            </summary>
+            <param name="mensaje"></param>
+            <param name="tipoLog"></param>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.SeVencioTO(`0)">
+            <summary>
+            Verificación del tiempo de la transacción sobre el proceso del clente
+            </summary>
+            <param name="estadoDelCliente">instancia del estado del cliente</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ValidateLicence">
+            <summary>
+            Valida que la licencia esté vigente
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.GetLicence">
+            <summary>
+            Obtiene el archivo de licencia de la ubicación de la aplicación
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.GetInfoPc">
+            <summary>
+            Obtiene la información de la PC que se requiere para el funcionamiento del server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.RunQuery(System.String,System.String)">
+            <summary>
+            Ejecuta una consulta al sistema
+            </summary>
+            <param name="TableName"></param>
+            <param name="MethodName"></param>
+            <returns></returns>
+        </member>
+        <member name="T:ServerCore.ClienteBloqueo">
+            <summary>
+            Clase que contiene las propiedades y métodos para poder agregar a la lista de clientes bloqueados
+            </summary>
+        </member>
+        <member name="P:ServerCore.ClienteBloqueo.ipBloqueada">
+            <summary>
+            IP del cliente a bloquear
+            </summary>
+        </member>
+        <member name="M:ServerCore.ClienteBloqueo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:ServerCore.ClienteBloqueo.#ctor(System.Net.IPAddress,System.String,System.Double,System.Boolean)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="ip">Ip del cliente a bloquear</param>
+            <param name="razonBloqueo">La razón del bloqueo</param>
+            <param name="segundosDeBloqueo">tiempo en segundos que durará el bloqueo</param>
+            <param name="estaActivoBloqueo">Variable para indicar que se activa o desactiva el bloqueo para la IP</param>
+        </member>
+        <member name="P:ServerCore.ClienteBloqueo.razonDelBloqueo">
+            <summary>
+            Motivo por el que se bloquea la IP
+            </summary>
+        </member>
+        <member name="P:ServerCore.ClienteBloqueo.segundosBloqueo">
+            <summary>
+            Tiempo en segundos que se va a bloquear la IP: 0 => bloqueo permanente
+            </summary>
+        </member>
+        <member name="P:ServerCore.ClienteBloqueo.fechaHoraBloqueo">
+            <summary>
+            Fecha y hora en que fue bloqueado
+            </summary>
+        </member>
+        <member name="P:ServerCore.ClienteBloqueo.estaActivoBloqueo">
+            <summary>
+            Get or set if ban is active
+            </summary>
+        </member>
+        <member name="T:ServerCore.EstadoDelServidorBase">
+            <summary>
+            Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelServidorBase.ProcesoPrincipal">
+            <summary>
+            Referencia al proceso principal donde se encuentra el socket principal que disparó el flujo
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.MensajeBienvenida(System.Object)">
+            <summary>
+            Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
+            bienvenida a una conexión de un cliente
+            </summary>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.OnInicio">
+            <summary>
+            función virtual para sobre escribirla que se utiliza para indicar el principio del flujo
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.OnClienteCerrado(System.Object)">
+            <summary>
+            función virtual para sobre escribirla que se utiliza para indicar en el flujo que un cliente se cierra
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.OnConexion">
+            <summary>
+            función virtual para sobre escribirla que se utiliza para indicar en el flujo que hay una conexión
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.OnAceptacion(System.Object)">
+            <summary>
+            función virtual para sobre escribirla que se utiliza indicar en el flujo que se acepta una solicitud de mensaje
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.OnRecibido">
+            <summary>
+            función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha recibido un mensaje
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelServidorBase.OnEnviado">
+            <summary>
+            función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha enviado un mensaje
+            </summary>
+        </member>
+        <member name="T:ServerCore.EstadoDelClienteBase">
+            <summary>
+            Clase contiene toda la información relevante de un cliente así como un socket
+            que será el de trabajo para el envío y recepción de mensajes
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelClienteBase.IdUnicoCliente">
+            <summary>
+            Identificador único para un cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.ReferenciaSocketPrincipal">
+            <summary>
+            Referencia al servidor de socket principal
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.saeaDeEnvioRecepcion">
+            <summary>
+            SocketAsyncEventArgs que se utilizará en la recepción
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.TramaRespuesta">
+            <summary>        
+            trama de respuesta al cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.esperandoEnvio">
+            <summary>        
+            evento para sincronización de procesos, con este manejador de evento controlo
+            el flujo cuando el fin de un envío ocurre
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelClienteBase.IpCliente">
+            <summary>
+            Ip del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelClienteBase.PuertoCliente">
+            <summary>
+            Puerto del cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelClienteBase.SocketDeTrabajo">
+            <summary>
+            Socket asignado de trabajo sobre la conexión del cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.CodigoRespuesta">
+            <summary>
+            Codigo de respuesta sobre el proceso del cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.CodigoAutorizacion">
+            <summary>
+            Codigo de autorización sobre el proceso del cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.ObjSolicitud">
+            <summary>
+            Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.ObjRespuesta">
+            <summary>
+            Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.ObjSolicitudProveedor">
+            <summary>
+            Cualquier instancia de clase que se haya creado como entidad de solicitud del proveedor
+            </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.ObjRespuestaProveedor">
+            <summary>
+            Cualquier instancia de clase que se haya creado como entidad de respuesta a una solicitud del proveedor
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelClienteBase.FechaInicioTrx">
+            <summary>
+            Fecha marcada como inicio de operaciones con el cliente
+            </summary>
+        </member>
+        <member name="P:ServerCore.EstadoDelClienteBase.TimeOut">
+            <summary>
+            Tiempo de espera general del lado del cliente
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.InicializarEstadoDelClienteBase">
+            <summary>
+            Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
+            todas las variables del info y socket de trabajo
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.ProcesarTrama(System.String)">
+            <summary>
+            Función virtual para poder sobre escribirla, en esta se controla
+            toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+            </summary>
+            <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.IngresarReferenciaSocketPrincipal(System.Object)">
+            <summary>
+            Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
+            se inició toda la operación
+            </summary>
+            <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.ObtenerTramaRespuesta">
+            <summary>
+            Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.ActualizarTransaccion">
+            <summary>
+            Función que podrá actualizar un registro guardado previamente en base de datos
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.SeEstaProcesandoRespuesta">
+            <summary>
+            Función que indica que hay una respuesta en proceso de envío al cliente
+            </summary>
+        </member>
+        <member name="M:ServerCore.EstadoDelClienteBase.SeFinalizaProcesoRespuesta">
+            <summary>
+            indica que no hay un proceso activo de envío de respuesta al cliente
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.TransaccionExitosa">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.TerminalInvalida">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.Denegada">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorEnRed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.TimeOutInterno">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorGuardandoDB">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.NoExisteOriginal">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorTELCELTablaLLena">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorAccesoDB">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorFormato">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.NumeroTelefono">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorProceso">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorProcesoSockets">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ClienteBloqueado">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.SinCreditoDisponible">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorObteniendoCredito">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.ErrorConexionServer">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.SinRespuestaCarrier">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.CarrierAbajo">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utileria.CodigosRespuesta.MontoInvalido">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:ServerCore.Utileria.tipoLog">
+            <summary>
+            Tipo de log a escribir
+            </summary>
+        </member>
+    </members>
+</doc>

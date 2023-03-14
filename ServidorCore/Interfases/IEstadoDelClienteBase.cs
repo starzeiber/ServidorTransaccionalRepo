@@ -3,6 +3,10 @@ using System.Net.Sockets;
 
 namespace ServerCore
 {
+    /// <summary>
+    /// Clase contiene toda la información relevante de un cliente así como un socket
+    /// que será el de trabajo para el envío y recepción de mensajes
+    /// </summary>
     public interface IEstadoDelClienteBase
     {
         /// <summary>

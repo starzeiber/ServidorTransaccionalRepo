@@ -1,5 +1,8 @@
 ﻿namespace ServerCore
 {
+    /// <summary>
+    /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
+    /// </summary>
     public interface IEstadoDelProveedorBase
     {
         /// <summary>

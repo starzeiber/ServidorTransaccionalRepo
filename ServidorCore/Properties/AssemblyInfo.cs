@@ -60,7 +60,7 @@ using System.Runtime.InteropServices;
 //@UMB      28/07/22    9.1.0.1     Se le quita la ofuscación para encontrar un error
 //@UMB      13/03/23    9.2.0.0     Se refactorizan propiedades, se aplican validaciones sobre las propiedades y se obtiene la interfase de ServidorTransaccional
 //                                  También se realiza un ajuste para volver más genérico el Core, por ejemplo, se le quita la función de mensajería de consulta automática
+//@UMB      14/03/23    9.2.1.0     Se termina de realizar los ultimos detalles para tener un core genérico     
 
-
-[assembly: AssemblyVersion("9.2.0.0")]
-[assembly: AssemblyFileVersion("9.2.0.0")]
+[assembly: AssemblyVersion("9.2.1.0")]
+[assembly: AssemblyFileVersion("9.2.1.0")]

@@ -3,10 +3,24 @@ using System.Net.Sockets;
 
 namespace ServerCore
 {
-    public interface IServidorTransaccional<T, X>
+    /// <summary>
+    /// Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 
+    /// del servidor y los métodos de envío y recepción asincronos
+    /// </summary>
+    /// <typeparam name="T">Instancia sobre la clase que contiene la información de un cliente conectado y su
+    /// socket de trabajo una vez asignado desde el pool</typeparam>    
+    /// <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
+    /// socket de trabajo una vez asignado desde el pool</typeparam>
+    public interface IServidorTransaccional<T, S, X>
         where T : EstadoDelClienteBase, new()
+        where S : EstadoDelServidorBase, new()
         where X : EstadoDelProveedorBase, new()
     {
+        /// <summary>
+        /// Obtiene o ingresa el estado del socket del servidor
+        /// </summary>
+        S EstadoDelServidorBase { get; set; }
+
         /// <summary>
         /// Obtiene o ingresa a la lista de clientes pendientes de desconexión, esta lista es para la verificación de que todos los cliente
         /// se desconectan adecuadamente, su uso es más para debug
@@ -80,11 +94,13 @@ namespace ServerCore
         /// <summary>
         /// Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
         /// </summary>
-        /// <param name="puertoLocalEscucha">Puerto de escucha del servidor</param>
-        /// <param name="ipProveedor">Ip del servidor del proveedor</param>
+        /// <param name="puertoLocalEscucha">Puerto de escucha para la recepeción de mensajes</param>
         /// <param name="listaPuertosProveedor">Puertos del proveedor</param>
-        /// <param name="modoTest">Modo pruebas</param>
-        /// <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
+        /// <param name="modoTest">Variable que indicará si el server entra en modo test.
+        /// El modo Test, responderá a toda petición bien formada, con una código de autorización
+        /// y respuesta simulado sin enviar la trama a un proveedor externo</param>
+        /// <param name="modoRouter">Activación para que el servidor pueda enviar mensajes a otro proveedor</param>
+        /// <param name="ipProveedor">IP del proveedor a donde se enviarán mensajes en caso de que el modoRouter esté encendido</param>
         void Iniciar(int puertoLocalEscucha, bool modoTest = false, bool modoRouter = true, string ipProveedor = "127.0.0.0", List<int> listaPuertosProveedor = null);
     }
 }

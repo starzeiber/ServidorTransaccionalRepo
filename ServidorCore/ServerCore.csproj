@@ -52,7 +52,7 @@
     <Compile Include="Clases\AdminEstadosDeCliente.cs" />
     <Compile Include="Clases\Configuracion.cs" />
     <Compile Include="Clases\EstadoDelProveedorBase.cs" />
-    <Compile Include="Clases\IEstadoDelClienteBase.cs" />
+    <Compile Include="Interfases\IEstadoDelClienteBase.cs" />
     <Compile Include="Interfases\IEstadoDelServidorBase.cs" />
     <Compile Include="Interfases\IEstadoDelProveedorBase.cs" />
     <Compile Include="Interfases\IServidorTransaccional.cs" />

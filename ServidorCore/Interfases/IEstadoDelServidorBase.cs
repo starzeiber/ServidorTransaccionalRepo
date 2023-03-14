@@ -1,7 +1,11 @@
 ﻿namespace ServerCore
 {
+    /// <summary>
+    /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
+    /// </summary>
     public interface IEstadoDelServidorBase
     {
+
         /// <summary>
         /// Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
         /// bienvenida a una conexión de un cliente

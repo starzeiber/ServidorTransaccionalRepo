@@ -8,6 +8,10 @@ namespace ServerCore
     /// </summary>
     public class EstadoDelServidorBase : IEstadoDelServidorBase
     {
+        public EstadoDelServidorBase()
+        {
+            
+        }
 
         /// <summary>
         /// Referencia al proceso principal donde se encuentra el socket principal que disparó el flujo

@@ -14,6 +14,7 @@ using static ServerCore.Utileria;
 
 namespace ServerCore
 {
+
     /// <summary>
     /// Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 
     /// del servidor y los métodos de envío y recepción asincronos
@@ -23,7 +24,7 @@ namespace ServerCore
     /// <typeparam name="S">Instancia sobre la clase que contiene el estado de flujo de una operación en el servidor</typeparam>
     /// <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
     /// socket de trabajo una vez asignado desde el pool</typeparam>
-    public class ServidorTransaccional<T, S, X> : IServidorTransaccional<T, X> where T : EstadoDelClienteBase, new()
+    public class ServidorTransaccional<T, S, X> : IServidorTransaccional<T, S, X> where T : EstadoDelClienteBase, new()
         where S : EstadoDelServidorBase, new()
         where X : EstadoDelProveedorBase, new()
     {
@@ -99,7 +100,7 @@ namespace ServerCore
         /// <summary>
         /// Obtiene o ingresa el estado del socket del servidor
         /// </summary>
-        internal S _estadoDelServidorBase;
+        public S EstadoDelServidorBase { get; set; }
 
         /// <summary>
         /// Obtiene o ingresa a la lista de clientes pendientes de desconexión, esta lista es para la verificación de que todos los cliente
@@ -355,11 +356,6 @@ namespace ServerCore
         /// </summary>
         private const string NOTLICENCE = "No cuenta con permisos";
 
-        /// <summary>
-        /// Se configura para escribir más logs de seguimiento en cada petición
-        /// </summary>
-        readonly bool conLogsParaDepuracion = false;
-
         #endregion
 
         #region Inicializadores del servidor
@@ -371,10 +367,8 @@ namespace ServerCore
         /// <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
         /// <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
         /// <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
-        /// <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
-        public ServidorTransaccional(int numeroConexSimultaneas, int tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
+        public ServidorTransaccional(int numeroConexSimultaneas, int tamanoBuffer = 1024, int backlog = 100)
         {
-            this.conLogsParaDepuracion = conLogsParaDepuracion;
             totalBytesLeidos = 0;
             this.numeroConexionesSimultaneasCliente = numeroConexSimultaneas;
             numeroConexionesSimultaneasProveedor = numeroConexSimultaneas;
@@ -392,7 +386,7 @@ namespace ServerCore
 
             try
             {
-                _estadoDelServidorBase = new S();
+                EstadoDelServidorBase = new S();
             }
             catch (Exception ex)
             {
@@ -400,7 +394,7 @@ namespace ServerCore
             }
 
             // establezco el proceso principal para referencia futura
-            _estadoDelServidorBase.ProcesoPrincipal = this;
+            EstadoDelServidorBase.ProcesoPrincipal = this;
             // indico que aún no está en funcionamiento, faltan parámetros
             _enEjecucion = false;
 
@@ -507,11 +501,13 @@ namespace ServerCore
         /// <summary>
         /// Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
         /// </summary>
-        /// <param name="puertoLocalEscucha">Puerto de escucha del servidor</param>
-        /// <param name="ipProveedor">Ip del servidor del proveedor</param>
+        /// <param name="puertoLocalEscucha">Puerto de escucha para la recepeción de mensajes</param>
         /// <param name="listaPuertosProveedor">Puertos del proveedor</param>
-        /// <param name="modoTest">Modo pruebas</param>
-        /// <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
+        /// <param name="modoTest">Variable que indicará si el server entra en modo test.
+        /// El modo Test, responderá a toda petición bien formada, con una código de autorización
+        /// y respuesta simulado sin enviar la trama a un proveedor externo</param>
+        /// <param name="modoRouter">Activación para que el servidor pueda enviar mensajes a otro proveedor</param>
+        /// <param name="ipProveedor">IP del proveedor a donde se enviarán mensajes en caso de que el modoRouter esté encendido</param>
         public void Iniciar(int puertoLocalEscucha, bool modoTest = false, bool modoRouter = true, string ipProveedor = "127.0.0.0", List<int> listaPuertosProveedor = null)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
@@ -520,7 +516,7 @@ namespace ServerCore
             Configuracion.modoRouter = modoRouter;
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
-            _estadoDelServidorBase.OnInicio();
+            EstadoDelServidorBase.OnInicio();
 
             try
             {
@@ -639,7 +635,7 @@ namespace ServerCore
             estadoDelCliente.PuertoCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Port;
 
             // con estas instrucciones puedo controlar las acciones en cada fase del proceso de recepción y envío de ser necesario
-            _estadoDelServidorBase.OnAceptacion(estadoDelCliente);
+            EstadoDelServidorBase.OnAceptacion(estadoDelCliente);
 
             // se ingresa el cliente a la lista de clientes
             // Monitor proporciona un mecanismo que sincroniza el acceso a datos entre hilos
@@ -785,7 +781,6 @@ namespace ServerCore
             if (bloqueo)
             {
                 estadoDelCliente.FechaInicioTrx = DateTime.Now;
-                EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.FechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);
             }
             else
             {
@@ -1173,7 +1168,7 @@ namespace ServerCore
             }
 
             // se llama a la secuencia de cerrando para tener un flujo de eventos
-            _estadoDelServidorBase.OnClienteCerrado(estadoDelCliente);
+            EstadoDelServidorBase.OnClienteCerrado(estadoDelCliente);
 
             // se libera la instancia de socket de trabajo para reutilizarlo
             adminEstadosCliente.IngresarUnElemento(estadoDelCliente);
@@ -1294,7 +1289,6 @@ namespace ServerCore
                     estadoDelProveedor.saeaDeEnvioRecepcion.SetBuffer(estadoDelProveedor.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
 
                     estadoDelProveedor.providerTimer = new Timer(new TimerCallback(TickTimer), estadoDelProveedor, 1000, 1000);
-                    EscribirLog("Se inicia el timer para el cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente + ", con una fecha inicial de comparación " + estadoDelProveedor.EstadoDelClienteOrigen.FechaInicioTrx, tipoLog.INFORMACION, true);
 
                     // se procede a la recepción asincrona del mensaje,el proceso asincrono responde con true cuando está pendiente; es decir, no se ha completado en su callback
                     // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
@@ -1702,9 +1696,9 @@ namespace ServerCore
                     Monitor.Exit(estadoDelProveedor);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                EscribirLog("TickTimer, " + ex.Message, tipoLog.ERROR, true);
+
             }
         }
 
@@ -1826,47 +1820,22 @@ namespace ServerCore
         /// </summary>
         /// <param name="mensaje"></param>
         /// <param name="tipoLog"></param>
-        /// <param name="porDepuracion"></param>
-        private void EscribirLog(string mensaje, tipoLog tipoLog, bool porDepuracion = false)
+        private void EscribirLog(string mensaje, tipoLog tipoLog)
         {
-            if (conLogsParaDepuracion)
+            switch (tipoLog)
             {
-                switch (tipoLog)
-                {
-                    case tipoLog.INFORMACION:
-                        Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                    case tipoLog.ALERTA:
-                        Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                    case tipoLog.ERROR:
-                        Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                    default:
-                        Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                }
-            }
-            {
-                switch (tipoLog)
-                {
-                    case tipoLog.INFORMACION:
-                        if (!porDepuracion)
-                            Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                    case tipoLog.ALERTA:
-                        if (!porDepuracion)
-                            Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                    case tipoLog.ERROR:
-                        if (!porDepuracion)
-                            Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                    default:
-                        if (!porDepuracion)
-                            Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
-                        break;
-                }
+                case tipoLog.INFORMACION:
+                    Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
+                    break;
+                case tipoLog.ALERTA:
+                    Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
+                    break;
+                case tipoLog.ERROR:
+                    Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
+                    break;
+                default:
+                    Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
+                    break;
             }
         }
 

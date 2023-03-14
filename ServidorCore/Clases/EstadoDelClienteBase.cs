@@ -72,7 +72,13 @@ namespace ServerCore
         /// </summary>
         public object ObjRespuesta;
 
+        /// <summary>
+        /// Cualquier instancia de clase que se haya creado como entidad de solicitud del proveedor
+        /// </summary>
         public object ObjSolicitudProveedor;
+        /// <summary>
+        /// Cualquier instancia de clase que se haya creado como entidad de respuesta a una solicitud del proveedor
+        /// </summary>
         public object ObjRespuestaProveedor;
 
         /// <summary>
