@@ -8,7 +8,9 @@
         internal const int LIMITE_BYTES_CONTADOR = 2147480000;
 
         /// <summary>
-        /// Variable que indicará si el server entra en modo test
+        /// Variable que indicará si el server entra en modo test.
+        /// El modo Test, responderá a toda petición bien formada, con una código de autorización 
+        /// y respuesta simulado sin enviar la trama a un proveedor externo
         /// </summary>
         internal static bool modoTest = false;
 
@@ -17,6 +19,9 @@
         /// </summary>
         internal static bool modoRouter = false;
 
+        /// <summary>
+        /// TimeOut en segundos sobre cualquier petición de un cliente
+        /// </summary>
         internal static int timeOutCliente = 50;
     }
 }

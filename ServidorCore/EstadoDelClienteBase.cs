@@ -45,7 +45,7 @@ namespace ServerCore
         /// <summary>
         /// Puerto del cliente
         /// </summary>
-        public Int32 PuertoCliente { get; set; } = 0;
+        public int PuertoCliente { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
@@ -85,22 +85,12 @@ namespace ServerCore
         /// </summary>
         public int timeOut;
 
-        /// <summary>
-        /// Bandera para identificar si el proceso solo es de consulta sobre una transacción
-        /// </summary>
-        public bool esConsulta;
-
         ///// <summary>
         ///// Bandera  para indicar que el proceso de responder se ha concluido correctamente
         ///// </summary>
         //public bool seHaRespondido { get; set; } = false;
 
         public bool seEstaRespondiendo;
-
-        public int idTrxBD;
-
-        public string msg210 = "";
-        public string msg230 = "";
 
         private readonly object objetoDeBloqueo = new object();
 
@@ -131,7 +121,6 @@ namespace ServerCore
             objSolicitud = null;
             objRespuesta = null;
             timeOut = Configuracion.timeOutCliente;
-            esConsulta = false;
             //este no porque hay una función con lock para hacerlo seEstaRespondiendo = false;
         }
 
@@ -149,7 +138,7 @@ namespace ServerCore
         /// se inició toda la operación
         /// </summary>
         /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        public void IngresarReferenciaSocketPrincipal(object socketPrincipal)
+        internal void IngresarReferenciaSocketPrincipal(object socketPrincipal)
         {
             this.referenciaSocketPrincipal = socketPrincipal;
         }

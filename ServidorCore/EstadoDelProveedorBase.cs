@@ -134,7 +134,7 @@ namespace ServerCore
         /// se inició toda la operación
         /// </summary>
         /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        public void IngresarReferenciaSocketPrincipal(object socketPrincipal)
+        internal void IngresarReferenciaSocketPrincipal(object socketPrincipal)
         {
             this.referenciaSocketPrincipal = socketPrincipal;
         }
