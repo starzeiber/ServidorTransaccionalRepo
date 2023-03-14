@@ -23,7 +23,7 @@ namespace ServerCore
     /// <typeparam name="S">Instancia sobre la clase que contiene el estado de flujo de una operación en el servidor</typeparam>
     /// <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
     /// socket de trabajo una vez asignado desde el pool</typeparam>
-    public class ServidorTransaccional<T, S, X> where T : EstadoDelClienteBase, new()
+    public class ServidorTransaccional<T, S, X> : IServidorTransaccional<T, X> where T : EstadoDelClienteBase, new()
         where S : EstadoDelServidorBase, new()
         where X : EstadoDelProveedorBase, new()
     {
@@ -131,16 +131,16 @@ namespace ServerCore
         /// Obtiene o ingresa a la lista de proveedores pendientes de desconexión, esta lista es para la verificación de que todos los proveedores
         /// se desconectan adecuadamente, su uso es más para debug pero queda para mejorar
         /// </summary>
-        public List<X> ProveedoresPendientesDesconexion 
-        { 
+        public List<X> ProveedoresPendientesDesconexion
+        {
             get => _proveedoresPendientesDesconexion;
-            set 
+            set
             {
-                if(!_enEjecucion)
+                if (!_enEjecucion)
                 {
                     _proveedoresPendientesDesconexion = value;
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -162,12 +162,12 @@ namespace ServerCore
         /// <summary>
         /// Ip a la cual se apuntarán todas las transacciones del proveedor
         /// </summary>
-        public string IpProveedor 
-        { 
+        public string IpProveedor
+        {
             get => _ipProveedor;
-            set 
+            set
             {
-                if(!_enEjecucion)
+                if (!_enEjecucion)
                     _ipProveedor = value;
             }
         }
@@ -180,13 +180,13 @@ namespace ServerCore
         /// <summary>
         /// Lista de puertos en la IP configurada al proveedor para el envío de la mensajería
         /// </summary>
-        public List<int> PuertosProveedor 
-        { 
-            get=>_puertosProveedor;
-            set 
+        public List<int> PuertosProveedor
+        {
+            get => _puertosProveedor;
+            set
             {
-                if(!_enEjecucion)
-                    _puertosProveedor=value;
+                if (!_enEjecucion)
+                    _puertosProveedor = value;
             }
         }
 
@@ -204,12 +204,12 @@ namespace ServerCore
         /// <summary>
         /// IP de escucha de la aplicación  para recibir mensajes
         /// </summary>
-        public string IpDeEscuchaServidor 
-        { 
-            get=>IpDeEscuchaServidor;
+        public string IpDeEscuchaServidor
+        {
+            get => IpDeEscuchaServidor;
             set
             {
-                if(!_enEjecucion)
+                if (!_enEjecucion)
                     IpDeEscuchaServidor = value;
             }
         }
@@ -354,7 +354,7 @@ namespace ServerCore
         /// Mensaje de aviso
         /// </summary>
         private const string NOTLICENCE = "No cuenta con permisos";
-                
+
         /// <summary>
         /// Se configura para escribir más logs de seguimiento en cada petición
         /// </summary>

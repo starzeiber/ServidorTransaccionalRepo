@@ -52,6 +52,7 @@
     <Compile Include="AdminEstadosDeCliente.cs" />
     <Compile Include="Configuracion.cs" />
     <Compile Include="EstadoDelProveedorBase.cs" />
+    <Compile Include="IServidorTransaccional.cs" />
     <Compile Include="ServidorTransaccional.cs" />
     <Compile Include="ClienteBloqueo.cs" />
     <Compile Include="EstadoDelServidorBase.cs" />
