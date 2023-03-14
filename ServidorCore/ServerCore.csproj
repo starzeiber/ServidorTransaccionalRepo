@@ -47,17 +47,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdminBuffer.cs" />
-    <Compile Include="AdminEstadosDeProveedor.cs" />
-    <Compile Include="AdminEstadosDeCliente.cs" />
-    <Compile Include="Configuracion.cs" />
-    <Compile Include="EstadoDelProveedorBase.cs" />
-    <Compile Include="IServidorTransaccional.cs" />
-    <Compile Include="ServidorTransaccional.cs" />
-    <Compile Include="ClienteBloqueo.cs" />
-    <Compile Include="EstadoDelServidorBase.cs" />
+    <Compile Include="Clases\AdminBuffer.cs" />
+    <Compile Include="Clases\AdminEstadosDeProveedor.cs" />
+    <Compile Include="Clases\AdminEstadosDeCliente.cs" />
+    <Compile Include="Clases\Configuracion.cs" />
+    <Compile Include="Clases\EstadoDelProveedorBase.cs" />
+    <Compile Include="Clases\IEstadoDelClienteBase.cs" />
+    <Compile Include="Interfases\IEstadoDelServidorBase.cs" />
+    <Compile Include="Interfases\IEstadoDelProveedorBase.cs" />
+    <Compile Include="Interfases\IServidorTransaccional.cs" />
+    <Compile Include="Clases\ServidorTransaccional.cs" />
+    <Compile Include="Clases\ClienteBloqueo.cs" />
+    <Compile Include="Clases\EstadoDelServidorBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EstadoDelClienteBase.cs" />
+    <Compile Include="Clases\EstadoDelClienteBase.cs" />
     <Compile Include="Utileria.cs" />
   </ItemGroup>
   <ItemGroup>

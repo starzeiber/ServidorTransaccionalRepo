@@ -5,36 +5,37 @@ using System.Threading;
 
 namespace ServerCore
 {
+
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
     /// </summary>
-    public class EstadoDelProveedorBase
+    public class EstadoDelProveedorBase : IEstadoDelProveedorBase
     {
 
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        public object referenciaSocketPrincipal;
+        internal object referenciaSocketPrincipal;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
         internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
 
-        /// <summary>
-        /// Ip del proveedor
-        /// </summary>
-        public string ipProveedor { get; set; } = "127.0.0.0";
+        ///// <summary>
+        ///// Ip del proveedor
+        ///// </summary>
+        //public string ipProveedor { get; set; } = "127.0.0.0";
 
-        /// <summary>
-        /// Puerto del proveedor
-        /// </summary>
-        public Int32 puertoProveedor { get; set; } = 0;
+        ///// <summary>
+        ///// Puerto del proveedor
+        ///// </summary>
+        //public int puertoProveedor { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        public Socket socketDeTrabajo { get; set; }
+        internal Socket SocketDeTrabajo { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
@@ -49,7 +50,7 @@ namespace ServerCore
         /// <summary>
         /// Estado del cliente desde donde proviene la petición para un retorno
         /// </summary>
-        public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
+        internal EstadoDelClienteBase EstadoDelClienteOrigen { get; set; }
 
         /// <summary>
         /// Trama de petición a un proveedor
@@ -71,17 +72,18 @@ namespace ServerCore
         /// </summary>
         public object objRespuesta;
 
-
-
+        /// <summary>
+        /// Timer del lado del proveedor para medir el tiempo de respuesta sobre una petición
+        /// </summary>
         public Timer providerTimer;
 
         /// <summary>
         /// Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
         /// </summary>
-        internal bool seVencioElTimeOut { get; set; } = false;
+        internal bool SeVencioElTimeOut { get; set; } = false;
 
 
-        private readonly object objetoDeBloqueo = new object();
+        private readonly object _objetoDeBloqueo = new object();
 
 
         internal IPEndPoint endPoint;
@@ -102,12 +104,12 @@ namespace ServerCore
         public virtual void InicializarEstadoDelProveedorBase()
         {
             referenciaSocketPrincipal = null;
-            socketDeTrabajo = null;
+            SocketDeTrabajo = null;
             codigoRespuesta = 0;
             codigoAutorizacion = 0;
             tramaSolicitud = "";
             tramaRespuesta = "";
-            estadoDelClienteOrigen = null;
+            EstadoDelClienteOrigen = null;
             objSolicitud = null;
             objRespuesta = null;
         }
@@ -163,17 +165,23 @@ namespace ServerCore
 
         }
 
+        /// <summary>
+        /// Función que se utiliza para marcar un timeout de forma segura
+        /// </summary>
         public void IndicarVencimientoPorTimeOut()
         {
-            lock (objetoDeBloqueo)
-                if (!seVencioElTimeOut) seVencioElTimeOut = true;
+            lock (_objetoDeBloqueo)
+                if (!SeVencioElTimeOut) SeVencioElTimeOut = true;
 
         }
 
+        /// <summary>
+        /// Función que se utiliza para desmarcar la bandera de timeout de forma segura
+        /// </summary>
         public void ReinicioBanderaTimeOut()
         {
-            lock (objetoDeBloqueo)
-                if (seVencioElTimeOut) seVencioElTimeOut = false;
+            lock (_objetoDeBloqueo)
+                if (SeVencioElTimeOut) SeVencioElTimeOut = false;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace ServerCore
     /// Clase contiene toda la información relevante de un cliente así como un socket
     /// que será el de trabajo para el envío y recepción de mensajes
     /// </summary>
-    public class EstadoDelClienteBase
+    public class EstadoDelClienteBase : IEstadoDelClienteBase
     {
         /// <summary>
         /// Identificador único para un cliente
@@ -19,7 +19,7 @@ namespace ServerCore
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        public object referenciaSocketPrincipal;
+        public object ReferenciaSocketPrincipal;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
@@ -29,7 +29,7 @@ namespace ServerCore
         /// <summary>        
         /// trama de respuesta al cliente
         /// </summary>
-        public string tramaRespuesta;
+        public string TramaRespuesta;
 
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
@@ -50,49 +50,49 @@ namespace ServerCore
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        public Socket socketDeTrabajo { get; set; }
+        public Socket SocketDeTrabajo { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// </summary>
-        public int codigoRespuesta;
+        public int CodigoRespuesta;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int codigoAutorizacion;
+        public int CodigoAutorizacion;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
         /// </summary>
-        public object objSolicitud;
+        public object ObjSolicitud;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
         /// </summary>
-        public object objRespuesta;
+        public object ObjRespuesta;
 
-        public object objSolicitudProveedor;
-        public object objRespuestaProveedor;
+        public object ObjSolicitudProveedor;
+        public object ObjRespuestaProveedor;
 
         /// <summary>
         /// Fecha marcada como inicio de operaciones con el cliente
         /// </summary>
-        public DateTime fechaInicioTrx { get; set; } = DateTime.Now;
+        internal DateTime FechaInicioTrx { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Tiempo de espera general del lado del cliente
         /// </summary>
-        public int timeOut;
+        public int TimeOut { get; set; }
 
         ///// <summary>
         ///// Bandera  para indicar que el proceso de responder se ha concluido correctamente
         ///// </summary>
         //public bool seHaRespondido { get; set; } = false;
 
-        public bool seEstaRespondiendo;
+        internal bool seEstaRespondiendo;
 
-        private readonly object objetoDeBloqueo = new object();
+        private readonly object _objetoDeBloqueo = new object();
 
 
         /// <summary>
@@ -112,15 +112,15 @@ namespace ServerCore
         public virtual void InicializarEstadoDelClienteBase()
         {
             IdUnicoCliente = Guid.NewGuid();
-            referenciaSocketPrincipal = null;
-            tramaRespuesta = "";
+            ReferenciaSocketPrincipal = null;
+            TramaRespuesta = "";
             esperandoEnvio.Set();
-            socketDeTrabajo = null;
-            codigoRespuesta = 0;
-            codigoAutorizacion = 0;
-            objSolicitud = null;
-            objRespuesta = null;
-            timeOut = Configuracion.timeOutCliente;
+            SocketDeTrabajo = null;
+            CodigoRespuesta = 0;
+            CodigoAutorizacion = 0;
+            ObjSolicitud = null;
+            ObjRespuesta = null;
+            TimeOut = Configuracion.timeOutCliente;
             //este no porque hay una función con lock para hacerlo seEstaRespondiendo = false;
         }
 
@@ -140,7 +140,7 @@ namespace ServerCore
         /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
         internal void IngresarReferenciaSocketPrincipal(object socketPrincipal)
         {
-            this.referenciaSocketPrincipal = socketPrincipal;
+            this.ReferenciaSocketPrincipal = socketPrincipal;
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// Función que guardará el resultado de la transacción
+        /// Función que podrá actualizar un registro guardado previamente en base de datos
         /// </summary>
         public virtual void ActualizarTransaccion()
         {
@@ -160,20 +160,20 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// 
+        /// Función que indica que hay una respuesta en proceso de envío al cliente
         /// </summary>
         public void SeEstaProcesandoRespuesta()
         {
-            lock (objetoDeBloqueo)
+            lock (_objetoDeBloqueo)
                 if (!seEstaRespondiendo) seEstaRespondiendo = true;
         }
 
         /// <summary>
-        /// 
+        /// indica que no hay un proceso activo de envío de respuesta al cliente
         /// </summary>
         public void SeFinalizaProcesoRespuesta()
         {
-            lock (objetoDeBloqueo)
+            lock (_objetoDeBloqueo)
                 if (seEstaRespondiendo) seEstaRespondiendo = false;
         }
     }

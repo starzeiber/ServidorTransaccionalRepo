@@ -1,5 +1,8 @@
 ﻿namespace ServerCore
 {
+    /// <summary>
+    /// Contiene todas las constantes del sistema relavantes
+    /// </summary>
     internal static class Configuracion
     {
         /// <summary>

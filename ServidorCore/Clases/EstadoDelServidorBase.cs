@@ -6,20 +6,13 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
     /// </summary>
-    public class EstadoDelServidorBase
+    public class EstadoDelServidorBase : IEstadoDelServidorBase
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public EstadoDelServidorBase()
-        {
-
-        }
 
         /// <summary>
         /// Referencia al proceso principal donde se encuentra el socket principal que disparó el flujo
         /// </summary>
-        public object procesoPrincipal { get; set; }
+        internal object ProcesoPrincipal { get; set; }
 
         /// <summary>
         /// Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
@@ -27,7 +20,7 @@ namespace ServerCore
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public virtual string mensajeBienvenida(object args)
+        public virtual string MensajeBienvenida(object args)
         {
             return "";
         }

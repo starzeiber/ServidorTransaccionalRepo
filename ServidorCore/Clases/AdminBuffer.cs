@@ -9,44 +9,44 @@ namespace ServerCore
     /// necesario en cada envío y recepción de información para después, volver a agregar la sección utilizada.
     /// De esta manera, siempre se tiene un buffer justo a cada operación y reusable
     /// </summary>
-    class AdminBuffer
+    internal class AdminBuffer
     {
         /// <summary>        
         /// Matriz de bytes utilizada como buffer en la operación
         /// </summary>
-        private Byte[] bufferCompleto;
+        private byte[] bufferCompleto;
 
         /// <summary>
         /// Tamaño del arreglo de bytes usado como buffer en cada operación
         /// </summary>
-        private readonly Int32 tamanoBufferPorSeccion;
+        private readonly int tamanoBufferPorSeccion;
 
         /// <summary>
         /// indice en el arreglo de byte (buffer).
         /// </summary>
-        private Int32 indiceBuffer;
+        private int indiceBuffer;
 
         /// <summary>
         /// Pila de indices para el administrador de buffer
         /// </summary>
-        private readonly Stack<Int32> pilaDeIndicesDeDesplazamientoBuffer;
+        private readonly Stack<int> pilaDeIndicesDeDesplazamientoBuffer;
 
         /// <summary>
         /// Número de total de bytes controlados por la pila de buffer
         /// </summary>
-        private readonly Int32 numeroBytesAdministrados;
+        private readonly int numeroBytesAdministrados;
 
         /// <summary>
         /// Constructor que inicializa los valores del administrador de buffer
         /// </summary>
         /// <param name="totalBytesAdministrar">Número total de bytes que tendrá la pila del buffer</param>
         /// <param name="tamanoBuffer">Tamaño del buffer para la operación</param>
-        internal AdminBuffer(Int32 totalBytesAdministrar, Int32 tamanoBuffer)
+        internal AdminBuffer(int totalBytesAdministrar, int tamanoBuffer)
         {
             this.numeroBytesAdministrados = totalBytesAdministrar;
             this.indiceBuffer = 0;
             this.tamanoBufferPorSeccion = tamanoBuffer;
-            this.pilaDeIndicesDeDesplazamientoBuffer = new Stack<Int32>();
+            this.pilaDeIndicesDeDesplazamientoBuffer = new Stack<int>();
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace ServerCore
         /// </summary>
         /// <param name="socketAsyncEventArgs">SocketAsyncEventArgs donde el buffer se asignará</param>
         /// <returns>True si el buffer fue correctamente asignado</returns>
-        internal Boolean asignarBuffer(SocketAsyncEventArgs socketAsyncEventArgs)
+        internal bool asignarBuffer(SocketAsyncEventArgs socketAsyncEventArgs)
         {
             // si el indice de la pila es mayor a cero quiere decir que tenemos disponible espacio en
             // el buffer grande para asignar una sección de buffer al objeto

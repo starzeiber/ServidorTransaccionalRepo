@@ -8,6 +8,8 @@ namespace ServerCore
     /// </summary>
     public class ClienteBloqueo
     {
+        //TODO falta la implementación de esta clase en el servidor
+
         /// <summary>
         /// IP del cliente a bloquear
         /// </summary>
@@ -18,11 +20,11 @@ namespace ServerCore
         /// </summary>
         public ClienteBloqueo()
         {
-            this.ipBloqueada = null;
-            this.razonDelBloqueo = "";
-            this.segundosBloqueo = 0;
-            this.fechaHoraBloqueo = DateTime.MinValue;
-            this.estaActivoBloqueo = true;
+            ipBloqueada = null;
+            razonDelBloqueo = "";
+            segundosBloqueo = 0;
+            fechaHoraBloqueo = DateTime.MinValue;
+            estaActivoBloqueo = true;
         }
 
         /// <summary>
@@ -34,12 +36,10 @@ namespace ServerCore
         /// <param name="estaActivoBloqueo">Variable para indicar que se activa o desactiva el bloqueo para la IP</param>
         public ClienteBloqueo(IPAddress ip, string razonBloqueo, double segundosDeBloqueo, bool estaActivoBloqueo)
         {
-            this.ipBloqueada = ip;
-            this.razonDelBloqueo = razonBloqueo;
-            this.segundosBloqueo = segundosDeBloqueo;
-            this.fechaHoraBloqueo = DateTime.Now;
-            // me di cuenta de que siempre lo activo
-            // this.estaActivoBloqueo = true;
+            ipBloqueada = ip;
+            razonDelBloqueo = razonBloqueo;
+            segundosBloqueo = segundosDeBloqueo;
+            fechaHoraBloqueo = DateTime.Now;
             this.estaActivoBloqueo = estaActivoBloqueo;
         }
 
