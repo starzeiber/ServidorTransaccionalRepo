@@ -313,6 +313,7 @@ namespace ServerCore
         /// Tamaño del buffer por petición
         /// </summary>
         private readonly int tamanoBufferPorPeticion;
+        private const string nombreLog = "Core";
 
         /// <summary>
         /// Información de la licencia
@@ -354,7 +355,12 @@ namespace ServerCore
         /// <summary>
         /// Mensaje de aviso
         /// </summary>
-        private const string NOTLICENCE = "No cuenta con permisos";
+        private const string NOTLICENCE = "No cuenta con permisos para usar esta aplicación en este equipo";
+
+        /// <summary>
+        /// Log del sistema
+        /// </summary>
+        private static EventLogTraceListener logListener;
 
         #endregion
 
@@ -417,10 +423,20 @@ namespace ServerCore
         /// <summary>
         /// Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
         /// </summary>
+        /// <param name="timeOutCliente">Tiempo en segundos de espera antes de cancelar una respuesta por tiempo excedido en el proceso</param>
         public void PreConfiguracionInicial(int timeOutCliente)
         {
+            if (!CrearLog())
+                throw new Exception("Error al crear el log del sistema, la aplicación debe ejecutarse con privilegios de administrador");
             try
             {
+                Trace.Listeners.Clear();
+                logListener = new EventLogTraceListener(nombreLog);
+
+                if (!Trace.Listeners.Contains(logListener))
+                {
+                    Trace.Listeners.Add(logListener);
+                }
                 Configuracion.timeOutCliente = timeOutCliente;
                 peformanceConexionesEntrantes = new PerformanceCounter("TN", "conexionesEntrantesUserver", false);
                 peformanceConexionesEntrantes.IncrementBy(1);
@@ -431,10 +447,10 @@ namespace ServerCore
                 throw;
             }
 
-            if (!ValidateLicence())
+            if (!ValidacionPermisos())
             {
                 EscribirLog(NOTLICENCE, tipoLog.ERROR);
-                Environment.Exit(666);
+                throw new Exception(NOTLICENCE);
             }
 
             //objetos para operaciones asincronas en los sockets de los clientes
@@ -551,6 +567,48 @@ namespace ServerCore
             _enEjecucion = true;
         }
 
+        /// <summary>
+        /// Crea el log por defecto del sistema
+        /// </summary>
+        /// <returns></returns>
+        private bool CrearLog()
+        {
+            string origenLog = nombreLog;
+            // Create an EventLog instance and assign its source.
+            EventLog myLog = new EventLog();
+            try
+            {
+                // Create the source, if it does not already exist.
+                if (!EventLog.SourceExists(nombreLog))
+                {
+                    // An event log source should not be created and immediately used.
+                    // There is a latency time to enable the source, it should be created
+                    // prior to executing the application that uses the source.
+                    // Execute this sample a second time to use the new source.
+                    EventLog.CreateEventSource(origenLog, nombreLog);
+                    //Console.WriteLine("CreatingEventSource");
+                    //Console.WriteLine("Exiting, execute the application a second time to use the source.");
+                    // The source is created.  Exit the application to allow it to be registered.
+                    //return true;
+
+
+                    myLog.Source = origenLog;
+
+                    // Write an informational entry to the event log.
+                    myLog.WriteEntry("Se ha creado el log exitosamente");
+                }
+
+                myLog.Source = origenLog;
+
+                // Write an informational entry to the event log.
+                myLog.WriteEntry("Comprobando escritura de log");
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
         #endregion
 
         #region ProcesoDePeticionesCliente
@@ -997,7 +1055,7 @@ namespace ServerCore
             if (estadoDelCliente.TramaRespuesta != "")
             {
                 if (!modoTest)
-                    estadoDelCliente.ActualizarTransaccion();
+                    estadoDelCliente.GuardarTransaccion();
 
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.TramaRespuesta;
@@ -1260,11 +1318,7 @@ namespace ServerCore
             estadoDelProveedor.codigoAutorizacion = 0;
             estadoDelProveedor.ObtenerTramaPeticion();
 
-            //// solo por precaución se inicializan los valores
-            //estadoDelProveedor.codigoRespuesta = 0;
-            //estadoDelProveedor.codigoAutorizacion = 0;
-            //estadoDelProveedor.ObtenerTramaRespuesta();
-
+            //Si todas la validaciones hasta ahora fueron exitosas
             // Se guarda  la transacción para posterior actualizarla
             estadoDelProveedor.GuardarTransaccion();
 
@@ -1863,27 +1917,51 @@ namespace ServerCore
         /// Valida que la licencia esté vigente
         /// </summary>
         /// <returns></returns>
-        private bool ValidateLicence()
+        private bool ValidacionPermisos()
         {
             try
             {
-                Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
-
-                if (!GetLicence())
+                if (!ObtenerConfiguracionPermisos())
                     return false;
 
-                if (!GetInfoPc())
+                if (!DesencriptarParametrosConfiguracion(out string programa, out string procesador, out string producto, out string manufactura))
                     return false;
 
-                return string.Compare(PROGRAM, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Program])) == 0
+                if (!ObtenerInformacionDelEquipo())
+                    return false;
+
+                return string.Compare(PROGRAM, programa) == 0
                         //&& DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Validity]))) <= 0
-                        && (string.Compare(processorId, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.ProcessorId])) == 0)
-                        && (string.Compare(product, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Product])) == 0)
-                        && (string.Compare(manufacturer, encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Manufacturer])) == 0);
+                        && (string.Compare(processorId, procesador) == 0)
+                        && (string.Compare(product, producto) == 0)
+                        && (string.Compare(manufacturer, manufactura) == 0);
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ",Validate permissions", tipoLog.ERROR);
+                EscribirLog(ex.Message + ",ValidacionPermisos", tipoLog.ERROR);
+                return false;
+            }
+        }
+
+        private bool DesencriptarParametrosConfiguracion(out string programa, out string procesador,out string producto,  out string manufactura)
+        {
+            try
+            {
+                EscribirLog(licence, tipoLog.INFORMACION);
+                Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
+                programa = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Program]);
+                procesador = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.ProcessorId]);
+                producto = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Product]);
+                manufactura = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Manufacturer]);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + ". " + ex.StackTrace + ", DescriptarParametrosConfiguracion", tipoLog.ERROR);
+                programa = "invalido";
+                procesador = "invalido";
+                producto = "invalido";
+                manufactura = "invalido";
                 return false;
             }
         }
@@ -1892,7 +1970,7 @@ namespace ServerCore
         /// Obtiene el archivo de licencia de la ubicación de la aplicación
         /// </summary>
         /// <returns></returns>
-        private bool GetLicence()
+        private bool ObtenerConfiguracionPermisos()
         {
             FileStream fileStream;
             try
@@ -1912,7 +1990,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", permissions", tipoLog.ERROR);
+                EscribirLog(ex.Message + ", ObtenerConfiguracionPermisos", tipoLog.ERROR);
                 return false;
             }
         }
@@ -1921,7 +1999,7 @@ namespace ServerCore
         /// Obtiene la información de la PC que se requiere para el funcionamiento del server
         /// </summary>
         /// <returns></returns>
-        private bool GetInfoPc()
+        private bool ObtenerInformacionDelEquipo()
         {
             try
             {
@@ -1935,7 +2013,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", GetInfoPc", tipoLog.ERROR);
+                EscribirLog(ex.Message + ", ObtenerInformacionDelEquipo", tipoLog.ERROR);
                 return false;
             }
         }

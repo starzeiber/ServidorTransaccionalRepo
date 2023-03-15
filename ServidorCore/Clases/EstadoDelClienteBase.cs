@@ -115,7 +115,7 @@ namespace ServerCore
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        public virtual void InicializarEstadoDelClienteBase()
+        internal void InicializarEstadoDelClienteBase()
         {
             IdUnicoCliente = Guid.NewGuid();
             ReferenciaSocketPrincipal = null;
@@ -158,9 +158,10 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// Función que podrá actualizar un registro guardado previamente en base de datos
+        /// Función que podrá guardar un registro en base de datos 
+        /// o en cuyo caso, si está en modo router el servidor, actualizar un registro previamente guardado
         /// </summary>
-        public virtual void ActualizarTransaccion()
+        public virtual void GuardarTransaccion()
         {
 
         }
@@ -168,7 +169,7 @@ namespace ServerCore
         /// <summary>
         /// Función que indica que hay una respuesta en proceso de envío al cliente
         /// </summary>
-        public void SeEstaProcesandoRespuesta()
+        internal void SeEstaProcesandoRespuesta()
         {
             lock (_objetoDeBloqueo)
                 if (!seEstaRespondiendo) seEstaRespondiendo = true;
@@ -177,7 +178,7 @@ namespace ServerCore
         /// <summary>
         /// indica que no hay un proceso activo de envío de respuesta al cliente
         /// </summary>
-        public void SeFinalizaProcesoRespuesta()
+        internal void SeFinalizaProcesoRespuesta()
         {
             lock (_objetoDeBloqueo)
                 if (seEstaRespondiendo) seEstaRespondiendo = false;

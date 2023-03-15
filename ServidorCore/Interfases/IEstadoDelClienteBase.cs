@@ -31,14 +31,10 @@ namespace ServerCore
         int TimeOut { get; set; }
 
         /// <summary>
-        /// Función que podrá actualizar un registro guardado previamente en base de datos
+        /// Función que podrá guardar un registro en base de datos 
+        /// o en cuyo caso, si está en modo router el servidor, actualizar un registro previamente guardado
         /// </summary>
-        void ActualizarTransaccion();
-        /// <summary>
-        /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
-        /// todas las variables del info y socket de trabajo
-        /// </summary>
-        void InicializarEstadoDelClienteBase();
+        void GuardarTransaccion();
         /// <summary>
         /// Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
         /// </summary>
@@ -49,13 +45,5 @@ namespace ServerCore
         /// </summary>
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
         void ProcesarTrama(string mensajeCliente);
-        /// <summary>
-        /// Función que indica que hay una respuesta en proceso de envío al cliente
-        /// </summary>
-        void SeEstaProcesandoRespuesta();
-        /// <summary>
-        /// indica que no hay un proceso activo de envío de respuesta al cliente
-        /// </summary>
-        void SeFinalizaProcesoRespuesta();
     }
 }

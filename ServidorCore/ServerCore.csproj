@@ -33,8 +33,9 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Encrypter">
-      <HintPath>.\Encrypter.dll</HintPath>
+    <Reference Include="Encrypter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dll\Encrypt\Encrypter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,7 +54,6 @@
     <Compile Include="Clases\Configuracion.cs" />
     <Compile Include="Clases\EstadoDelProveedorBase.cs" />
     <Compile Include="Interfases\IEstadoDelClienteBase.cs" />
-    <Compile Include="Interfases\IEstadoDelServidorBase.cs" />
     <Compile Include="Interfases\IEstadoDelProveedorBase.cs" />
     <Compile Include="Interfases\IServidorTransaccional.cs" />
     <Compile Include="Clases\ServidorTransaccional.cs" />

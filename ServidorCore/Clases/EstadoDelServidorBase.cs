@@ -6,11 +6,14 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
     /// </summary>
-    public class EstadoDelServidorBase : IEstadoDelServidorBase
+    public class EstadoDelServidorBase
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public EstadoDelServidorBase()
         {
-            
+
         }
 
         /// <summary>

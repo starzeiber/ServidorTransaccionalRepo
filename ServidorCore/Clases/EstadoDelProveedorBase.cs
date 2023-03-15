@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -101,7 +100,7 @@ namespace ServerCore
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        public virtual void InicializarEstadoDelProveedorBase()
+        internal void InicializarEstadoDelProveedorBase()
         {
             referenciaSocketPrincipal = null;
             SocketDeTrabajo = null;
@@ -158,7 +157,7 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// Función que guardará la operación con el proveedor
+        /// Función que guardará un registro en base de datos cuando el servidor esté en modo router
         /// </summary>
         public virtual void GuardarTransaccion()
         {
@@ -168,7 +167,7 @@ namespace ServerCore
         /// <summary>
         /// Función que se utiliza para marcar un timeout de forma segura
         /// </summary>
-        public void IndicarVencimientoPorTimeOut()
+        internal void IndicarVencimientoPorTimeOut()
         {
             lock (_objetoDeBloqueo)
                 if (!SeVencioElTimeOut) SeVencioElTimeOut = true;
@@ -178,7 +177,7 @@ namespace ServerCore
         /// <summary>
         /// Función que se utiliza para desmarcar la bandera de timeout de forma segura
         /// </summary>
-        public void ReinicioBanderaTimeOut()
+        internal void ReinicioBanderaTimeOut()
         {
             lock (_objetoDeBloqueo)
                 if (SeVencioElTimeOut) SeVencioElTimeOut = false;

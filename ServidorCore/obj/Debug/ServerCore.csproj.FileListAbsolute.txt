@@ -1,9 +1,9 @@
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServerCore.dll
+C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServerCore.pdb
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.dll
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.pdb
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.AssemblyReference.cache
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.CoreCompileInputs.cache
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.CopyComplete
-C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServerCore.dll
-C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServerCore.pdb
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.dll
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.pdb
