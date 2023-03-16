@@ -1,14 +1,12 @@
-﻿using System;
+﻿using ServerCore.Clases;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Management;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using static ServerCore.Configuracion;
 using static ServerCore.Utileria;
 
@@ -202,16 +200,17 @@ namespace ServerCore
             }
         }
 
+        internal string _ipDeEscuchaServidor;
         /// <summary>
         /// IP de escucha de la aplicación  para recibir mensajes
         /// </summary>
-        public string IpDeEscuchaServidor
+        public string IpDeEscucha
         {
-            get => IpDeEscuchaServidor;
+            get => _ipDeEscuchaServidor;
             set
             {
                 if (!_enEjecucion)
-                    IpDeEscuchaServidor = value;
+                    _ipDeEscuchaServidor = value;
             }
         }
 
@@ -313,45 +312,7 @@ namespace ServerCore
         /// Tamaño del buffer por petición
         /// </summary>
         private readonly int tamanoBufferPorPeticion;
-        private const string nombreLog = "Core";
-
-        /// <summary>
-        /// Información de la licencia
-        /// </summary>
-        private enum Licence
-        {
-            Program = 0,
-            Validity = 2,
-            ProcessorId = 4,
-            Product = 6,
-            Manufacturer = 8
-        }
-
-        /// <summary>
-        /// Nombre del programa
-        /// </summary>
-        private const string PROGRAM = "UServer";
-
-        /// <summary>
-        /// Id del procesador del equipo
-        /// </summary>
-        private string processorId = "";
-
-        /// <summary>
-        /// Producto que se ejecuta
-        /// </summary>
-        private string product = "";
-
-        /// <summary>
-        /// información del fabricante
-        /// </summary>
-        private string manufacturer = "";
-
-        /// <summary>
-        /// Toda la licencia
-        /// </summary>
-        private string licence = "";
-
+        
         /// <summary>
         /// Mensaje de aviso
         /// </summary>
@@ -361,6 +322,10 @@ namespace ServerCore
         /// Log del sistema
         /// </summary>
         private static EventLogTraceListener logListener;
+
+        private Seguridad seguridad;
+        private ContadoresRendimiento contadoresRendimiento;
+        private LogTrace logTrace;
 
         #endregion
 
@@ -396,7 +361,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + "ServidorTransaccional", tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + "ServidorTransaccional", tipoLog.ERROR);
             }
 
             // establezco el proceso principal para referencia futura
@@ -426,12 +391,13 @@ namespace ServerCore
         /// <param name="timeOutCliente">Tiempo en segundos de espera antes de cancelar una respuesta por tiempo excedido en el proceso</param>
         public void PreConfiguracionInicial(int timeOutCliente)
         {
-            if (!CrearLog())
-                throw new Exception("Error al crear el log del sistema, la aplicación debe ejecutarse con privilegios de administrador");
             try
             {
+                logTrace = new LogTrace("Core");
+                if (!logTrace.CrearLog())
+                    throw new Exception("Error al crear el log del sistema, la aplicación debe ejecutarse con privilegios de administrador");
                 Trace.Listeners.Clear();
-                logListener = new EventLogTraceListener(nombreLog);
+                logListener = new EventLogTraceListener("Core");
 
                 if (!Trace.Listeners.Contains(logListener))
                 {
@@ -443,15 +409,19 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", ConfigInicioServidor", tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + ", ConfigInicioServidor", tipoLog.ERROR);
                 throw;
             }
 
-            if (!ValidacionPermisos())
+            seguridad = new Seguridad(logTrace);
+            if (!seguridad.ValidacionPermisos())
             {
-                EscribirLog(NOTLICENCE, tipoLog.ERROR);
+                logTrace.EscribirLog(NOTLICENCE, tipoLog.ERROR);
                 throw new Exception(NOTLICENCE);
             }
+
+            contadoresRendimiento = new ContadoresRendimiento();
+            contadoresRendimiento.CrearContadores();
 
             //objetos para operaciones asincronas en los sockets de los clientes
             SocketAsyncEventArgs saeaDeEnvioRecepcionCliente;
@@ -524,7 +494,7 @@ namespace ServerCore
         /// y respuesta simulado sin enviar la trama a un proveedor externo</param>
         /// <param name="modoRouter">Activación para que el servidor pueda enviar mensajes a otro proveedor</param>
         /// <param name="ipProveedor">IP del proveedor a donde se enviarán mensajes en caso de que el modoRouter esté encendido</param>
-        public void Iniciar(int puertoLocalEscucha, bool modoTest = false, bool modoRouter = true, string ipProveedor = "127.0.0.0", List<int> listaPuertosProveedor = null)
+        public void Iniciar(int puertoLocalEscucha, bool modoTest = false, bool modoRouter = true, string ipProveedor = "", List<int> listaPuertosProveedor = null)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             desconectando = false;
@@ -534,81 +504,85 @@ namespace ServerCore
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
             EstadoDelServidorBase.OnInicio();
 
-            try
+            if (!modoTest && modoRouter)
             {
                 if (!IPAddress.TryParse(ipProveedor, out IPAddress address))
                     throw new Exception("IP del proveedor ingresada, es inválida");
+                _ipProveedor = ipProveedor;
+                if (listaPuertosProveedor == null)
+                    throw new Exception("Puertos del proveedor inválidos");
+                _puertosProveedor = listaPuertosProveedor;
+                _contadorPuertos = listaPuertosProveedor.Count;
             }
-            catch (Exception)
+
+            try
             {
-                throw;
+                IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocalEscucha);
+
+                // se crea el socket que se utilizará de escucha para las conexiones entrantes
+                socketDeEscucha = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                // se asocia con el puerto de escucha el socket de escucha
+                this.socketDeEscucha.Bind(localEndPoint);
+
+                _ipDeEscuchaServidor = socketDeEscucha.LocalEndPoint.ToString().Split(':')[0];
+
+                // se inicia la escucha de conexiones con un backlog de 100 conexiones
+                this.socketDeEscucha.Listen(backLog);
             }
-            this._ipProveedor = ipProveedor;
-            //this.puertoProveedor = puertoProveedor;
-            this._puertosProveedor = listaPuertosProveedor;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocalEscucha);
-
-            // se crea el socket que se utilizará de escucha para las conexiones entrantes
-            socketDeEscucha = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            // se asocia con el puerto de escucha el socket de escucha
-            this.socketDeEscucha.Bind(localEndPoint);
-
-            IpDeEscuchaServidor = socketDeEscucha.LocalEndPoint.ToString().Split(':')[0];
-
-            // se inicia la escucha de conexiones con un backlog de 100 conexiones
-            this.socketDeEscucha.Listen(backLog);
-
-            _contadorPuertos = listaPuertosProveedor.Count;
 
             // Se indica al sistema que se empiezan a aceptar conexiones, se envía una referencia a null para que se indique que es la primera vez
             this.IniciarAceptaciones(null);
             _enEjecucion = true;
         }
 
-        /// <summary>
-        /// Crea el log por defecto del sistema
-        /// </summary>
-        /// <returns></returns>
-        private bool CrearLog()
-        {
-            string origenLog = nombreLog;
-            // Create an EventLog instance and assign its source.
-            EventLog myLog = new EventLog();
-            try
-            {
-                // Create the source, if it does not already exist.
-                if (!EventLog.SourceExists(nombreLog))
-                {
-                    // An event log source should not be created and immediately used.
-                    // There is a latency time to enable the source, it should be created
-                    // prior to executing the application that uses the source.
-                    // Execute this sample a second time to use the new source.
-                    EventLog.CreateEventSource(origenLog, nombreLog);
-                    //Console.WriteLine("CreatingEventSource");
-                    //Console.WriteLine("Exiting, execute the application a second time to use the source.");
-                    // The source is created.  Exit the application to allow it to be registered.
-                    //return true;
+        ///// <summary>
+        ///// Crea el log por defecto del sistema
+        ///// </summary>
+        ///// <returns></returns>
+        //private bool CrearLog()
+        //{
+        //    string origenLog = nombreLog;
+        //    // Create an EventLog instance and assign its source.
+        //    EventLog myLog = new EventLog();
+        //    try
+        //    {
+        //        // Create the source, if it does not already exist.
+        //        if (!EventLog.SourceExists(nombreLog))
+        //        {
+        //            // An event log source should not be created and immediately used.
+        //            // There is a latency time to enable the source, it should be created
+        //            // prior to executing the application that uses the source.
+        //            // Execute this sample a second time to use the new source.
+        //            EventLog.CreateEventSource(origenLog, nombreLog);
+        //            //Console.WriteLine("CreatingEventSource");
+        //            //Console.WriteLine("Exiting, execute the application a second time to use the source.");
+        //            // The source is created.  Exit the application to allow it to be registered.
+        //            //return true;
 
 
-                    myLog.Source = origenLog;
+        //            myLog.Source = origenLog;
 
-                    // Write an informational entry to the event log.
-                    myLog.WriteEntry("Se ha creado el log exitosamente");
-                }
+        //            // Write an informational entry to the event log.
+        //            myLog.WriteEntry("Se ha creado el log exitosamente");
+        //        }
 
-                myLog.Source = origenLog;
+        //        myLog.Source = origenLog;
 
-                // Write an informational entry to the event log.
-                myLog.WriteEntry("Comprobando escritura de log");
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+        //        // Write an informational entry to the event log.
+        //        myLog.WriteEntry("Comprobando escritura de log");
+        //        return true;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return false;
+        //    }
+        //}
         #endregion
 
         #region ProcesoDePeticionesCliente
@@ -646,7 +620,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ". IniciarAceptaciones", tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + ". IniciarAceptaciones", tipoLog.ERROR);
                 // se hace un último intento para volver a iniciar el servidor por si el error fue una excepción al empezar la aceptación
                 IniciarAceptaciones(saeaAceptarConexion);
             }
@@ -665,7 +639,7 @@ namespace ServerCore
                 // se comprueba que no hay un proceso de cierre del programa o desconexión en curso para no dejar sockets en segundo plano
                 if (desconectando)
                 {
-                    EscribirLog("Socket de escucha desconectado porque el programa principal se está cerrando, AceptarConexionCallBack", tipoLog.ERROR);
+                    logTrace.EscribirLog("Socket de escucha desconectado porque el programa principal se está cerrando, AceptarConexionCallBack", tipoLog.ERROR);
                     // se le indica al semáforo que puede permitir la siguiente conexion....al final se cerrará pero no se bloqueará el proceso
                     semaforoParaAceptarClientes.Release();
                     return;
@@ -708,7 +682,7 @@ namespace ServerCore
                     }
                     else
                     {
-                        EscribirLog("Cliente ya registrado", tipoLog.ALERTA);
+                        logTrace.EscribirLog("Cliente ya registrado", tipoLog.ALERTA);
                     }
                 }
                 finally
@@ -718,7 +692,7 @@ namespace ServerCore
             }
             else
             {
-                EscribirLog("Timeout de 5 seg para obtener bloqueo en AceptarConexionCallBack, listaClientes", tipoLog.ALERTA);
+                logTrace.EscribirLog("Timeout de 5 seg para obtener bloqueo en AceptarConexionCallBack, listaClientes", tipoLog.ALERTA);
                 // si no puedo ingresarlo en la lista de clientes debo rechazarlo porque no tendría control para manipularlo en un futuro
                 CerrarSocketCliente(estadoDelCliente);
                 // coloco nuevamente el socket en proceso de aceptación con el mismo saea para un reintento de conexión
@@ -744,13 +718,13 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + ", AceptarConexionCallBack, recibiendo mensaje del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                    logTrace.EscribirLog(ex.Message + ", AceptarConexionCallBack, recibiendo mensaje del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                 }
             }
             else
             {
-                EscribirLog("AceptarConexiónCallBack.estadoDelCliente.socketDeTrabajo no conectado", tipoLog.ALERTA);
+                logTrace.EscribirLog("AceptarConexiónCallBack.estadoDelCliente.socketDeTrabajo no conectado", tipoLog.ALERTA);
             }
 
             // se indica que puede aceptar más solicitudes con el mismo saea que es el principal
@@ -768,7 +742,7 @@ namespace ServerCore
             // se comprueba que el estado haya sido obtenido correctamente
             if (!(saea.UserToken is T estadoDelCliente))
             {
-                EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
 
@@ -786,14 +760,14 @@ namespace ServerCore
                         }
                         else
                         {
-                            //EscribirLog("No hay datos que recibir", tipoLog.ALERTA);
+                            //logTrace.EscribirLog("No hay datos que recibir", tipoLog.ALERTA);
                             // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
                             CerrarSocketCliente(estadoDelCliente);
                         }
                     }
                     else
                     {
-                        EscribirLog("Error en el proceso de recepción, socket no conectado correctamente, cliente:" + estadoDelCliente.IdUnicoCliente + ", " + saea.SocketError.ToString(), tipoLog.ALERTA);
+                        logTrace.EscribirLog("Error en el proceso de recepción, socket no conectado correctamente, cliente:" + estadoDelCliente.IdUnicoCliente + ", " + saea.SocketError.ToString(), tipoLog.ALERTA);
                         //se cierra el cliente porque puede perdurar indefinidamente la conexión
                         CerrarSocketCliente(estadoDelCliente);
                     }
@@ -809,7 +783,7 @@ namespace ServerCore
                     }
                     else
                     {
-                        EscribirLog("el socket no esta conectado correctamente para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                        logTrace.EscribirLog("el socket no esta conectado correctamente para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                         estadoDelCliente.SeEstaProcesandoRespuesta();
                         // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión                        
                         CerrarSocketCliente(estadoDelCliente);
@@ -818,7 +792,7 @@ namespace ServerCore
                     break;
                 default:
                     // se da por errores de TCP/IP en alguna intermitencia
-                    EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioEntranteCallBack, " + saea.LastOperation.ToString(), tipoLog.ERROR);
+                    logTrace.EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioEntranteCallBack, " + saea.LastOperation.ToString(), tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                     break;
             }
@@ -842,7 +816,7 @@ namespace ServerCore
             }
             else
             {
-                EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
             // se obtiene el SAEA de trabajo
@@ -856,11 +830,11 @@ namespace ServerCore
 
             try
             {
-                EscribirLog("Mensaje recibido: " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
+                logTrace.EscribirLog("Mensaje recibido: " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ". Error al identificar si tiene encabezado el mensaje recibido, se intenta escribir pero se descarta " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + ". Error al identificar si tiene encabezado el mensaje recibido, se intenta escribir pero se descarta " + mensajeRecibido.Trim() + " del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
                 return;
             }
@@ -890,12 +864,12 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog("Error al procesar la trama al llamar la función estadoDelCliente.ProcesarTrama" + ex.Message + ". Del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog("Error al procesar la trama al llamar la función estadoDelCliente.ProcesarTrama" + ex.Message + ". Del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
             if (SeVencioTO(estadoDelCliente))
             {
-                EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
+                logTrace.EscribirLog("Se venció el TimeOut para el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + ". Después de procesar la trama", tipoLog.ALERTA);
                 estadoDelCliente.CodigoRespuesta = (int)CodigosRespuesta.TimeOutInterno;
                 estadoDelCliente.CodigoAutorizacion = 0;
                 ResponderAlCliente(estadoDelCliente);
@@ -965,7 +939,7 @@ namespace ServerCore
                         }
                         else
                         {
-                            EscribirLog("Timeout de 5 seg para obtener un puerto de listaPuertosProveedor", tipoLog.ERROR);
+                            logTrace.EscribirLog("Timeout de 5 seg para obtener un puerto de listaPuertosProveedor", tipoLog.ERROR);
                             endPointProveedor = new IPEndPoint(iPAddress, _puertosProveedor.First());
                         }
 
@@ -997,7 +971,7 @@ namespace ServerCore
                         }
                         catch (Exception ex)
                         {
-                            EscribirLog(ex.Message + ",ProcesarRecepcion, ConnectAsync, " + saeaProveedor.RemoteEndPoint.ToString() + ", cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                            logTrace.EscribirLog(ex.Message + ",ProcesarRecepcion, ConnectAsync, " + saeaProveedor.RemoteEndPoint.ToString() + ", cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
 
                             socketDeTrabajoProveedor.Close();
                             estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
@@ -1020,7 +994,7 @@ namespace ServerCore
                 // se debe responder al cliente, de lo contrario si es un codigo de los anteriores, no se puede responder porque no se tienen confianza en los datos
                 else if (estadoDelCliente.CodigoRespuesta != (int)CodigosRespuesta.ErrorFormato && estadoDelCliente.CodigoRespuesta != (int)CodigosRespuesta.ErrorProceso)
                 {
-                    EscribirLog("Error en el proceso de validación de la trama del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                    logTrace.EscribirLog("Error en el proceso de validación de la trama del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                     ResponderAlCliente(estadoDelCliente);
                 }
                 else
@@ -1030,7 +1004,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ". " + ex.StackTrace + ". ProcesarRecepcion, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + ". " + ex.StackTrace + ". ProcesarRecepcion, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
             }
         }
@@ -1059,14 +1033,14 @@ namespace ServerCore
 
                 // se obtiene el mensaje de respuesta que se enviará cliente
                 string mensajeRespuesta = estadoDelCliente.TramaRespuesta;
-                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
+                logTrace.EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION);
 
                 // se obtiene la cantidad de bytes de la trama completa
                 int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
                 // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
                 if (numeroDeBytes > tamanoBufferPorPeticion)
                 {
-                    EscribirLog("La respuesta es más grande que el buffer, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                    logTrace.EscribirLog("La respuesta es más grande que el buffer, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
@@ -1077,7 +1051,7 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog("Error asignando buffer para la respuesta al cliente " + estadoDelCliente.IdUnicoCliente + ". " + ex.Message, tipoLog.ERROR);
+                    logTrace.EscribirLog("Error asignando buffer para la respuesta al cliente " + estadoDelCliente.IdUnicoCliente + ". " + ex.Message, tipoLog.ERROR);
                     return;
                 }
 
@@ -1096,7 +1070,7 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + ", ResponderAlCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                    logTrace.EscribirLog(ex.Message + ", ResponderAlCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
@@ -1120,7 +1094,7 @@ namespace ServerCore
                     }
                     catch (Exception ex)
                     {
-                        EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                        logTrace.EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketCliente(estadoDelCliente);
                     }
                 }
@@ -1150,7 +1124,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + ", ProcesarRecepcionEnvioCiclicoCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + ", ProcesarRecepcionEnvioCiclicoCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 CerrarSocketCliente(estadoDelCliente);
             }
         }
@@ -1165,7 +1139,7 @@ namespace ServerCore
             // de una operación de E / S sin valores
             if (estadoDelCliente == null)
             {
-                EscribirLog("estadoDelCliente null", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelCliente null", tipoLog.ERROR);
                 return;
             }
 
@@ -1184,13 +1158,13 @@ namespace ServerCore
                     }
                     else
                     {
-                        EscribirLog("el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + " no se encuentra en listaClientes a desconectar, ya ha sido desconectado en otro proceso", tipoLog.ALERTA);
+                        logTrace.EscribirLog("el cliente " + estadoDelCliente.IdUnicoCliente.ToString() + " no se encuentra en listaClientes a desconectar, ya ha sido desconectado en otro proceso", tipoLog.ALERTA);
                         return;     // quiere decir que ya está desconectado
                     }
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + " en CerrarSocketCliente, listaClientes, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                    logTrace.EscribirLog(ex.Message + " en CerrarSocketCliente, listaClientes, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
                 }
                 finally
                 {
@@ -1199,7 +1173,7 @@ namespace ServerCore
             }
             else
             {
-                EscribirLog("Error obteniendo el bloqueo, CerrarSocketCliente, listaClientes", tipoLog.ERROR);
+                logTrace.EscribirLog("Error obteniendo el bloqueo, CerrarSocketCliente, listaClientes", tipoLog.ERROR);
             }
 
 
@@ -1213,7 +1187,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en CerrarSocketCliente, shutdown de envío en el socket de trabajo del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                logTrace.EscribirLog(ex.Message + " en CerrarSocketCliente, shutdown de envío en el socket de trabajo del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
             }
 
             try
@@ -1222,7 +1196,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en CerrarSocketCliente, close en el socket de trabajo del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + " en CerrarSocketCliente, close en el socket de trabajo del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
             // se llama a la secuencia de cerrando para tener un flujo de eventos
@@ -1234,7 +1208,7 @@ namespace ServerCore
 
             if (semaforoParaAceptarClientes.CurrentCount < numeroConexionesSimultaneasCliente)
             {
-                //EscribirLog("Se libera semaforoParaAceptarClientes " + semaforoParaAceptarClientes.CurrentCount.ToString() + ", para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                //logTrace.EscribirLog("Se libera semaforoParaAceptarClientes " + semaforoParaAceptarClientes.CurrentCount.ToString() + ", para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                 semaforoParaAceptarClientes.Release();
             }
         }
@@ -1254,20 +1228,20 @@ namespace ServerCore
             //X estadoDelProveedor = e.UserToken as X;
             if (e == null)
             {
-                EscribirLog("estadoDelProveedor recibido es nulo", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelProveedor recibido es nulo", tipoLog.ERROR);
                 return;
             }
 
             if (!(e.UserToken is X estadoDelProveedor))
             {
-                EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
 
             // se valida que existan errores registrados
             if (e.SocketError != SocketError.Success && e.SocketError != SocketError.IsConnected)
             {
-                EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.endPoint + ", cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.endPoint + ", cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
 
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                 estadoDelProveedor.codigoAutorizacion = 0;
@@ -1295,7 +1269,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + "  ConexionProveedorCallBack, obteniendo el socket de trabajo, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + "  ConexionProveedorCallBack, obteniendo el socket de trabajo, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.EstadoDelClienteOrigen.CodigoRespuesta = estadoDelProveedor.codigoRespuesta;
@@ -1327,14 +1301,14 @@ namespace ServerCore
                 if (estadoDelProveedor.SocketDeTrabajo.Connected)
                 {
                     string mensajeAlProveedor = estadoDelProveedor.tramaSolicitud;
-                    EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
+                    logTrace.EscribirLog("Mensaje enviado del proveedor: " + estadoDelProveedor.tramaSolicitud + " para el cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
 
                     // se obtiene la cantidad de bytes de la trama completa
                     int numeroDeBytes = Encoding.Default.GetBytes(mensajeAlProveedor, 0, mensajeAlProveedor.Length, estadoDelProveedor.saeaDeEnvioRecepcion.Buffer, estadoDelProveedor.saeaDeEnvioRecepcion.Offset);
                     // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
                     if (numeroDeBytes > tamanoBufferPorPeticion)
                     {
-                        EscribirLog("El mensaje al proveedor es más grande que el buffer, cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
+                        logTrace.EscribirLog("El mensaje al proveedor es más grande que el buffer, cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
                         CerrarSocketProveedor(estadoDelProveedor);
                         return;
                     }
@@ -1356,7 +1330,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión con el proveedor, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión con el proveedor, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.EstadoDelClienteOrigen.CodigoRespuesta = estadoDelProveedor.codigoRespuesta;
@@ -1396,7 +1370,7 @@ namespace ServerCore
             // se comprueba que el estado haya sido obtenido correctamente
             if (!(e.UserToken is X estadoDelProveedor))
             {
-                EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelProveedor recibido es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
 
@@ -1413,7 +1387,7 @@ namespace ServerCore
                     }
                     else
                     {
-                        EscribirLog("Error en el envío a " + estadoDelProveedor.saeaDeEnvioRecepcion.RemoteEndPoint + ", RecepcionEnvioSalienteCallBack" + e.SocketError.ToString() +
+                        logTrace.EscribirLog("Error en el envío a " + estadoDelProveedor.saeaDeEnvioRecepcion.RemoteEndPoint + ", RecepcionEnvioSalienteCallBack" + e.SocketError.ToString() +
                             ", cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                         estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                         estadoDelProveedor.codigoAutorizacion = 0;
@@ -1444,7 +1418,7 @@ namespace ServerCore
                     }
                     break;
                 default:
-                    EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioSalienteCallBack, " + e.LastOperation.ToString(), tipoLog.ALERTA);
+                    logTrace.EscribirLog("La ultima operación no se detecto como de recepcion o envío, RecepcionEnvioSalienteCallBack, " + e.LastOperation.ToString(), tipoLog.ALERTA);
                     estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorEnRed;
                     estadoDelProveedor.codigoAutorizacion = 0;
                     estadoDelProveedor.EstadoDelClienteOrigen.CodigoRespuesta = estadoDelProveedor.codigoRespuesta;
@@ -1463,7 +1437,7 @@ namespace ServerCore
         {
             if (estadoDelProveedor == null)
             {
-                EscribirLog("estadoDelProveedor es inválido para la operacion", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelProveedor es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
 
@@ -1483,7 +1457,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog("Error al ponerse en espera de respuesta del proveedor: " + ex.Message + ", ProcesarRecepcionEnvioCiclicoProveedor, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog("Error al ponerse en espera de respuesta del proveedor: " + ex.Message + ", ProcesarRecepcionEnvioCiclicoProveedor, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.EstadoDelClienteOrigen.CodigoRespuesta = estadoDelProveedor.codigoRespuesta;
@@ -1502,7 +1476,7 @@ namespace ServerCore
         {
             if (estadoDelProveedor == null)
             {
-                EscribirLog("estadoDelProveedor es inválido para la operacion", tipoLog.ERROR);
+                logTrace.EscribirLog("estadoDelProveedor es inválido para la operacion", tipoLog.ERROR);
                 return;
             }
 
@@ -1518,7 +1492,7 @@ namespace ServerCore
             // para que se consuma en otra capa, se procese y se entregue una respuesta
             try
             {
-                EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
+                logTrace.EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.INFORMACION);
                 estadoDelProveedor.ProcesarTramaDelProveeedor(mensajeRecibido);
                 estadoDelProveedor.ObtenerTramaRespuesta();
             }
@@ -1526,7 +1500,7 @@ namespace ServerCore
             {
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProceso;
                 estadoDelProveedor.codigoAutorizacion = 0;
-                EscribirLog(ex.Message + ", procesando trama del proveedor, ProcesarRecepcion, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + ", procesando trama del proveedor, ProcesarRecepcion, cliente " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 return;
             }
 
@@ -1564,7 +1538,7 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del proveedor " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                    logTrace.EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del proveedor " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 }
 
                 try
@@ -1573,7 +1547,7 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del proveedor " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                    logTrace.EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del proveedor " + estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 }
             }
 
@@ -1582,7 +1556,7 @@ namespace ServerCore
             // se marca el semáforo de que puede aceptar otro cliente
             if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneasProveedor)
             {
-                //EscribirLog("Se libera semaforoParaAceptarProveedores " + semaforoParaAceptarProveedores.CurrentCount.ToString() + ", para el cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
+                //logTrace.EscribirLog("Se libera semaforoParaAceptarProveedores " + semaforoParaAceptarProveedores.CurrentCount.ToString() + ", para el cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
                 this.semaforoParaAceptarProveedores.Release();
             }
         }
@@ -1623,16 +1597,16 @@ namespace ServerCore
         //        {
         //            if (int.TryParse(mensajeRespuesta.Substring(0, 2), out int encabezado))
         //            {
-        //                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+        //                logTrace.EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
         //            }
         //            else
         //            {
-        //                EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+        //                logTrace.EscribirLog("Mensaje de respuesta: " + mensajeRespuesta.Substring(2) + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
         //            }
         //        }
         //        catch (Exception)
         //        {
-        //            EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
+        //            logTrace.EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + estadoDelCliente.idUnicoCliente, tipoLog.INFORMACION);
         //        }
 
         //        // se obtiene la cantidad de bytes de la trama completa
@@ -1640,7 +1614,7 @@ namespace ServerCore
         //        // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
         //        if (numeroDeBytes > tamanoBufferPorPeticion)
         //        {
-        //            EscribirLog("La respuesta es más grande que el buffer para el cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+        //            logTrace.EscribirLog("La respuesta es más grande que el buffer para el cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
         //            CerrarSocketCliente(estadoDelCliente);
         //            return;
         //        }
@@ -1653,7 +1627,7 @@ namespace ServerCore
         //        {
         //            // cuando se presente que se deba responder al cliente con el saea del lado CLIENTE y se solicite responderle también desde el lado del proveedor
         //            // es muy común cuando se presenta un timeout en el cliente pero el proveedor aún sigue su curso
-        //            //EscribirLog(ex.Message + ", en estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer, ResponderAlCliente(estadoDelProveedor), cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+        //            //logTrace.EscribirLog(ex.Message + ", en estadoDelCliente.saeaDeEnvioRecepcion.SetBuffer, ResponderAlCliente(estadoDelProveedor), cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
         //            return;
         //        }
 
@@ -1674,7 +1648,7 @@ namespace ServerCore
         //        }
         //        catch (Exception ex)
         //        {
-        //            EscribirLog("ResponderAlCliente del lado proveedor: " + ex.Message + ". Del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
+        //            logTrace.EscribirLog("ResponderAlCliente del lado proveedor: " + ex.Message + ". Del cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ERROR);
         //            CerrarSocketCliente(estadoDelCliente);
         //            return;
         //        }
@@ -1700,7 +1674,7 @@ namespace ServerCore
         //            }
         //            catch (Exception ex)
         //            {
-        //                EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
+        //                logTrace.EscribirLog(ex.Message + ", procesarRecepcion, Desconectando cliente " + estadoDelCliente.idUnicoCliente, tipoLog.ALERTA);
         //                CerrarSocketCliente(estadoDelCliente);
         //            }
         //        }
@@ -1731,7 +1705,7 @@ namespace ServerCore
                     else if (SeVencioTO((T)estadoDelProveedor.EstadoDelClienteOrigen))
                     {
                         TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.EstadoDelClienteOrigen.FechaInicioTrx;
-                        EscribirLog("Se venció el TimeOut para el proveedor: " +
+                        logTrace.EscribirLog("Se venció el TimeOut para el proveedor: " +
                                 estadoDelProveedor.EstadoDelClienteOrigen.IdUnicoCliente +
                                 ", TickTimer, fecha hora inicial " + estadoDelProveedor.EstadoDelClienteOrigen.FechaInicioTrx +
                                 ", segundos transcurridos " + timeSpan.Seconds +
@@ -1754,6 +1728,26 @@ namespace ServerCore
             {
 
             }
+        }
+
+        /// <summary>
+        /// Verificación del tiempo de la transacción sobre el proceso del clente
+        /// </summary>
+        /// <param name="estadoDelCliente">instancia del estado del cliente</param>
+        /// <returns></returns>
+        private bool SeVencioTO(T estadoDelCliente)
+        {
+            try
+            {
+                TimeSpan timeSpan = DateTime.Now - estadoDelCliente.FechaInicioTrx;
+                return timeSpan.Seconds > estadoDelCliente.TimeOut;
+            }
+            catch (Exception ex)
+            {
+                logTrace.EscribirLog(ex.Message + ", SeVencioTOCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
+                return true;
+            }
+
         }
 
         #endregion
@@ -1837,7 +1831,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
             }
 
             try
@@ -1846,7 +1840,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);
+                logTrace.EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);
             }
 
 
@@ -1867,179 +1861,6 @@ namespace ServerCore
 
             _enEjecucion = false;
             desconectando = false;
-        }
-
-        /// <summary>
-        /// Funcion que el guardado de logs en el event log de windows
-        /// </summary>
-        /// <param name="mensaje"></param>
-        /// <param name="tipoLog"></param>
-        private void EscribirLog(string mensaje, tipoLog tipoLog)
-        {
-            switch (tipoLog)
-            {
-                case tipoLog.INFORMACION:
-                    Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
-                    break;
-                case tipoLog.ALERTA:
-                    Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
-                    break;
-                case tipoLog.ERROR:
-                    Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
-                    break;
-                default:
-                    Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Verificación del tiempo de la transacción sobre el proceso del clente
-        /// </summary>
-        /// <param name="estadoDelCliente">instancia del estado del cliente</param>
-        /// <returns></returns>
-        private bool SeVencioTO(T estadoDelCliente)
-        {
-            try
-            {
-                TimeSpan timeSpan = DateTime.Now - estadoDelCliente.FechaInicioTrx;
-                return timeSpan.Seconds > estadoDelCliente.TimeOut;
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + ", SeVencioTOCliente, cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
-                return true;
-            }
-
-        }
-
-        /// <summary>
-        /// Valida que la licencia esté vigente
-        /// </summary>
-        /// <returns></returns>
-        private bool ValidacionPermisos()
-        {
-            try
-            {
-                if (!ObtenerConfiguracionPermisos())
-                    return false;
-
-                if (!DesencriptarParametrosConfiguracion(out string programa, out string procesador, out string producto, out string manufactura))
-                    return false;
-
-                if (!ObtenerInformacionDelEquipo())
-                    return false;
-
-                return string.Compare(PROGRAM, programa) == 0
-                        //&& DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Validity]))) <= 0
-                        && (string.Compare(processorId, procesador) == 0)
-                        && (string.Compare(product, producto) == 0)
-                        && (string.Compare(manufacturer, manufactura) == 0);
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + ",ValidacionPermisos", tipoLog.ERROR);
-                return false;
-            }
-        }
-
-        private bool DesencriptarParametrosConfiguracion(out string programa, out string procesador,out string producto,  out string manufactura)
-        {
-            try
-            {
-                EscribirLog(licence, tipoLog.INFORMACION);
-                Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
-                programa = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Program]);
-                procesador = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.ProcessorId]);
-                producto = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Product]);
-                manufactura = encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Manufacturer]);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + ". " + ex.StackTrace + ", DescriptarParametrosConfiguracion", tipoLog.ERROR);
-                programa = "invalido";
-                procesador = "invalido";
-                producto = "invalido";
-                manufactura = "invalido";
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Obtiene el archivo de licencia de la ubicación de la aplicación
-        /// </summary>
-        /// <returns></returns>
-        private bool ObtenerConfiguracionPermisos()
-        {
-            FileStream fileStream;
-            try
-            {
-                using (fileStream = File.OpenRead(Environment.CurrentDirectory + "\\" + PROGRAM + ".txt"))
-                {
-                    using (StreamReader streamReader = new StreamReader(fileStream))
-                    {
-
-                        while (streamReader.EndOfStream == false)
-                        {
-                            licence = streamReader.ReadLine();
-                        }
-                    }
-                }
-                return licence.Length > 0;
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + ", ObtenerConfiguracionPermisos", tipoLog.ERROR);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Obtiene la información de la PC que se requiere para el funcionamiento del server
-        /// </summary>
-        /// <returns></returns>
-        private bool ObtenerInformacionDelEquipo()
-        {
-            try
-            {
-                processorId = RunQuery("Processor", "ProcessorId").ToUpper();
-
-                product = RunQuery("BaseBoard", "Product").ToUpper();
-
-                manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + ", ObtenerInformacionDelEquipo", tipoLog.ERROR);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Ejecuta una consulta al sistema
-        /// </summary>
-        /// <param name="TableName"></param>
-        /// <param name="MethodName"></param>
-        /// <returns></returns>
-        private string RunQuery(string TableName, string MethodName)
-        {
-            ManagementObjectSearcher MOS =
-              new ManagementObjectSearcher("Select * from Win32_" + TableName);
-            foreach (ManagementObject MO in MOS.Get().Cast<ManagementObject>())
-            {
-                try
-                {
-                    return MO[MethodName].ToString();
-                }
-                catch (Exception)
-                {
-                    return "";
-                }
-            }
-            return "";
         }
 
         #endregion

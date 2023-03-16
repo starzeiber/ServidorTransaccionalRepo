@@ -159,6 +159,91 @@
             TimeOut en segundos sobre cualquier petición de un cliente
             </summary>
         </member>
+        <member name="M:ServerCore.Clases.LogTrace.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="nombreLog">Nombre del event log en el sistema. Nota: se debe ejecutar con privilegios de administrador la aplicación</param>
+        </member>
+        <member name="M:ServerCore.Clases.LogTrace.CrearLog">
+            <summary>
+            Crea el log por defecto del sistema
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.Clases.LogTrace.EscribirLog(System.String,ServerCore.Utileria.tipoLog)">
+            <summary>
+            Funcion que el guardado de logs en el event log de windows
+            </summary>
+            <param name="mensaje"></param>
+            <param name="tipoLog"></param>
+        </member>
+        <member name="F:ServerCore.Clases.Seguridad.PROGRAM">
+            <summary>
+            Nombre del programa
+            </summary>
+        </member>
+        <member name="F:ServerCore.Clases.Seguridad._processorId">
+            <summary>
+            Id del procesador del equipo
+            </summary>
+        </member>
+        <member name="F:ServerCore.Clases.Seguridad._product">
+            <summary>
+            Producto que se ejecuta
+            </summary>
+        </member>
+        <member name="F:ServerCore.Clases.Seguridad._manufacturer">
+            <summary>
+            información del fabricante
+            </summary>
+        </member>
+        <member name="F:ServerCore.Clases.Seguridad._licence">
+            <summary>
+            Toda la licencia
+            </summary>
+        </member>
+        <member name="T:ServerCore.Clases.Seguridad.Licence">
+            <summary>
+            Información de la licencia
+            </summary>
+        </member>
+        <member name="M:ServerCore.Clases.Seguridad.ValidacionPermisos">
+            <summary>
+            Valida que la licencia esté vigente
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.Clases.Seguridad.DesencriptarParametrosConfiguracion(System.String@,System.String@,System.String@,System.String@)">
+            <summary>
+            Desencripta los valores obtenidos del archivo de licencia
+            </summary>
+            <param name="programa">nombre del programa a validar</param>
+            <param name="procesador">id del procesador del equipo</param>
+            <param name="producto">numero de serie o producto del equipo</param>
+            <param name="manufactura">nombre de manufactura</param>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.Clases.Seguridad.ObtenerConfiguracionPermisos">
+            <summary>
+            Obtiene el archivo de licencia de la ubicación de la aplicación
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.Clases.Seguridad.ObtenerInformacionDelEquipo">
+            <summary>
+            Obtiene la información de la PC que se requiere para el funcionamiento del server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.Clases.Seguridad.RunQuery(System.String,System.String)">
+            <summary>
+            Ejecuta una consulta al sistema
+            </summary>
+            <param name="TableName"></param>
+            <param name="MethodName"></param>
+            <returns></returns>
+        </member>
         <member name="T:ServerCore.EstadoDelProveedorBase">
             <summary>
             Clase que contiene las propiedades de un proveedor en el flujo del servidor
@@ -381,7 +466,7 @@
             se desconectan adecuadamente, su uso es más para debug
             </summary>
         </member>
-        <member name="P:ServerCore.IServidorTransaccional`3.IpDeEscuchaServidor">
+        <member name="P:ServerCore.IServidorTransaccional`3.IpDeEscucha">
             <summary>
             IP de escucha de la aplicación  para recibir mensajes
             </summary>
@@ -572,7 +657,7 @@
             Bytes que se han transmitido desde el inicio de la aplicación
             </summary>
         </member>
-        <member name="P:ServerCore.ServidorTransaccional`3.IpDeEscuchaServidor">
+        <member name="P:ServerCore.ServidorTransaccional`3.IpDeEscucha">
             <summary>
             IP de escucha de la aplicación  para recibir mensajes
             </summary>
@@ -659,36 +744,6 @@
             Tamaño del buffer por petición
             </summary>
         </member>
-        <member name="T:ServerCore.ServidorTransaccional`3.Licence">
-            <summary>
-            Información de la licencia
-            </summary>
-        </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.PROGRAM">
-            <summary>
-            Nombre del programa
-            </summary>
-        </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.processorId">
-            <summary>
-            Id del procesador del equipo
-            </summary>
-        </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.product">
-            <summary>
-            Producto que se ejecuta
-            </summary>
-        </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.manufacturer">
-            <summary>
-            información del fabricante
-            </summary>
-        </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.licence">
-            <summary>
-            Toda la licencia
-            </summary>
-        </member>
         <member name="F:ServerCore.ServidorTransaccional`3.NOTLICENCE">
             <summary>
             Mensaje de aviso
@@ -725,12 +780,6 @@
             y respuesta simulado sin enviar la trama a un proveedor externo</param>
             <param name="modoRouter">Activación para que el servidor pueda enviar mensajes a otro proveedor</param>
             <param name="ipProveedor">IP del proveedor a donde se enviarán mensajes en caso de que el modoRouter esté encendido</param>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.CrearLog">
-            <summary>
-            Crea el log por defecto del sistema
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:ServerCore.ServidorTransaccional`3.IniciarAceptaciones(System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
@@ -814,6 +863,13 @@
             </summary>
             <param name="state"></param>
         </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.SeVencioTO(`0)">
+            <summary>
+            Verificación del tiempo de la transacción sobre el proceso del clente
+            </summary>
+            <param name="estadoDelCliente">instancia del estado del cliente</param>
+            <returns></returns>
+        </member>
         <member name="M:ServerCore.ServidorTransaccional`3.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
@@ -825,46 +881,6 @@
             <summary>
             Se detiene el servidor
             </summary>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.EscribirLog(System.String,ServerCore.Utileria.tipoLog)">
-            <summary>
-            Funcion que el guardado de logs en el event log de windows
-            </summary>
-            <param name="mensaje"></param>
-            <param name="tipoLog"></param>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.SeVencioTO(`0)">
-            <summary>
-            Verificación del tiempo de la transacción sobre el proceso del clente
-            </summary>
-            <param name="estadoDelCliente">instancia del estado del cliente</param>
-            <returns></returns>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.ValidacionPermisos">
-            <summary>
-            Valida que la licencia esté vigente
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.ObtenerConfiguracionPermisos">
-            <summary>
-            Obtiene el archivo de licencia de la ubicación de la aplicación
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.ObtenerInformacionDelEquipo">
-            <summary>
-            Obtiene la información de la PC que se requiere para el funcionamiento del server
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.RunQuery(System.String,System.String)">
-            <summary>
-            Ejecuta una consulta al sistema
-            </summary>
-            <param name="TableName"></param>
-            <param name="MethodName"></param>
-            <returns></returns>
         </member>
         <member name="T:ServerCore.ClienteBloqueo">
             <summary>

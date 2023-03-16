@@ -29,7 +29,7 @@ namespace ServerCore
         /// <summary>
         /// IP de escucha de la aplicación  para recibir mensajes
         /// </summary>
-        string IpDeEscuchaServidor { get; set; }
+        string IpDeEscucha { get; set; }
         /// <summary>
         /// Ip a la cual se apuntarán todas las transacciones del proveedor
         /// </summary>
