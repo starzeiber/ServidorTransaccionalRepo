@@ -1031,6 +1031,7 @@
         <member name="F:ServerCore.EstadoDelClienteBase.CodigoRespuesta">
             <summary>
             Codigo de respuesta sobre el proceso del cliente
+            Solo debe ser utilizado en conjunto con el enumerado CodigosRespuesta exclusivo para el Core en la clase utileria
             </summary>
         </member>
         <member name="F:ServerCore.EstadoDelClienteBase.CodigoAutorizacion">
@@ -1082,9 +1083,13 @@
         <member name="M:ServerCore.EstadoDelClienteBase.ProcesarTrama(System.String)">
             <summary>
             Función virtual para poder sobre escribirla, en esta se controla
-            toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+            toda el proceso del mensaje del cliente.
+            Al final del proceso, la variable CodigoRespuesta, debe contener alguno de los valores
+            del enumerado CodigosRespuesta exclusivo del Core en la clase utileria
             </summary>
-            <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
+            <param name="mensajeCliente">Mensaje que se recibe de un cliente sin formato</param>
+            <remarks>El objeto objSolicitud debe contener la referencia de la clase utilizada como receptora del mensaje del cliente
+            El objeto objRespuesa debe contener la referencia de la clase utilizada como respuesta al mensaje del cliente</remarks>
         </member>
         <member name="M:ServerCore.EstadoDelClienteBase.IngresarReferenciaSocketPrincipal(System.Object)">
             <summary>
@@ -1112,6 +1117,16 @@
         <member name="M:ServerCore.EstadoDelClienteBase.SeFinalizaProcesoRespuesta">
             <summary>
             indica que no hay un proceso activo de envío de respuesta al cliente
+            </summary>
+        </member>
+        <member name="T:ServerCore.Utileria">
+            <summary>
+            Compendio de enumerados y funciones de ayuda al Core
+            </summary>
+        </member>
+        <member name="T:ServerCore.Utileria.CodigosRespuesta">
+            <summary>
+            Enumerado de códigos de respuesta exclusivos del Core
             </summary>
         </member>
         <member name="F:ServerCore.Utileria.CodigosRespuesta.TransaccionExitosa">

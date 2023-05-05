@@ -54,7 +54,7 @@
     <Compile Include="Clases\Configuracion.cs" />
     <Compile Include="Clases\ContadoresRendimiento.cs" />
     <Compile Include="Clases\EstadoDelProveedorBase.cs" />
-    <Compile Include="Clases\ILogTrace.cs" />
+    <Compile Include="Interfases\ILogTrace.cs" />
     <Compile Include="Clases\LogTrace.cs" />
     <Compile Include="Clases\Seguridad.cs" />
     <Compile Include="Interfases\IEstadoDelClienteBase.cs" />

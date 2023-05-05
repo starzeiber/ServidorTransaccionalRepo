@@ -54,6 +54,7 @@ namespace ServerCore
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
+        /// Solo debe ser utilizado en conjunto con el enumerado CodigosRespuesta exclusivo para el Core en la clase utileria
         /// </summary>
         public int CodigoRespuesta;
 
@@ -132,11 +133,23 @@ namespace ServerCore
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, en esta se controla
-        /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
+        /// toda el proceso del mensaje del cliente.
+        /// Al final del proceso, la variable CodigoRespuesta, debe contener alguno de los valores
+        /// del enumerado CodigosRespuesta exclusivo del Core en la clase utileria
         /// </summary>
-        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
+        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente sin formato</param>
+        /// <remarks>El objeto objSolicitud debe contener la referencia de la clase utilizada como receptora del mensaje del cliente
+        /// El objeto objRespuesa debe contener la referencia de la clase utilizada como respuesta al mensaje del cliente</remarks>
         public virtual void ProcesarTrama(string mensajeCliente)
         {
+            if (ObjSolicitud == null)
+            {
+                throw new ArgumentNullException($"El objeto '{nameof(ObjSolicitud)}' no debe ser nullo");
+            }
+            if (ObjRespuesta== null)
+            {
+                throw new ArgumentNullException($"El objeto '{nameof(ObjRespuesta)}' no debe ser nullo");
+            }
         }
 
         /// <summary>

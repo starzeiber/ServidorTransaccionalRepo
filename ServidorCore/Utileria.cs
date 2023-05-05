@@ -1,9 +1,14 @@
 ﻿namespace ServerCore
 {
-    internal static class Utileria
+    /// <summary>
+    /// Compendio de enumerados y funciones de ayuda al Core
+    /// </summary>
+    public static class Utileria
     {
-
-        internal enum CodigosRespuesta
+        /// <summary>
+        /// Enumerado de códigos de respuesta exclusivos del Core
+        /// </summary>
+        public enum CodigosRespuesta
         {
             /// <summary>
             /// 

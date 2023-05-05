@@ -63,6 +63,8 @@ using System.Runtime.InteropServices;
 //@UMB      14/03/23    9.2.1.0     Se termina de realizar los ultimos detalles para tener un core genérico
 //@UMB      15/03/23    9.3.0.0     Cambio en la obtención y validación de licencia
 //@UMB      16/03/23    9.4.0.0     Factorización de la capa de seguridad y logTrace. Proyecto funcional y completo, se puede factorizar más pero ya no es necesario
+//@UMB      06/05/23    9.4.1.0     Se realizan más especificos los comentarios en algunas propiedades
 
-[assembly: AssemblyVersion("9.4.0.0")]
-[assembly: AssemblyFileVersion("9.4.0.0")]
+
+[assembly: AssemblyVersion("9.4.1.0")]
+[assembly: AssemblyFileVersion("9.4.1.0")]
