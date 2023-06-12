@@ -3,7 +3,7 @@
     /// <summary>
     /// Contiene todas las constantes del sistema relavantes
     /// </summary>
-    internal static class Configuracion
+    internal static class ServerConfiguration
     {
         /// <summary>
         /// Limite para el marcador de bytes procesados en el servidor
@@ -15,16 +15,16 @@
         /// El modo Test, responderá a toda petición bien formada, con una código de autorización 
         /// y respuesta simulado sin enviar la trama a un proveedor externo
         /// </summary>
-        internal static bool modoTest = false;
+        internal static bool testMode = false;
 
         /// <summary>
         /// Activación para que el servidor pueda enviar mensajes a otro proveedor
         /// </summary>
-        internal static bool modoRouter = false;
+        internal static bool routerMode = false;
 
         /// <summary>
         /// TimeOut en segundos sobre cualquier petición de un cliente
         /// </summary>
-        internal static int timeOutCliente = 50;
+        internal static int clientTimeOut = 50;
     }
 }

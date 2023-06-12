@@ -8,44 +8,44 @@ namespace ServerCore
     /// las operaciones de entrada y salida de dicho socket asincronamente
     /// </summary>
     /// <typeparam name="X">Instancia de la clase estadoDelClienteBase</typeparam>
-    internal class AdminEstadosDeProveedor<X>
-        where X : EstadoDelProveedorBase, new()
+    internal class ProviderStateManager<X>
+        where X : ProviderStateBase, new()
     {
         /// <summary>
         /// El conjunto de estados se almacena como una pila
         /// </summary>
-        private readonly Stack<X> _pilaEstadosDeProveedor;
+        private readonly Stack<X> providerStatesStack;
 
         /// <summary>
         /// Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
         /// </summary>
-        /// <param name="capacidadPilaEstados">Máximo número de objetos que la pila de estados podrá almacenar</param>
-        internal AdminEstadosDeProveedor(int capacidadPilaEstados)
+        /// <param name="providerStatesStackCapacity">Máximo número de objetos que la pila de estados podrá almacenar</param>
+        internal ProviderStateManager(int providerStatesStackCapacity)
         {
-            _pilaEstadosDeProveedor = new Stack<X>(capacidadPilaEstados);
+            providerStatesStack = new Stack<X>(providerStatesStackCapacity);
         }
 
         /// <summary>
         /// Variable que contiene el número de elementos en la pila 
         /// </summary>
-        internal int ContadorElementos
+        internal int StackCount
         {
-            get { return this._pilaEstadosDeProveedor.Count; }
+            get { return this.providerStatesStack.Count; }
         }
 
         /// <summary>
         /// Obtiene un estadoDelClienteBase de la pila de estados del cliente
         /// </summary>
         /// <returns>Objeto de la pila que es también removido mientras se usa</returns>
-        internal X ObtenerUnElemento()
+        internal X GetStackItem()
         {
             // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
-            lock (this._pilaEstadosDeProveedor)
+            lock (this.providerStatesStack)
             {
                 // obtengo un estado de la pila
-                X estadoDelProveedorBase = _pilaEstadosDeProveedor.Pop();
+                X estadoDelProveedorBase = providerStatesStack.Pop();
                 //  con el estado obtenido, se inicializa sin una nueva instancia ya que la pila ya estaba creada
-                estadoDelProveedorBase.InicializarEstadoDelProveedorBase();
+                estadoDelProveedorBase.Initialize();
                 return estadoDelProveedorBase;
             }
         }
@@ -53,18 +53,18 @@ namespace ServerCore
         /// <summary>
         /// Ingresa un estadoDelClienteBase a la pila de estados del cliente
         /// </summary>
-        /// <param name="estadoDelProveedorBase">Objeto de EstadoDelClienteBase a ingresar</param>
-        internal void IngresarUnElemento(X estadoDelProveedorBase)
+        /// <param name="providerStateBase">Objeto de EstadoDelClienteBase a ingresar</param>
+        internal void SetStackItem(X providerStateBase)
         {
-            if (estadoDelProveedorBase == null)
+            if (providerStateBase == null)
             {
                 throw new ArgumentNullException("El objeto no puede ser nulo");
             }
             // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
-            lock (this._pilaEstadosDeProveedor)
+            lock (this.providerStatesStack)
             {
-                if (!_pilaEstadosDeProveedor.Contains(estadoDelProveedorBase))
-                    this._pilaEstadosDeProveedor.Push(estadoDelProveedorBase);
+                if (!providerStatesStack.Contains(providerStateBase))
+                    this.providerStatesStack.Push(providerStateBase);
             }
         }
     }

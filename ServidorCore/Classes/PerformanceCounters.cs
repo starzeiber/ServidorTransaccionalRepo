@@ -5,19 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerCore.Clases
+namespace ServerCore.Classes
 {
-    internal class ContadoresRendimiento
+    internal class PerformanceCounters
     {
-        const String CONEXIONES_ENTRANTES_CORE = "conexionesEntrantesUserver";
-        const string PETICIONES_ENTRANTES_CLIENTES_CORE = "PeticionesEntrantesClientesUserver";
-        const string PETICIONES_RESPONDIDAS_CLIENTES_CORE = "PeticionesRespondidasClientesUserver";
-        const string PETICIONES_SALIENTES_PROVEEDOR_CORE = "PeticionesSalientesProveedorUserver";
-        const string PETICIONES_RESPONDIDAS_PROVEEDOR_CORE = "PeticionesRespondidasProveedorUserver";
+        const String INPUTS_CONNECTIONS_CORE = "conexionesEntrantesUserver";
+        const string CLIENT_REQUESTS_CORE = "PeticionesEntrantesClientesUserver";
+        const string CLIENT_RESPONSES_CORE = "PeticionesRespondidasClientesUserver";
+        const string PROVIDER_REQUESTS_CORE = "PeticionesSalientesProveedorUserver";
+        const string PROVIDER_RESPONSES_CORE = "PeticionesRespondidasProveedorUserver";
 
         const string CATEGORIA_DE_CONTADORES = "Core";
 
-        internal void CrearContadores()
+        internal void BuildCounters()
         {
             try
             {
@@ -28,11 +28,11 @@ namespace ServerCore.Clases
 
                 CounterCreationDataCollection counterDataCollection = new CounterCreationDataCollection
                 {
-                    InstanciarPerformance(CONEXIONES_ENTRANTES_CORE),
-                    InstanciarPerformance(PETICIONES_ENTRANTES_CLIENTES_CORE),
-                    InstanciarPerformance(PETICIONES_RESPONDIDAS_CLIENTES_CORE),
-                    InstanciarPerformance(PETICIONES_SALIENTES_PROVEEDOR_CORE),
-                    InstanciarPerformance(PETICIONES_RESPONDIDAS_PROVEEDOR_CORE)
+                    CreateCounters(INPUTS_CONNECTIONS_CORE),
+                    CreateCounters(CLIENT_REQUESTS_CORE),
+                    CreateCounters(CLIENT_RESPONSES_CORE),
+                    CreateCounters(PROVIDER_REQUESTS_CORE),
+                    CreateCounters(PROVIDER_RESPONSES_CORE)
                 };
 
                 PerformanceCounterCategory.Create(CATEGORIA_DE_CONTADORES, "Contadores para estadisticas del core transaccional", PerformanceCounterCategoryType.SingleInstance, counterDataCollection);
@@ -44,7 +44,7 @@ namespace ServerCore.Clases
             }
         }
 
-        private CounterCreationData InstanciarPerformance(string nombre)
+        private CounterCreationData CreateCounters(string nombre)
         {
             CounterCreationData counterCreationData = new CounterCreationData();
             try

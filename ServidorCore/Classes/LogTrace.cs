@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using static ServerCore.Utileria;
+using static ServerCore.Constants.ServerCoreConstants;
 
-namespace ServerCore.Clases
+namespace ServerCore.Classes
 {
     internal class LogTrace : ILogTrace
     {
@@ -70,17 +70,17 @@ namespace ServerCore.Clases
         /// </summary>
         /// <param name="mensaje"></param>
         /// <param name="tipoLog"></param>
-        public void EscribirLog(string mensaje, tipoLog tipoLog)
+        public void EscribirLog(string mensaje, LogType tipoLog)
         {
             switch (tipoLog)
             {
-                case tipoLog.INFORMACION:
+                case LogType.Information:
                     Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
                     break;
-                case tipoLog.ALERTA:
+                case LogType.warnning:
                     Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
                     break;
-                case tipoLog.ERROR:
+                case LogType.Error:
                     Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
                     break;
                 default:
@@ -88,5 +88,7 @@ namespace ServerCore.Clases
                     break;
             }
         }
+
+        
     }
 }

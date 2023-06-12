@@ -48,27 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clases\AdminBuffer.cs" />
-    <Compile Include="Clases\AdminEstadosDeProveedor.cs" />
-    <Compile Include="Clases\AdminEstadosDeCliente.cs" />
-    <Compile Include="Clases\Configuracion.cs" />
-    <Compile Include="Clases\ContadoresRendimiento.cs" />
-    <Compile Include="Clases\EstadoDelProveedorBase.cs" />
+    <Compile Include="Classes\BufferManager.cs" />
+    <Compile Include="Classes\ProviderStateManager.cs" />
+    <Compile Include="Classes\ClientStatesMananger.cs" />
+    <Compile Include="Classes\ServerConfiguration.cs" />
+    <Compile Include="Classes\PerformanceCounters.cs" />
+    <Compile Include="Classes\ProviderStateBase.cs" />
     <Compile Include="Interfases\ILogTrace.cs" />
-    <Compile Include="Clases\LogTrace.cs" />
-    <Compile Include="Clases\Seguridad.cs" />
-    <Compile Include="Interfases\IEstadoDelClienteBase.cs" />
-    <Compile Include="Interfases\IEstadoDelProveedorBase.cs" />
-    <Compile Include="Interfases\IServidorTransaccional.cs" />
-    <Compile Include="Clases\ServidorTransaccional.cs" />
-    <Compile Include="Clases\ClienteBloqueo.cs" />
-    <Compile Include="Clases\EstadoDelServidorBase.cs" />
+    <Compile Include="Classes\LogTrace.cs" />
+    <Compile Include="Classes\Security.cs" />
+    <Compile Include="Interfases\IClienteStateBase.cs" />
+    <Compile Include="Interfases\IProviderStateBase.cs" />
+    <Compile Include="Interfases\IServerCore.cs" />
+    <Compile Include="Classes\ServerCore.cs" />
+    <Compile Include="Classes\ClientBlocked.cs" />
+    <Compile Include="Classes\ServerStateBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Clases\EstadoDelClienteBase.cs" />
-    <Compile Include="Utileria.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Guia.txt" />
+    <Compile Include="Classes\ClientStateBase.cs" />
+    <Compile Include="Constants\ServerCoreConstants.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

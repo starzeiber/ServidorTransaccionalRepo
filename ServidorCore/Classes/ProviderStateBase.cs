@@ -8,18 +8,18 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
     /// </summary>
-    public class EstadoDelProveedorBase : IEstadoDelProveedorBase
+    public class ProviderStateBase : IProviderStateBase
     {
 
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        internal object referenciaSocketPrincipal;
+        internal object socketMainReference;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
-        internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
+        internal SocketAsyncEventArgs socketAsyncEventArgs;
 
         ///// <summary>
         ///// Ip del proveedor
@@ -34,42 +34,42 @@ namespace ServerCore
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        internal Socket SocketDeTrabajo { get; set; }
+        internal Socket SocketToWork { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// </summary>
-        public int codigoRespuesta;
+        public int responseCode;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int codigoAutorizacion;
+        public int authorizationCode;
 
         /// <summary>
         /// Estado del cliente desde donde proviene la petición para un retorno
         /// </summary>
-        internal EstadoDelClienteBase EstadoDelClienteOrigen { get; set; }
+        internal ClientStateBase ClientStateOriginal { get; set; }
 
         /// <summary>
         /// Trama de petición a un proveedor
         /// </summary>
-        public string tramaSolicitud;
+        public string requestMessage;
 
         /// <summary>
         /// Trama de respuesta de un proveedor
         /// </summary>
-        public string tramaRespuesta;
+        public string responseMessage;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
         /// </summary>
-        public object objSolicitud;
+        public object objectRequest;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
         /// </summary>
-        public object objRespuesta;
+        public object objectResponse;
 
         /// <summary>
         /// Timer del lado del proveedor para medir el tiempo de respuesta sobre una petición
@@ -79,10 +79,10 @@ namespace ServerCore
         /// <summary>
         /// Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
         /// </summary>
-        internal bool SeVencioElTimeOut { get; set; } = false;
+        internal bool IsTimeOver { get; set; } = false;
 
 
-        private readonly object _objetoDeBloqueo = new object();
+        private readonly object objectToLock = new object();
 
 
         internal IPEndPoint endPoint;
@@ -90,34 +90,34 @@ namespace ServerCore
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelProveedorBase()
+        public ProviderStateBase()
         {
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
-            InicializarEstadoDelProveedorBase();
+            Initialize();
         }
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        internal void InicializarEstadoDelProveedorBase()
+        internal void Initialize()
         {
-            referenciaSocketPrincipal = null;
-            SocketDeTrabajo = null;
-            codigoRespuesta = 0;
-            codigoAutorizacion = 0;
-            tramaSolicitud = "";
-            tramaRespuesta = "";
-            EstadoDelClienteOrigen = null;
-            objSolicitud = null;
-            objRespuesta = null;
+            socketMainReference = null;
+            SocketToWork = null;
+            responseCode = 0;
+            authorizationCode = 0;
+            requestMessage = "";
+            responseMessage = "";
+            ClientStateOriginal = null;
+            objectRequest = null;
+            objectResponse = null;
         }
 
         /// <summary>
         /// Ingresa de forma segura el valor de la instancia de socket principal para un retorno de flujo
         /// </summary>
         /// <param name="obj"></param>
-        public virtual void IngresarObjetoPeticionCliente(object obj)
+        public virtual void SetObjectRequestClient(object obj)
         {
 
         }
@@ -126,7 +126,7 @@ namespace ServerCore
         /// Función virtual para poder sobre escribirla, en esta se controla
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
-        public virtual void ProcesarTramaDelProveeedor(string trama)
+        public virtual void ProcessProviderMessage(string trama)
         {
         }
 
@@ -135,15 +135,15 @@ namespace ServerCore
         /// se inició toda la operación
         /// </summary>
         /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        internal void IngresarReferenciaSocketPrincipal(object socketPrincipal)
+        internal void SetMainSocketReference(object socketPrincipal)
         {
-            this.referenciaSocketPrincipal = socketPrincipal;
+            this.socketMainReference = socketPrincipal;
         }
 
         /// <summary>
         /// Función que obtiene la trama de petición al proveedor
         /// </summary>
-        public virtual void ObtenerTramaPeticion()
+        public virtual void GetRequestMessage()
         {
 
         }
@@ -151,7 +151,7 @@ namespace ServerCore
         /// <summary>
         /// Función que obtiene la trama de respuesta de una proveedor
         /// </summary>
-        public virtual void ObtenerTramaRespuesta()
+        public virtual void GetResponseMessage()
         {
 
         }
@@ -159,7 +159,7 @@ namespace ServerCore
         /// <summary>
         /// Función que guardará un registro en base de datos cuando el servidor esté en modo router
         /// </summary>
-        public virtual void GuardarTransaccion()
+        public virtual void SaveTransaction()
         {
 
         }
@@ -167,20 +167,20 @@ namespace ServerCore
         /// <summary>
         /// Función que se utiliza para marcar un timeout de forma segura
         /// </summary>
-        internal void IndicarVencimientoPorTimeOut()
+        internal void SetTimeOver()
         {
-            lock (_objetoDeBloqueo)
-                if (!SeVencioElTimeOut) SeVencioElTimeOut = true;
+            lock (objectToLock)
+                if (!IsTimeOver) IsTimeOver = true;
 
         }
 
         /// <summary>
         /// Función que se utiliza para desmarcar la bandera de timeout de forma segura
         /// </summary>
-        internal void ReinicioBanderaTimeOut()
+        internal void RestartTimeOut()
         {
-            lock (_objetoDeBloqueo)
-                if (SeVencioElTimeOut) SeVencioElTimeOut = false;
+            lock (objectToLock)
+                if (IsTimeOver) IsTimeOver = false;
         }
     }
 }

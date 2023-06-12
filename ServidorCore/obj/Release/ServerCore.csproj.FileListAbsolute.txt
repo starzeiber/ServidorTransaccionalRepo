@@ -1,7 +1,3 @@
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.dll
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.pdb
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CoreCompileInputs.cache
-C:\Users\URIEL\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CopyComplete
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\ServerCore.xml
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\ServerCore.dll
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\bin\Release\ServerCore.pdb
@@ -15,6 +11,10 @@ C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\ob
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\ServerCore.xml
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\ServerCore.dll
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\ServerCore.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Release\Encrypter.pdb
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.AssemblyReference.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.csproj.CopyComplete
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.dll
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Release\ServerCore.pdb

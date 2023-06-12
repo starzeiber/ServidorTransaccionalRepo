@@ -9,83 +9,83 @@ namespace ServerCore
     /// Clase contiene toda la información relevante de un cliente así como un socket
     /// que será el de trabajo para el envío y recepción de mensajes
     /// </summary>
-    public class EstadoDelClienteBase : IEstadoDelClienteBase
+    public class ClientStateBase : IClienteStateBase
     {
         /// <summary>
         /// Identificador único para un cliente
         /// </summary>
-        public Guid IdUnicoCliente { get; set; }
+        public Guid UniqueId { get; set; }
 
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        public object ReferenciaSocketPrincipal;
+        public object SocketMainReference;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
-        internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
+        internal SocketAsyncEventArgs socketAsyncEventArgs;
 
         /// <summary>        
         /// trama de respuesta al cliente
         /// </summary>
-        public string TramaRespuesta;
+        public string requestMessage;
 
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
         /// el flujo cuando el fin de un envío ocurre
         /// </summary>
-        internal EventWaitHandle esperandoEnvio;
+        internal EventWaitHandle sentEventWaitHandle;
 
         /// <summary>
         /// Ip del cliente
         /// </summary>
-        public string IpCliente { get; set; } = "127.0.0.0";
+        public string ClientIp { get; set; } = "127.0.0.0";
 
         /// <summary>
         /// Puerto del cliente
         /// </summary>
-        public int PuertoCliente { get; set; } = 0;
+        public int ClientPort { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        public Socket SocketDeTrabajo { get; set; }
+        public Socket SocketToWork { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// Solo debe ser utilizado en conjunto con el enumerado CodigosRespuesta exclusivo para el Core en la clase utileria
         /// </summary>
-        public int CodigoRespuesta;
+        public int responseCode;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int CodigoAutorizacion;
+        public int authorizationCode;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
         /// </summary>
-        public object ObjSolicitud;
+        public object objectClientRequest;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
         /// </summary>
-        public object ObjRespuesta;
+        public object objectClientResponse;
 
         /// <summary>
         /// Cualquier instancia de clase que se haya creado como entidad de solicitud del proveedor
         /// </summary>
-        public object ObjSolicitudProveedor;
+        public object objectProviderRequest;
         /// <summary>
         /// Cualquier instancia de clase que se haya creado como entidad de respuesta a una solicitud del proveedor
         /// </summary>
-        public object ObjRespuestaProveedor;
+        public object objectProviderResponse;
 
         /// <summary>
         /// Fecha marcada como inicio de operaciones con el cliente
         /// </summary>
-        internal DateTime FechaInicioTrx { get; set; } = DateTime.Now;
+        internal DateTime DateTimeReceiveMessage { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Tiempo de espera general del lado del cliente
@@ -97,37 +97,37 @@ namespace ServerCore
         ///// </summary>
         //public bool seHaRespondido { get; set; } = false;
 
-        internal bool seEstaRespondiendo;
+        internal bool responseInProcess;
 
-        private readonly object _objetoDeBloqueo = new object();
+        private readonly object objectToLock = new object();
 
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelClienteBase()
+        public ClientStateBase()
         {
-            esperandoEnvio = new ManualResetEvent(true);
+            sentEventWaitHandle = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
-            InicializarEstadoDelClienteBase();
+            Initialize();
         }
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        internal void InicializarEstadoDelClienteBase()
+        internal void Initialize()
         {
-            IdUnicoCliente = Guid.NewGuid();
-            ReferenciaSocketPrincipal = null;
-            TramaRespuesta = "";
-            esperandoEnvio.Set();
-            SocketDeTrabajo = null;
-            CodigoRespuesta = 0;
-            CodigoAutorizacion = 0;
-            ObjSolicitud = null;
-            ObjRespuesta = null;
-            TimeOut = Configuracion.timeOutCliente;
+            UniqueId = Guid.NewGuid();
+            SocketMainReference = null;
+            requestMessage = "";
+            sentEventWaitHandle.Set();
+            SocketToWork = null;
+            responseCode = 0;
+            authorizationCode = 0;
+            objectClientRequest = null;
+            objectClientResponse = null;
+            TimeOut = ServerConfiguration.clientTimeOut;
             //este no porque hay una función con lock para hacerlo seEstaRespondiendo = false;
         }
 
@@ -140,15 +140,15 @@ namespace ServerCore
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente sin formato</param>
         /// <remarks>El objeto objSolicitud debe contener la referencia de la clase utilizada como receptora del mensaje del cliente
         /// El objeto objRespuesa debe contener la referencia de la clase utilizada como respuesta al mensaje del cliente</remarks>
-        public virtual void ProcesarTrama(string mensajeCliente)
+        public virtual void ProcessMessage(string mensajeCliente)
         {
-            if (ObjSolicitud == null)
+            if (objectClientRequest == null)
             {
-                throw new ArgumentNullException($"El objeto '{nameof(ObjSolicitud)}' no debe ser nullo");
+                throw new ArgumentNullException($"El objeto '{nameof(objectClientRequest)}' no debe ser nullo");
             }
-            if (ObjRespuesta== null)
+            if (objectClientResponse== null)
             {
-                throw new ArgumentNullException($"El objeto '{nameof(ObjRespuesta)}' no debe ser nullo");
+                throw new ArgumentNullException($"El objeto '{nameof(objectClientResponse)}' no debe ser nullo");
             }
         }
 
@@ -157,15 +157,15 @@ namespace ServerCore
         /// se inició toda la operación
         /// </summary>
         /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        internal void IngresarReferenciaSocketPrincipal(object socketPrincipal)
+        internal void SetSocketMainReference(object socketPrincipal)
         {
-            this.ReferenciaSocketPrincipal = socketPrincipal;
+            this.SocketMainReference = socketPrincipal;
         }
 
         /// <summary>
         /// Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
         /// </summary>
-        public virtual void ObtenerTramaRespuesta()
+        public virtual void GetResponseMessage()
         {
 
         }
@@ -174,7 +174,7 @@ namespace ServerCore
         /// Función que podrá guardar un registro en base de datos 
         /// o en cuyo caso, si está en modo router el servidor, actualizar un registro previamente guardado
         /// </summary>
-        public virtual void GuardarTransaccion()
+        public virtual void SaveTransaction()
         {
 
         }
@@ -182,19 +182,19 @@ namespace ServerCore
         /// <summary>
         /// Función que indica que hay una respuesta en proceso de envío al cliente
         /// </summary>
-        internal void SeEstaProcesandoRespuesta()
+        internal void SetResponseInProcess()
         {
-            lock (_objetoDeBloqueo)
-                if (!seEstaRespondiendo) seEstaRespondiendo = true;
+            lock (objectToLock)
+                if (!responseInProcess) responseInProcess = true;
         }
 
         /// <summary>
         /// indica que no hay un proceso activo de envío de respuesta al cliente
         /// </summary>
-        internal void SeFinalizaProcesoRespuesta()
+        internal void SetResponseCompleted()
         {
-            lock (_objetoDeBloqueo)
-                if (seEstaRespondiendo) seEstaRespondiendo = false;
+            lock (objectToLock)
+                if (responseInProcess) responseInProcess = false;
         }
     }
 }

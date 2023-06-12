@@ -6,12 +6,12 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
     /// </summary>
-    public class EstadoDelServidorBase
+    public class ServerStateBase
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelServidorBase()
+        public ServerStateBase()
         {
 
         }
@@ -19,7 +19,7 @@ namespace ServerCore
         /// <summary>
         /// Referencia al proceso principal donde se encuentra el socket principal que disparó el flujo
         /// </summary>
-        internal object ProcesoPrincipal { get; set; }
+        internal object MainProcess { get; set; }
 
         /// <summary>
         /// Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
@@ -27,7 +27,7 @@ namespace ServerCore
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public virtual string MensajeBienvenida(object args)
+        public virtual string WelcomeMessage(object args)
         {
             return "";
         }
@@ -35,7 +35,7 @@ namespace ServerCore
         /// <summary>
         /// función virtual para sobre escribirla que se utiliza para indicar el principio del flujo
         /// </summary>
-        public virtual void OnInicio()
+        public virtual void OnStart()
         {
             Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha iniciado el servidor");
         }
@@ -44,16 +44,16 @@ namespace ServerCore
         /// función virtual para sobre escribirla que se utiliza para indicar en el flujo que un cliente se cierra
         /// </summary>
         /// <param name="args"></param>
-        public virtual void OnClienteCerrado(object args)
+        public virtual void OnClientClosed(object args)
         {
-            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).IdUnicoCliente.ToString() +
-                ", desde la IP:" + (args as EstadoDelClienteBase).IpCliente);
+            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha desconectado el cliente: " + (args as ClientStateBase).UniqueId.ToString() +
+                ", desde la IP:" + (args as ClientStateBase).ClientIp);
         }
 
         /// <summary>
         /// función virtual para sobre escribirla que se utiliza para indicar en el flujo que hay una conexión
         /// </summary>
-        public virtual void OnConexion()
+        public virtual void OnConnection()
         {
         }
 
@@ -61,23 +61,23 @@ namespace ServerCore
         /// función virtual para sobre escribirla que se utiliza indicar en el flujo que se acepta una solicitud de mensaje
         /// </summary>
         /// <param name="args"></param>
-        public virtual void OnAceptacion(object args)
+        public virtual void OnAcept(object args)
         {
-            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha conectado el cliente: " + (args as EstadoDelClienteBase).IdUnicoCliente.ToString() +
-                ", desde la IP:" + (args as EstadoDelClienteBase).IpCliente);
+            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha conectado el cliente: " + (args as ClientStateBase).UniqueId.ToString() +
+                ", desde la IP:" + (args as ClientStateBase).ClientIp);
         }
 
         /// <summary>
         /// función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha recibido un mensaje
         /// </summary>
-        public virtual void OnRecibido()
+        public virtual void OnReceive()
         {
         }
 
         /// <summary>
         /// función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha enviado un mensaje
         /// </summary>
-        public virtual void OnEnviado()
+        public virtual void OnSend()
         {
         }
     }

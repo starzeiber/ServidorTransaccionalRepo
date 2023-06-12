@@ -2,11 +2,11 @@
 using System.IO;
 using System.Linq;
 using System.Management;
-using static ServerCore.Utileria;
+using static ServerCore.Constants.ServerCoreConstants;
 
-namespace ServerCore.Clases
+namespace ServerCore.Classes
 {
-    internal class Seguridad
+    internal class Security
     {
         /// <summary>
         /// Nombre del programa
@@ -16,26 +16,33 @@ namespace ServerCore.Clases
         /// <summary>
         /// Id del procesador del equipo
         /// </summary>
-        private string _processorId = "";
+        private string processorId = "";
 
         /// <summary>
         /// Producto que se ejecuta
         /// </summary>
-        private string _product = "";
+        private string product = "";
 
         /// <summary>
         /// información del fabricante
         /// </summary>
-        private string _manufacturer = "";
+        private string manufacturer = "";
 
         /// <summary>
         /// Toda la licencia
         /// </summary>
-        private string _licence = "";
+        private string licence = "";
 
+        /// <summary>
+        /// Instancia para utilizar el log
+        /// </summary>
         public ILogTrace LogTrace { get; }
 
-        public Seguridad(ILogTrace logTrace)
+        /// <summary>
+        /// Constructor de la clase
+        /// </summary>
+        /// <param name="logTrace">Instancia de ServerCore.Classes.LogTrace</param>
+        public Security(ILogTrace logTrace)
         {
             LogTrace = logTrace;
         }
@@ -43,7 +50,7 @@ namespace ServerCore.Clases
         /// <summary>
         /// Información de la licencia
         /// </summary>
-        private enum Licence
+        private enum LicencePropiertiesParse
         {
             Program = 0,
             Validity = 2,
@@ -58,28 +65,23 @@ namespace ServerCore.Clases
         /// Valida que la licencia esté vigente
         /// </summary>
         /// <returns></returns>
-        public bool ValidacionPermisos()
+        public bool ValidatePermissions()
         {
             try
             {
-                if (!ObtenerConfiguracionPermisos())
+                if (!GetLicenceFile() || 
+                    !DesencryptConfirgurationParameters(out string program, out string processorId, out string product, out string manufacturer) || 
+                    !GetMachineInformation())
                     return false;
-
-                if (!DesencriptarParametrosConfiguracion(out string programa, out string procesador, out string producto, out string manufactura))
-                    return false;
-
-                if (!ObtenerInformacionDelEquipo())
-                    return false;
-
-                return string.Compare(PROGRAM, programa) == 0
+                return string.Compare(PROGRAM, program) == 0
                         //&& DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Validity]))) <= 0
-                        && (string.Compare(_processorId, procesador) == 0)
-                        && (string.Compare(_product, producto) == 0)
-                        && (string.Compare(_manufacturer, manufactura) == 0);
+                        && (string.Compare(this.processorId, processorId) == 0)
+                        && (string.Compare(this.product, product) == 0)
+                        && (string.Compare(this.manufacturer, manufacturer) == 0);
             }
             catch (Exception ex)
             {
-                LogTrace.EscribirLog(ex.Message + ",ValidacionPermisos", tipoLog.ERROR);
+                LogTrace.EscribirLog(ex.Message + ",ValidatePermissions", LogType.Error);
                 return false;
             }
         }
@@ -87,29 +89,29 @@ namespace ServerCore.Clases
         /// <summary>
         /// Desencripta los valores obtenidos del archivo de licencia
         /// </summary>
-        /// <param name="programa">nombre del programa a validar</param>
-        /// <param name="procesador">id del procesador del equipo</param>
-        /// <param name="producto">numero de serie o producto del equipo</param>
-        /// <param name="manufactura">nombre de manufactura</param>
+        /// <param name="program">nombre del programa a validar</param>
+        /// <param name="processorId">id del procesador del equipo</param>
+        /// <param name="product">numero de serie o producto del equipo</param>
+        /// <param name="manufacturer">nombre de manufactura</param>
         /// <returns></returns>
-        private bool DesencriptarParametrosConfiguracion(out string programa, out string procesador, out string producto, out string manufactura)
+        private bool DesencryptConfirgurationParameters(out string program, out string processorId, out string product, out string manufacturer)
         {
             try
             {
                 Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
-                programa = encrypter.DesEncrypterText(_licence.Split('|')[(int)Licence.Program]);
-                procesador = encrypter.DesEncrypterText(_licence.Split('|')[(int)Licence.ProcessorId]);
-                producto = encrypter.DesEncrypterText(_licence.Split('|')[(int)Licence.Product]);
-                manufactura = encrypter.DesEncrypterText(_licence.Split('|')[(int)Licence.Manufacturer]);
+                program = encrypter.DesEncrypterText(licence.Split('|')[(int)LicencePropiertiesParse.Program]);
+                processorId = encrypter.DesEncrypterText(licence.Split('|')[(int)LicencePropiertiesParse.ProcessorId]);
+                product = encrypter.DesEncrypterText(licence.Split('|')[(int)LicencePropiertiesParse.Product]);
+                manufacturer = encrypter.DesEncrypterText(licence.Split('|')[(int)LicencePropiertiesParse.Manufacturer]);
                 return true;
             }
             catch (Exception ex)
             {
-                LogTrace.EscribirLog(ex.Message + ". " + ex.StackTrace + ", DescriptarParametrosConfiguracion", tipoLog.ERROR);
-                programa = "invalido";
-                procesador = "invalido";
-                producto = "invalido";
-                manufactura = "invalido";
+                LogTrace.EscribirLog(ex.Message + ". " + ex.StackTrace + ", DesencryptConfirgurationParameters", LogType.Error);
+                program = "invalido";
+                processorId = "invalido";
+                product = "invalido";
+                manufacturer = "invalido";
                 return false;
             }
         }
@@ -118,7 +120,7 @@ namespace ServerCore.Clases
         /// Obtiene el archivo de licencia de la ubicación de la aplicación
         /// </summary>
         /// <returns></returns>
-        private bool ObtenerConfiguracionPermisos()
+        private bool GetLicenceFile()
         {
             FileStream fileStream;
             try
@@ -127,18 +129,17 @@ namespace ServerCore.Clases
                 {
                     using (StreamReader streamReader = new StreamReader(fileStream))
                     {
-
                         while (streamReader.EndOfStream == false)
                         {
-                            _licence = streamReader.ReadLine();
+                            licence = streamReader.ReadLine();
                         }
                     }
                 }
-                return _licence.Length > 0;
+                return licence.Length > 0;
             }
             catch (Exception ex)
             {
-                LogTrace.EscribirLog(ex.Message + ", ObtenerConfiguracionPermisos", tipoLog.ERROR);
+                LogTrace.EscribirLog(ex.Message + ", GetLicenceFile", LogType.Error);
                 return false;
             }
         }
@@ -147,21 +148,21 @@ namespace ServerCore.Clases
         /// Obtiene la información de la PC que se requiere para el funcionamiento del server
         /// </summary>
         /// <returns></returns>
-        private bool ObtenerInformacionDelEquipo()
+        private bool GetMachineInformation()
         {
             try
             {
-                _processorId = RunQuery("Processor", "ProcessorId").ToUpper();
+                processorId = RunQuery("Processor", "ProcessorId").ToUpper();
 
-                _product = RunQuery("BaseBoard", "Product").ToUpper();
+                product = RunQuery("BaseBoard", "Product").ToUpper();
 
-                _manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
+                manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
 
                 return true;
             }
             catch (Exception ex)
             {
-                LogTrace.EscribirLog(ex.Message + ", ObtenerInformacionDelEquipo", tipoLog.ERROR);
+                LogTrace.EscribirLog(ex.Message + ", GetMachineInformation", LogType.Error);
                 return false;
             }
         }
