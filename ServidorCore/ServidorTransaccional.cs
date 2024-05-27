@@ -703,12 +703,11 @@ namespace ServerCore
                 EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
-            // se obtiene el SAEA de trabajo
+            
             SocketAsyncEventArgs saeaDeEnvioRecepcion = estadoDelCliente.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
             Int32 bytesTransferred = saeaDeEnvioRecepcion.BytesTransferred;
-
-
+            
             // se obtiene el mensaje y se decodifica para entenderlo
             string mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
 
@@ -929,16 +928,17 @@ namespace ServerCore
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
         private void ResponderAlCliente(T estadoDelCliente)
         {
+            
             if (estadoDelCliente == null || estadoDelCliente.seEstaRespondiendo)
             {
                 return;
             }
 
             estadoDelCliente.SeEstaProcesandoRespuesta();
-
+                        
             // trato de obtener la trama que se le responderá al cliente
             estadoDelCliente.ObtenerTramaRespuesta();
-
+            
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
             {
@@ -1833,16 +1833,16 @@ namespace ServerCore
                 switch (tipoLog)
                 {
                     case tipoLog.INFORMACION:
-                        Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
+                        Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                     case tipoLog.ALERTA:
-                        Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
+                        Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                     case tipoLog.ERROR:
-                        Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
+                        Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                     default:
-                        Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
+                        Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                 }
             }
@@ -1851,19 +1851,19 @@ namespace ServerCore
                 {
                     case tipoLog.INFORMACION:
                         if (!porDepuracion)
-                            Task.Run(() => Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje));
+                            Trace.TraceInformation(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                     case tipoLog.ALERTA:
                         if (!porDepuracion)
-                            Task.Run(() => Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje));
+                            Trace.TraceWarning(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                     case tipoLog.ERROR:
                         if (!porDepuracion)
-                            Task.Run(() => Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje));
+                            Trace.TraceError(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                     default:
                         if (!porDepuracion)
-                            Task.Run(() => Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje));
+                            Trace.WriteLine(DateTime.Now.ToString() + ". " + mensaje);
                         break;
                 }
             }
