@@ -31,6 +31,8 @@ namespace ServerCore
         /// </summary>
         public string responseMessage;
 
+        public string responseMessageFromProvider;
+
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
         /// el flujo cuando el fin de un envío ocurre

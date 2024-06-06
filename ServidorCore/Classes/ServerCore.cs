@@ -1495,7 +1495,7 @@ namespace ServerCore
             // para que se consuma en otra capa, se procese y se entregue una respuesta
             try
             {
-                logTrace.EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido.Substring(2) + " para el cliente: " + providerState.ClientStateOriginal.UniqueId, LogType.Information);
+                logTrace.EscribirLog("Mensaje recibido del proveedor: " + mensajeRecibido + " para el cliente: " + providerState.ClientStateOriginal.UniqueId, LogType.Information);
                 providerState.ProcessProviderMessage(mensajeRecibido);
                 providerState.GetResponseMessage();
             }
@@ -1512,6 +1512,8 @@ namespace ServerCore
                 providerState.responseCode = (int)ProcessResponseCodes.ProcessError;
                 providerState.authorizationCode = 0;
             }
+            // se agrega el mensaje original del proveedor a lado del cliente a modo de rastreo y seguimiento
+            providerState.ClientStateOriginal.responseMessageFromProvider = mensajeRecibido;
             providerState.ClientStateOriginal.responseCode = providerState.responseCode;
             providerState.ClientStateOriginal.authorizationCode = providerState.authorizationCode;
             ResponseToClient((T)providerState.ClientStateOriginal);
