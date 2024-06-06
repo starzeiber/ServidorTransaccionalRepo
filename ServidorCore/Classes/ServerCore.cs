@@ -403,6 +403,9 @@ namespace ServerCore
                 {
                     Trace.Listeners.Add(logListener);
                 }
+                logTrace.EscribirLog("Comprobación de escritura de log", LogType.Information);
+
+
                 ServerConfiguration.clientTimeOut = timeOutClientSide;
                 peformanceConexionesEntrantes = new PerformanceCounter("TN", "conexionesEntrantesUserver", false);
                 peformanceConexionesEntrantes.IncrementBy(1);
@@ -1026,13 +1029,13 @@ namespace ServerCore
             clientState.GetResponseMessage();
 
             // Si ya se cuenta con una respuesta(s) para el cliente
-            if (clientState.requestMessage != "")
+            if (clientState.responseMessage != "")
             {
                 if (!testMode)
                     clientState.SaveTransaction();
 
                 // se obtiene el mensaje de respuesta que se enviará cliente
-                string mensajeRespuesta = clientState.requestMessage;
+                string mensajeRespuesta = clientState.responseMessage;
                 logTrace.EscribirLog("Mensaje de respuesta: " + mensajeRespuesta + " al cliente " + clientState.UniqueId, LogType.Information);
 
                 // se obtiene la cantidad de bytes de la trama completa

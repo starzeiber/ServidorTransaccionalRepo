@@ -56,7 +56,7 @@ namespace ServerCore.Classes
                 myLog.Source = origenLog;
 
                 // Write an informational entry to the event log.
-                myLog.WriteEntry("Comprobando escritura de log");
+                //myLog.WriteEntry("Comprobando escritura de log");
                 return true;
             }
             catch (Exception)

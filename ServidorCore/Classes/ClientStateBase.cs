@@ -29,7 +29,7 @@ namespace ServerCore
         /// <summary>        
         /// trama de respuesta al cliente
         /// </summary>
-        public string requestMessage;
+        public string responseMessage;
 
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
@@ -120,7 +120,7 @@ namespace ServerCore
         {
             UniqueId = Guid.NewGuid();
             SocketMainReference = null;
-            requestMessage = "";
+            responseMessage = "";
             sentEventWaitHandle.Set();
             SocketToWork = null;
             responseCode = 0;
@@ -137,10 +137,10 @@ namespace ServerCore
         /// Al final del proceso, la variable CodigoRespuesta, debe contener alguno de los valores
         /// del enumerado CodigosRespuesta exclusivo del Core en la clase utileria
         /// </summary>
-        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente sin formato</param>
+        /// <param name="clientMessage">Mensaje que se recibe de un cliente sin formato</param>
         /// <remarks>El objeto objSolicitud debe contener la referencia de la clase utilizada como receptora del mensaje del cliente
         /// El objeto objRespuesa debe contener la referencia de la clase utilizada como respuesta al mensaje del cliente</remarks>
-        public virtual void ProcessMessage(string mensajeCliente)
+        public virtual void ProcessMessage(string clientMessage)
         {
             if (objectClientRequest == null)
             {
@@ -156,10 +156,10 @@ namespace ServerCore
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
         /// se inició toda la operación
         /// </summary>
-        /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        internal void SetSocketMainReference(object socketPrincipal)
+        /// <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        internal void SetSocketMainReference(object mainSocket)
         {
-            this.SocketMainReference = socketPrincipal;
+            this.SocketMainReference = mainSocket;
         }
 
         /// <summary>

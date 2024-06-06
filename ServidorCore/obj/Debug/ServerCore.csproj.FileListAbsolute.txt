@@ -7,3 +7,12 @@ C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\ob
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.CopyComplete
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.dll
 C:\Users\Desarrollo48\Documents\Github\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServerCore.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\ServerCore.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\Debug\Encrypter.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.AssemblyReference.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.csproj.Up2Date
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\Debug\ServerCore.pdb

@@ -66,6 +66,11 @@ using System.Runtime.InteropServices;
 //@UMB      06/05/23    9.4.1.0     Se realizan más especificos los comentarios en algunas propiedades
 //@UMB      05/06/13    9.5.0.0     Se quitan los códigos de respuesta de TAE, solo se deban los importantes del proceso CORE
 //@UMB      12/06/13    10.0.0.0    Se  refactorizan los  nombres  al idioma inglés  para  hacerlo más genérico
+//@UMB      12/06/13    10.1.0.0    Se agrega un log para cuando falla la validación de la licencia
 
-[assembly: AssemblyVersion("10.0.0.0")]
-[assembly: AssemblyFileVersion("10.0.0.0")]
+
+
+
+
+[assembly: AssemblyVersion("10.1.0.0")]
+[assembly: AssemblyFileVersion("10.1.0.0")]

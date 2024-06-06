@@ -348,7 +348,7 @@
             Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
             se inició toda la operación
             </summary>
-            <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+            <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
         </member>
         <member name="M:ServerCore.ProviderStateBase.GetRequestMessage">
             <summary>
@@ -1013,7 +1013,7 @@
             SocketAsyncEventArgs que se utilizará en la recepción
             </summary>
         </member>
-        <member name="F:ServerCore.ClientStateBase.requestMessage">
+        <member name="F:ServerCore.ClientStateBase.responseMessage">
             <summary>        
             trama de respuesta al cliente
             </summary>
@@ -1098,7 +1098,7 @@
             Al final del proceso, la variable CodigoRespuesta, debe contener alguno de los valores
             del enumerado CodigosRespuesta exclusivo del Core en la clase utileria
             </summary>
-            <param name="mensajeCliente">Mensaje que se recibe de un cliente sin formato</param>
+            <param name="clientMessage">Mensaje que se recibe de un cliente sin formato</param>
             <remarks>El objeto objSolicitud debe contener la referencia de la clase utilizada como receptora del mensaje del cliente
             El objeto objRespuesa debe contener la referencia de la clase utilizada como respuesta al mensaje del cliente</remarks>
         </member>
@@ -1107,7 +1107,7 @@
             Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
             se inició toda la operación
             </summary>
-            <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+            <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
         </member>
         <member name="M:ServerCore.ClientStateBase.GetResponseMessage">
             <summary>

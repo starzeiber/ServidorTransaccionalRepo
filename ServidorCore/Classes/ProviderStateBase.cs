@@ -126,7 +126,7 @@ namespace ServerCore
         /// Función virtual para poder sobre escribirla, en esta se controla
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
-        public virtual void ProcessProviderMessage(string trama)
+        public virtual void ProcessProviderMessage(string message)
         {
         }
 
@@ -134,10 +134,10 @@ namespace ServerCore
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
         /// se inició toda la operación
         /// </summary>
-        /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        internal void SetMainSocketReference(object socketPrincipal)
+        /// <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        internal void SetMainSocketReference(object mainSocket)
         {
-            this.socketMainReference = socketPrincipal;
+            this.socketMainReference = mainSocket;
         }
 
         /// <summary>
