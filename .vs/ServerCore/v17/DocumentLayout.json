@@ -3,16 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\classes\\servercore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\servidorcore\\classes\\servercore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\classes\\servercore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\classes\\clientstatebase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\classes\\clientstatebase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,34 +14,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AssemblyInfo.cs",
-              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Properties\\AssemblyInfo.cs",
-              "RelativeDocumentMoniker": "ServidorCore\\Properties\\AssemblyInfo.cs",
-              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Properties\\AssemblyInfo.cs",
-              "RelativeToolTip": "ServidorCore\\Properties\\AssemblyInfo.cs",
-              "ViewState": "AQIAAB4AAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-06T19:09:17.832Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ClientStateBase.cs",
-              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Classes\\ClientStateBase.cs",
-              "RelativeDocumentMoniker": "ServidorCore\\Classes\\ClientStateBase.cs",
-              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Classes\\ClientStateBase.cs",
-              "RelativeToolTip": "ServidorCore\\Classes\\ClientStateBase.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACEAAAAxAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-06T19:00:02.576Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
@@ -60,13 +26,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ServerCore.cs",
               "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Classes\\ServerCore.cs",
               "RelativeDocumentMoniker": "ServidorCore\\Classes\\ServerCore.cs",
               "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Classes\\ServerCore.cs",
               "RelativeToolTip": "ServidorCore\\Classes\\ServerCore.cs",
-              "ViewState": "AQIAAMgFAAAAAAAAAAAcwOoFAAAPAAAA",
+              "ViewState": "AQIAAIAAAAAAAAAAAAAhwMoAAAAYAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-06-06T18:59:09.356Z",
               "EditorCaption": ""
