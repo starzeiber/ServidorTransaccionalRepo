@@ -1246,6 +1246,7 @@ namespace ServerCore
             {
                 logTrace.EscribirLog("Error en la conexión, ConexionProveedorCallBack " + estadoDelProveedor.endPoint + ", cliente " + estadoDelProveedor.ClientStateOriginal.UniqueId, LogType.Error);
 
+                estadoDelProveedor.responseMessage = string.Empty;
                 estadoDelProveedor.responseCode = (int)ProcessResponseCodes.NetworkError;
                 estadoDelProveedor.authorizationCode = 0;
                 estadoDelProveedor.ClientStateOriginal.responseCode = estadoDelProveedor.responseCode;
@@ -1509,6 +1510,7 @@ namespace ServerCore
 
             if (providerState.responseMessage == "")
             {
+                mensajeRecibido=string.Empty;
                 providerState.responseCode = (int)ProcessResponseCodes.ProcessError;
                 providerState.authorizationCode = 0;
             }

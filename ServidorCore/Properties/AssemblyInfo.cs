@@ -64,13 +64,13 @@ using System.Runtime.InteropServices;
 //@UMB      15/03/23    9.3.0.0     Cambio en la obtención y validación de licencia
 //@UMB      16/03/23    9.4.0.0     Factorización de la capa de seguridad y logTrace. Proyecto funcional y completo, se puede factorizar más pero ya no es necesario
 //@UMB      06/05/23    9.4.1.0     Se realizan más especificos los comentarios en algunas propiedades
-//@UMB      05/06/13    9.5.0.0     Se quitan los códigos de respuesta de TAE, solo se deban los importantes del proceso CORE
-//@UMB      12/06/13    10.0.0.0    Se  refactorizan los  nombres  al idioma inglés  para  hacerlo más genérico
-//@UMB      12/06/13    10.1.0.0    Se agrega un log para cuando falla la validación de la licencia
+//@UMB      05/06/23    9.5.0.0     Se quitan los códigos de respuesta de TAE, solo se deban los importantes del proceso CORE
+//@UMB      12/06/23    10.0.0.0    Se  refactorizan los  nombres  al idioma inglés  para  hacerlo más genérico
+//@UMB      12/06/23    10.1.0.0    Se agrega un log para cuando falla la validación de la licencia
+//@UMB      14/08/24    10.2.0.0    Modificación al nombre de método y a la validación de permisos
 
 
 
 
-
-[assembly: AssemblyVersion("10.1.0.0")]
-[assembly: AssemblyFileVersion("10.1.0.0")]
+[assembly: AssemblyVersion("10.2.0.0")]
+[assembly: AssemblyFileVersion("10.2.0.0")]

@@ -69,8 +69,8 @@ namespace ServerCore.Classes
         {
             try
             {
-                if (!GetLicenceFile() || 
-                    !DesencryptConfirgurationParameters(out string program, out string processorId, out string product, out string manufacturer) || 
+                if (!GetParametersServerFile() ||
+                    !DesencryptConfirgurationParameters(out string program, out string processorId, out string product, out string manufacturer) ||
                     !GetMachineInformation())
                     return false;
                 return string.Compare(PROGRAM, program) == 0
@@ -120,7 +120,7 @@ namespace ServerCore.Classes
         /// Obtiene el archivo de licencia de la ubicación de la aplicación
         /// </summary>
         /// <returns></returns>
-        private bool GetLicenceFile()
+        private bool GetParametersServerFile()
         {
             FileStream fileStream;
             try
@@ -139,7 +139,7 @@ namespace ServerCore.Classes
             }
             catch (Exception ex)
             {
-                LogTrace.EscribirLog(ex.Message + ", GetLicenceFile", LogType.Error);
+                LogTrace.EscribirLog(ex.Message + ", GetParametersServerFile", LogType.Error);
                 return false;
             }
         }

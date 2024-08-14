@@ -235,7 +235,7 @@
             <param name="manufacturer">nombre de manufactura</param>
             <returns></returns>
         </member>
-        <member name="M:ServerCore.Classes.Security.GetLicenceFile">
+        <member name="M:ServerCore.Classes.Security.GetParametersServerFile">
             <summary>
             Obtiene el archivo de licencia de la ubicación de la aplicación
             </summary>
