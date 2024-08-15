@@ -574,6 +574,13 @@
             </summary>
             <param name="state"></param>
         </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.ValidateTimeRemaining(System.Object)">
+            <summary>
+            valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
+            </summary>
+            <param name="state"></param>
+            <returns></returns>
+        </member>
         <member name="M:ServerCore.ServidorTransaccional`3.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
@@ -601,13 +608,13 @@
             <param name="estadoDelCliente">instancia del estado del cliente</param>
             <returns></returns>
         </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.ValidateLicence">
+        <member name="M:ServerCore.ServidorTransaccional`3.ValidateParametersServer">
             <summary>
             Valida que la licencia esté vigente
             </summary>
             <returns></returns>
         </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.GetLicence">
+        <member name="M:ServerCore.ServidorTransaccional`3.GetParametersFile">
             <summary>
             Obtiene el archivo de licencia de la ubicación de la aplicación
             </summary>

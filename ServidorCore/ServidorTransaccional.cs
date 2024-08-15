@@ -271,7 +271,7 @@ namespace ServerCore
         /// <summary>
         /// Mensaje de aviso
         /// </summary>
-        private const string NOTLICENCE = "No cuenta con permisos";
+        private const string NOTLICENCE = "No cuenta con permisos para usar la aplicación";
 
         ///// <summary>
         ///// Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor
@@ -358,7 +358,7 @@ namespace ServerCore
                 throw;
             }
 
-            if (!ValidateLicence())
+            if (!ValidateParametersServer())
             {
                 EscribirLog(NOTLICENCE, tipoLog.ERROR);
                 Environment.Exit(666);
@@ -1277,6 +1277,12 @@ namespace ServerCore
                     // Se prepara el buffer del SAEA con el tamaño predefinido                         
                     estadoDelProveedor.saeaDeEnvioRecepcion.SetBuffer(estadoDelProveedor.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
 
+                    //140824 se valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
+                    if(!ValidateTimeRemaining(estadoDelProveedor))
+                    {
+                        throw new Exception("No hay tiempo restante para enviar la trama al proveedor");
+                    }
+
                     estadoDelProveedor.providerTimer = new Timer(new TimerCallback(TickTimer), estadoDelProveedor, 1000, 1000);
                     EscribirLog("Se inicia el timer para el cliente: " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente + ", con una fecha inicial de comparación " + estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx, tipoLog.INFORMACION, true);
 
@@ -1694,6 +1700,38 @@ namespace ServerCore
             }
         }
 
+        /// <summary>
+        /// valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        private bool ValidateTimeRemaining(object state)
+        {
+            try
+            {
+                bool hasEnoughTime = true;
+                X estadoDelProveedor = (X)state;
+                bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
+                if (seSincronzo)
+                {
+                    TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx;
+                    EscribirLog($"fechaDeComprobacion:{DateTime.Now} - fechaInicioTrx:{estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx}, dan{timeSpan.Seconds} segundos de diferencia. El timeout establecido:{estadoDelProveedor.estadoDelClienteOrigen.timeOut} - los {timeSpan.Seconds} segundos transcurridos:{estadoDelProveedor.estadoDelClienteOrigen.timeOut - timeSpan.Seconds} segundos restantes. cliente:{estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente}", tipoLog.ALERTA, false);
+                    if (estadoDelProveedor.estadoDelClienteOrigen.timeOut - timeSpan.Seconds > 25)
+                        hasEnoughTime = true;
+                    else
+                        hasEnoughTime=false;
+                    Monitor.Exit(estadoDelProveedor);
+                }
+                return hasEnoughTime;
+            }
+            catch (Exception ex)
+            {
+                EscribirLog("ValidateTimeRemaining, " + ex.Message, tipoLog.ERROR, true);
+                return false;
+            }
+        }
+
+
         #endregion
 
         #region FuncionesDeAyuda     
@@ -1893,13 +1931,13 @@ namespace ServerCore
         /// Valida que la licencia esté vigente
         /// </summary>
         /// <returns></returns>
-        private bool ValidateLicence()
+        private bool ValidateParametersServer()
         {
             try
             {
                 Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
 
-                if (!GetLicence())
+                if (!GetParametersFile())
                     return false;
 
                 if (!GetInfoPc())
@@ -1922,7 +1960,7 @@ namespace ServerCore
         /// Obtiene el archivo de licencia de la ubicación de la aplicación
         /// </summary>
         /// <returns></returns>
-        private bool GetLicence()
+        private bool GetParametersFile()
         {
             FileStream fileStream;
             try
