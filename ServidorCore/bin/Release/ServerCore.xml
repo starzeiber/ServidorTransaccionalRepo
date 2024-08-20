@@ -537,6 +537,12 @@
             </summary>
             <param name="estadoDelCliente">Instancia del cliente a cerrar</param>
         </member>
+        <member name="M:ServerCore.ServidorTransaccional`3.CerrarConexionForzadaCliente(System.Net.Sockets.Socket)">
+            <summary>
+            Cierra el socket asociado al cliente pero este método no retira de la lista de clientes conectados al cliente actual
+            </summary>
+            <param name="socketCliente">The socket to close</param>
+        </member>
         <member name="M:ServerCore.ServidorTransaccional`3.ConexionProveedorCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Funcion callback para la conexión al proveedor

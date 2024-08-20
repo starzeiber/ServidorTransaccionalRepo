@@ -1141,24 +1141,25 @@ namespace ServerCore
             }
         }
 
-        ///// <summary>
-        ///// Cierra el socket asociado al cliente pero este método no retira de la lista de clientes conectados al cliente actual
-        ///// </summary>
-        ///// <param name="socketCliente">The socket to close</param>
-        //private void CerrarConexionForzadaCliente(Socket socketCliente)
-        //{
-        //    try
-        //    {
-        //        socketCliente.Shutdown(SocketShutdown.Send);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        EscribirLog(ex.Message + ", CerrarConexionForzadaCliente, shutdown", tipoLog.ERROR);
-        //    }
-        //    socketCliente.Close();
+        /// <summary>
+        /// Cierra el socket asociado al cliente pero este método no retira de la lista de clientes conectados al cliente actual
+        /// </summary>
+        /// <param name="socketCliente">The socket to close</param>
+        private void CerrarConexionForzadaCliente(Socket socketCliente)
+        {
+            try
+            {
+                socketCliente.Shutdown(SocketShutdown.Send);
+                socketCliente.Close();
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + ", CerrarConexionForzadaCliente, shutdown", tipoLog.ERROR);
+            }
+            
 
-        //    this.semaforoParaAceptarClientes.Release();
-        //}
+            //this.semaforoParaAceptarClientes.Release();
+        }
 
         #endregion
 
@@ -1825,7 +1826,6 @@ namespace ServerCore
                 EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);
             }
 
-
             // se recorre la lista de clientes conectados y se adiciona a la lista de clientes para desconectar
             foreach (T socketDeTrabajoPorCliente in listaClientes.Values)
             {
@@ -1835,12 +1835,11 @@ namespace ServerCore
             // luego se cierran las conexiones de los clientes en la lista anterior
             foreach (T socketDeTrabajoPorCliente in listaDeClientesEliminar)
             {
-                CerrarSocketCliente(socketDeTrabajoPorCliente);
+                CerrarConexionForzadaCliente(socketDeTrabajoPorCliente.socketDeTrabajo);
             }
             // se limpia la lista
             listaDeClientesEliminar.Clear();
             listaClientes.Clear();
-
             enEjecucion = false;
             desconectando = false;
         }
