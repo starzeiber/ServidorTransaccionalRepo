@@ -580,10 +580,11 @@
             </summary>
             <param name="state"></param>
         </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.ValidateTimeRemaining(System.Object)">
+        <member name="M:ServerCore.ServidorTransaccional`3.ValidateTimeRemaining(`2)">
             <summary>
             valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
             </summary>
+            <param name="estadoDelProveedor"></param>
             <param name="state"></param>
             <returns></returns>
         </member>

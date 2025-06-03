@@ -847,7 +847,7 @@ namespace ServerCore
                             }
                             else
                             {
-                                EscribirLog("Timeout de 5 seg para obtener un puerto de listaPuertosProveedor", tipoLog.ERROR);
+                                EscribirLog("Timeout de 1 seg para obtener un puerto de listaPuertosProveedor", tipoLog.ERROR);
                                 endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
                             }
 
@@ -1303,7 +1303,7 @@ namespace ServerCore
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
-                estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
+                estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;                
                 ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
@@ -1704,14 +1704,15 @@ namespace ServerCore
         /// <summary>
         /// valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
         /// </summary>
+        /// <param name="estadoDelProveedor"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        private bool ValidateTimeRemaining(object state)
+        private bool ValidateTimeRemaining(X estadoDelProveedor)
         {
             try
             {
                 bool hasEnoughTime = true;
-                X estadoDelProveedor = (X)state;
+                //X estadoDelProveedor = (X)state;
                 bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
                 if (seSincronzo)
                 {
@@ -1727,7 +1728,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog("ValidateTimeRemaining, " + ex.Message, tipoLog.ERROR, true);
+                EscribirLog($"ValidateTimeRemaining, {ex.Message}. cliente:{estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente}", tipoLog.ERROR, true);
                 return false;
             }
         }
