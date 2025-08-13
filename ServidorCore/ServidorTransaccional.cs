@@ -505,7 +505,7 @@ namespace ServerCore
             {
                 EscribirLog(ex.Message + ". IniciarAceptaciones", tipoLog.ERROR);
                 // se hace un último intento para volver a iniciar el servidor por si el error fue una excepción al empezar la aceptación
-                IniciarAceptaciones(saeaAceptarConexion);
+                //IniciarAceptaciones(saeaAceptarConexion);
             }
         }
 
@@ -1808,23 +1808,53 @@ namespace ServerCore
             desconectando = true;
             List<T> listaDeClientesEliminar = new List<T>();
 
-            // Primero se detiene y se cierra el socket de escucha
-            try
-            {
-                this.socketDeEscucha.Shutdown(SocketShutdown.Send);
-            }
-            catch (Exception ex)
-            {
-                EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
-            }
+            //// Primero se detiene y se cierra el socket de escucha
+            //try
+            //{
+            //    if (this.socketDeEscucha != null && this.socketDeEscucha.Connected)
+            //    {
+            //        // Solo se apaga si está conectado y no está enviando datos
+            //        if (!this.socketDeEscucha.Poll(0, SelectMode.SelectWrite))
+            //        {
+            //            this.socketDeEscucha.Shutdown(SocketShutdown.Send);
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
+            //}
 
+            //try
+            //{
+            //    if (this.socketDeEscucha != null)
+            //    {
+            //        this.socketDeEscucha.Close();
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);                
+            //}
+            // Refactorización del bloque para simplificar y mejorar la robustez del cierre del socket de escucha
             try
             {
-                socketDeEscucha.Close();
+                if (this.socketDeEscucha != null)
+                {
+                    if (this.socketDeEscucha.Connected)
+                    {
+                        // Solo se apaga si está conectado y no está enviando datos
+                        if (!this.socketDeEscucha.Poll(0, SelectMode.SelectWrite))
+                        {
+                            this.socketDeEscucha.Shutdown(SocketShutdown.Send);
+                        }
+                    }
+                    this.socketDeEscucha.Close();
+                }
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);
+                EscribirLog(ex.Message + " en detenerServidor (Shutdown/Close)", tipoLog.ERROR);
             }
 
             // se recorre la lista de clientes conectados y se adiciona a la lista de clientes para desconectar
