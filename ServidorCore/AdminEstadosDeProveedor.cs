@@ -9,7 +9,7 @@ namespace ServerCore
     /// </summary>
     /// <typeparam name="X">Instancia de la clase estadoDelClienteBase</typeparam>
     class AdminEstadosDeProveedor<X>
-        where X : EstadoDelProveedorBase, new()
+        where X : EstadoDelProveedorBase
     {
         /// <summary>
         /// El conjunto de estados se almacena como una pila

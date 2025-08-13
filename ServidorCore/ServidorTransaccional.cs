@@ -24,10 +24,15 @@ namespace ServerCore
     /// <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
     /// socket de trabajo una vez asignado desde el pool</typeparam>
     public class ServidorTransaccional<T, S, X>
-        where T : EstadoDelClienteBase, new()
-        where S : EstadoDelServidorBase, new()
-        where X : EstadoDelProveedorBase, new()
+        where T : EstadoDelClienteBase
+        where S : EstadoDelServidorBase
+        where X : EstadoDelProveedorBase
     {
+        private readonly Func<T> clienteFactory;
+        private readonly Func<S> servidorFactory;
+        private readonly Func<X> proveedorFactory;
+
+
         /// <summary>
         /// Instancia del performance counter de peticiones entrantes
         /// </summary>
@@ -289,12 +294,18 @@ namespace ServerCore
         /// Crea una instancia del administrador de sockets, posterior se tiene que llamar al método
         /// ConfigInicioServidor para iniciar el proceso de asignacion de recursos        
         /// </summary>
+        /// <param name="clienteFactory">Función que crea una instancia de la clase EstadoDelClienteBase</param>
+        /// <param name="proveedorFactory">Función que crea una instancia de la clase EstadoDelProveedorBase</param>
+        /// <param name="servidorFactory">Función que crea una instancia de la clase EstadoDelServidorBase</param>
         /// <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
         /// <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
         /// <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
         /// <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
-        public ServidorTransaccional(Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
+        public ServidorTransaccional(Func<T> clienteFactory, Func<S> servidorFactory, Func<X> proveedorFactory,Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
         {
+            this.clienteFactory = clienteFactory ?? throw new ArgumentNullException(nameof(clienteFactory));
+            this.servidorFactory = servidorFactory ?? throw new ArgumentNullException(nameof(servidorFactory));
+            this.proveedorFactory = proveedorFactory ?? throw new ArgumentNullException(nameof(proveedorFactory));
             this.conLogsParaDepuracion = conLogsParaDepuracion;
             totalBytesLeidos = 0;
             this.numeroConexionesSimultaneasCliente = numeroConexSimultaneas;
@@ -313,7 +324,7 @@ namespace ServerCore
 
             try
             {
-                estadoDelServidorBase = new S();
+                estadoDelServidorBase = servidorFactory();
             }
             catch (Exception ex)
             {
@@ -375,7 +386,8 @@ namespace ServerCore
             // de la conexiones simultaneas que se pueden esperar
             for (Int32 i = 0; i < this.numeroConexionesSimultaneasCliente; i++)
             {
-                T estadoDelCliente = new T();
+                //T estadoDelCliente = new T();
+                T estadoDelCliente =clienteFactory();
                 estadoDelCliente.InicializarEstadoDelClienteBase();
 
                 saeaDeEnvioRecepcionCliente = new SocketAsyncEventArgs();
@@ -405,7 +417,7 @@ namespace ServerCore
 
 
                 //Ahora genero la pila de estados para el proveedor
-                X estadoDelProveedor = new X();
+                X estadoDelProveedor = proveedorFactory();
                 estadoDelProveedor.InicializarEstadoDelProveedorBase();
 
                 SocketAsyncEventArgs saeaDeEnvioRecepcionAlProveedor;
