@@ -58,6 +58,8 @@ using System.Runtime.InteropServices;
 //@UMB      20/07/22    9.0.3.0     Se le agrega una validación de nulidad sobre el SocketAsyncEventArgs  en ConexionProveedorCallBack
 //@UMB      28/07/22    9.1.0.0     Mejora en el rendimiento, colocando la escritura de logs en Tasks
 //@UMB      28/07/22    9.1.0.1     Se le quita la ofuscación para encontrar un error     
+//@UMB      14/08/25    9.2.0.0     Mejoras en la administración de memoria y liberación de recursos
+//@UMB      15/08/25    9.2.1.0     Se limpian los buffers después de cada uso al cerrar la conexión
 
-[assembly: AssemblyVersion("9.1.0.1")]
-[assembly: AssemblyFileVersion("9.1.0.1")]
+[assembly: AssemblyVersion("9.2.1.0")]
+[assembly: AssemblyFileVersion("9.2.1.0")]

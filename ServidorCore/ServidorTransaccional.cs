@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using static ServerCore.Configuracion;
 using static ServerCore.Utileria;
 
@@ -301,7 +300,7 @@ namespace ServerCore
         /// <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
         /// <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
         /// <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
-        public ServidorTransaccional(Func<T> clienteFactory, Func<S> servidorFactory, Func<X> proveedorFactory,Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
+        public ServidorTransaccional(Func<T> clienteFactory, Func<S> servidorFactory, Func<X> proveedorFactory, Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100, bool conLogsParaDepuracion = false)
         {
             this.clienteFactory = clienteFactory ?? throw new ArgumentNullException(nameof(clienteFactory));
             this.servidorFactory = servidorFactory ?? throw new ArgumentNullException(nameof(servidorFactory));
@@ -387,7 +386,7 @@ namespace ServerCore
             for (Int32 i = 0; i < this.numeroConexionesSimultaneasCliente; i++)
             {
                 //T estadoDelCliente = new T();
-                T estadoDelCliente =clienteFactory();
+                T estadoDelCliente = clienteFactory();
                 estadoDelCliente.InicializarEstadoDelClienteBase();
 
                 saeaDeEnvioRecepcionCliente = new SocketAsyncEventArgs();
@@ -517,7 +516,7 @@ namespace ServerCore
             {
                 EscribirLog(ex.Message + ". IniciarAceptaciones", tipoLog.ERROR);
                 // se hace un último intento para volver a iniciar el servidor por si el error fue una excepción al empezar la aceptación
-                //IniciarAceptaciones(saeaAceptarConexion);
+                IniciarAceptaciones(saeaAceptarConexion);
             }
         }
 
@@ -557,6 +556,13 @@ namespace ServerCore
             estadoDelCliente.IngresarReferenciaSocketPrincipal(this);
             // Del SAEA de aceptación de conexión, se recupera el socket para asignarlo al estado del cliente obtenido del pool de estados
             estadoDelCliente.socketDeTrabajo = saea.AcceptSocket;
+
+
+            //Se establece el buffer que se utilizará en la operación de lectura del cliente en el eventArgDeRecepcion
+            if (estadoDelCliente.saeaDeEnvioRecepcion.Buffer == null)
+                administradorBuffer.asignarBuffer(estadoDelCliente.saeaDeEnvioRecepcion);
+
+
             //  de la misma forma se ingresa la ip y puerto del cliente que se aceptó
             estadoDelCliente.IpCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Address.ToString();
             estadoDelCliente.PuertoCliente = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Port;
@@ -588,7 +594,7 @@ namespace ServerCore
             else
             {
                 EscribirLog("Timeout de 5 seg para obtener bloqueo en AceptarConexionCallBack, listaClientes", tipoLog.ALERTA);
-                // si no puedo ingresarlo en la lista de clientes debo rechazarlo porque no tendría control para manipularlo en un futuro
+                // si no puedo ingresarlo en la lista de clientes debo rechazarlo porque no tendría control para manipularlo en un futuro                
                 CerrarSocketCliente(estadoDelCliente);
                 // coloco nuevamente el socket en proceso de aceptación con el mismo saea para un reintento de conexión
                 this.IniciarAceptaciones(saea);
@@ -656,7 +662,7 @@ namespace ServerCore
                         else
                         {
                             //EscribirLog("No hay datos que recibir", tipoLog.ALERTA);
-                            // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión
+                            // si no hay datos por X razón, se cierra el cliente porque puede perdurar indefinidamente la conexión                            
                             CerrarSocketCliente(estadoDelCliente);
                         }
                     }
@@ -715,11 +721,11 @@ namespace ServerCore
                 EscribirLog("Error al intentar hacer un interbloqueo, ProcesarRecepcion, para ingresar la fecha de inicio del cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
             }
 
-            
+
             SocketAsyncEventArgs saeaDeEnvioRecepcion = estadoDelCliente.saeaDeEnvioRecepcion;
             // se obtienen los bytes que han sido recibidos
             Int32 bytesTransferred = saeaDeEnvioRecepcion.BytesTransferred;
-            
+
             // se obtiene el mensaje y se decodifica para entenderlo
             string mensajeRecibido = Encoding.ASCII.GetString(saeaDeEnvioRecepcion.Buffer, saeaDeEnvioRecepcion.Offset, bytesTransferred);
 
@@ -769,7 +775,7 @@ namespace ServerCore
             catch (Exception ex)
             {
                 EscribirLog("Error al procesar la trama al llamar la función estadoDelCliente.ProcesarTrama" + ex.Message + ". Del cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.ERROR);
-            }            
+            }
 
             if (SeVencioTO(estadoDelCliente))
             {
@@ -814,6 +820,12 @@ namespace ServerCore
                             // ingreso la información de peticion para llenar las clases al proveedor
                             estadoDelProveedor.IngresarObjetoPeticionCliente(estadoDelCliente.objSolicitud);
                             estadoDelProveedor.estadoDelClienteOrigen = estadoDelCliente;
+
+                            //Se establece el buffer que se utilizará en la operación de lectura del cliente en el eventArgDeRecepcion
+                            if (estadoDelProveedor.saeaDeEnvioRecepcion.Buffer == null)
+                                administradorBuffer.asignarBuffer(estadoDelProveedor.saeaDeEnvioRecepcion);
+
+
                             //por seguridad, se coloca la bandera de vencimiento por TimeOut en false
                             estadoDelProveedor.ReinicioBanderaTimeOut();
 
@@ -940,17 +952,17 @@ namespace ServerCore
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
         private void ResponderAlCliente(T estadoDelCliente)
         {
-            
+
             if (estadoDelCliente == null || estadoDelCliente.seEstaRespondiendo)
             {
                 return;
             }
 
             estadoDelCliente.SeEstaProcesandoRespuesta();
-                        
+
             // trato de obtener la trama que se le responderá al cliente
             estadoDelCliente.ObtenerTramaRespuesta();
-            
+
             // Si ya se cuenta con una respuesta(s) para el cliente
             if (estadoDelCliente.tramaRespuesta != "")
             {
@@ -1143,6 +1155,11 @@ namespace ServerCore
             estadoDelServidorBase.OnClienteCerrado(estadoDelCliente);
 
             // se libera la instancia de socket de trabajo para reutilizarlo
+            // Antes de liberar el cliente al pool, libera el buffer
+            if (estadoDelCliente.saeaDeEnvioRecepcion != null)
+            {
+                administradorBuffer.LiberarBuffer(estadoDelCliente.saeaDeEnvioRecepcion);
+            }
             adminEstadosCliente.ingresarUnElemento(estadoDelCliente);
             // se marca el semáforo de que puede aceptar otro cliente
 
@@ -1168,7 +1185,7 @@ namespace ServerCore
             {
                 EscribirLog(ex.Message + ", CerrarConexionForzadaCliente, shutdown", tipoLog.ERROR);
             }
-            
+
 
             //this.semaforoParaAceptarClientes.Release();
         }
@@ -1291,7 +1308,7 @@ namespace ServerCore
                     estadoDelProveedor.saeaDeEnvioRecepcion.SetBuffer(estadoDelProveedor.saeaDeEnvioRecepcion.Offset, numeroDeBytes);
 
                     //140824 se valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
-                    if(!ValidateTimeRemaining(estadoDelProveedor))
+                    if (!ValidateTimeRemaining(estadoDelProveedor))
                     {
                         throw new Exception("No hay tiempo restante para enviar la trama al proveedor");
                     }
@@ -1311,11 +1328,11 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + "ConexionProveedorCallBack, iniciando conexión con el proveedor, cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                EscribirLog(ex.Message + ". ConexionProveedorCallBack, iniciando conexión con el proveedor, " + ex.StackTrace + ", cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
                 estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.ErrorProcesoSockets;
                 estadoDelProveedor.codigoAutorizacion = 0;
                 estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
-                estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;                
+                estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
                 ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
                 CerrarSocketProveedor(estadoDelProveedor);
             }
@@ -1535,12 +1552,34 @@ namespace ServerCore
             }
 
             // se libera la instancia de socket de trabajo para reutilizarlo
+            if (estadoDelProveedor.saeaDeEnvioRecepcion != null)
+            {
+                administradorBuffer.LiberarBuffer(estadoDelProveedor.saeaDeEnvioRecepcion);
+            }
             adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
             // se marca el semáforo de que puede aceptar otro cliente
             if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneasProveedor)
             {
                 //EscribirLog("Se libera semaforoParaAceptarProveedores " + semaforoParaAceptarProveedores.CurrentCount.ToString() + ", para el cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
                 this.semaforoParaAceptarProveedores.Release();
+            }
+
+            bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
+            if (seSincronzo)
+            {
+                if (estadoDelProveedor.providerTimer != null)
+                {
+                    try
+                    {
+                        estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                        estadoDelProveedor.providerTimer.Dispose();
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+                Monitor.Exit(estadoDelProveedor);
             }
         }
 
@@ -1684,6 +1723,7 @@ namespace ServerCore
                     {
                         estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
                         estadoDelProveedor.providerTimer.Dispose();
+                        estadoDelProveedor.providerTimer = null;
                     }
                     else if (SeVencioTO((T)estadoDelProveedor.estadoDelClienteOrigen))
                     {
@@ -1696,6 +1736,7 @@ namespace ServerCore
 
                         estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
                         estadoDelProveedor.providerTimer.Dispose();
+                        estadoDelProveedor.providerTimer = null;
 
                         estadoDelProveedor.codigoRespuesta = (int)CodigosRespuesta.SinRespuestaCarrier;
                         estadoDelProveedor.codigoAutorizacion = 0;
@@ -1733,7 +1774,7 @@ namespace ServerCore
                     if (estadoDelProveedor.estadoDelClienteOrigen.timeOut - timeSpan.Seconds > 25)
                         hasEnoughTime = true;
                     else
-                        hasEnoughTime=false;
+                        hasEnoughTime = false;
                     Monitor.Exit(estadoDelProveedor);
                 }
                 return hasEnoughTime;
