@@ -60,6 +60,7 @@ using System.Runtime.InteropServices;
 //@UMB      28/07/22    9.1.0.1     Se le quita la ofuscación para encontrar un error     
 //@UMB      14/08/25    9.2.0.0     Mejoras en la administración de memoria y liberación de recursos
 //@UMB      15/08/25    9.2.1.0     Se limpian los buffers después de cada uso al cerrar la conexión
+//@UMB      21/08/25    10.0.0.0    Se validan todas las fugas de memoria y se optimiza el uso de recursos, se agrega un nuevo log para el cierre de conexiones
 
-[assembly: AssemblyVersion("9.2.1.0")]
-[assembly: AssemblyFileVersion("9.2.1.0")]
+[assembly: AssemblyVersion("10.0.0.0")]
+[assembly: AssemblyFileVersion("10.0.0.0")]

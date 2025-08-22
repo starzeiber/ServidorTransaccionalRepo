@@ -1159,6 +1159,9 @@ namespace ServerCore
             if (estadoDelCliente.saeaDeEnvioRecepcion != null)
             {
                 administradorBuffer.LiberarBuffer(estadoDelCliente.saeaDeEnvioRecepcion);
+                //estadoDelCliente.saeaDeEnvioRecepcion.Completed -= RecepcionEnvioEntranteCallBack;
+                estadoDelCliente.saeaDeEnvioRecepcion.UserToken = null;
+                estadoDelCliente.saeaDeEnvioRecepcion.AcceptSocket = null;
             }
             adminEstadosCliente.ingresarUnElemento(estadoDelCliente);
             // se marca el semáforo de que puede aceptar otro cliente
@@ -1520,66 +1523,85 @@ namespace ServerCore
         /// </summary>
         public void CerrarSocketProveedor(X estadoDelProveedor)
         {
-            // Se comprueba que la información del socket de trabajo sea null, ya que podría ser invocado como resultado 
-            // de una operación de E / S sin valores
-            if (estadoDelProveedor == null) return;
-
-            if (estadoDelProveedor.socketDeTrabajo == null) return;
-
-            // se obtiene el socket específico del cliente en cuestión
-            Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
-
-            if (socketDeTrabajoACerrar.Connected)
+            try
             {
-                // se inhabilita y se cierra dicho socket
-                try
+                // Se comprueba que la información del socket de trabajo sea null, ya que podría ser invocado como resultado 
+                // de una operación de E / S sin valores
+                if (estadoDelProveedor == null) return;
+
+                if (estadoDelProveedor.socketDeTrabajo == null) return;
+
+                // se obtiene el socket específico del cliente en cuestión
+                Socket socketDeTrabajoACerrar = estadoDelProveedor.socketDeTrabajo;
+
+                if (socketDeTrabajoACerrar.Connected)
                 {
-                    socketDeTrabajoACerrar.Shutdown(SocketShutdown.Both);
-                }
-                catch (Exception ex)
-                {
-                    EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                    // se inhabilita y se cierra dicho socket
+                    try
+                    {
+                        socketDeTrabajoACerrar.Shutdown(SocketShutdown.Both);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog(ex.Message + " en CerrarSocketProveedor, shutdown de envio el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                    }
+
+                    try
+                    {
+                        socketDeTrabajoACerrar.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                    }
                 }
 
-                try
+                // se libera la instancia de socket de trabajo para reutilizarlo
+                if (estadoDelProveedor.saeaDeEnvioRecepcion != null)
                 {
-                    socketDeTrabajoACerrar.Close();
+                    administradorBuffer.LiberarBuffer(estadoDelProveedor.saeaDeEnvioRecepcion);
+                    //estadoDelProveedor.saeaDeEnvioRecepcion.Completed -= RecepcionEnvioSalienteCallBack;
+                    estadoDelProveedor.saeaDeEnvioRecepcion.UserToken = null;
+                    estadoDelProveedor.saeaDeEnvioRecepcion.AcceptSocket = null;
                 }
-                catch (Exception ex)
+                adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
+                // se marca el semáforo de que puede aceptar otro cliente
+                if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneasProveedor)
                 {
-                    EscribirLog(ex.Message + " en CerrarSocketProveedor, close el socket de trabajo del proveedor " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ERROR);
+                    //EscribirLog("Se libera semaforoParaAceptarProveedores " + semaforoParaAceptarProveedores.CurrentCount.ToString() + ", para el cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
+                    this.semaforoParaAceptarProveedores.Release();
+                }
+
+                bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
+                if (seSincronzo)
+                {
+                    if (estadoDelProveedor.providerTimer != null)
+                    {
+                        try
+                        {
+                            estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                            estadoDelProveedor.providerTimer.Dispose();
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+                    Monitor.Exit(estadoDelProveedor);
                 }
             }
-
-            // se libera la instancia de socket de trabajo para reutilizarlo
-            if (estadoDelProveedor.saeaDeEnvioRecepcion != null)
+            catch (Exception)
             {
-                administradorBuffer.LiberarBuffer(estadoDelProveedor.saeaDeEnvioRecepcion);
-            }
-            adminEstadosDeProveedor.ingresarUnElemento(estadoDelProveedor);
-            // se marca el semáforo de que puede aceptar otro cliente
-            if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneasProveedor)
-            {
-                //EscribirLog("Se libera semaforoParaAceptarProveedores " + semaforoParaAceptarProveedores.CurrentCount.ToString() + ", para el cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
-                this.semaforoParaAceptarProveedores.Release();
-            }
 
-            bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
-            if (seSincronzo)
+                throw;
+            }
+            finally
             {
                 if (estadoDelProveedor.providerTimer != null)
                 {
-                    try
-                    {
-                        estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                        estadoDelProveedor.providerTimer.Dispose();
-                    }
-                    catch (Exception)
-                    {
-
-                    }
+                    estadoDelProveedor.providerTimer.Dispose();
+                    estadoDelProveedor.providerTimer = null;
                 }
-                Monitor.Exit(estadoDelProveedor);
             }
         }
 
@@ -1713,9 +1735,10 @@ namespace ServerCore
         /// <param name="state"></param>
         private void TickTimer(object state)
         {
+            X estadoDelProveedor = (X)state;
             try
             {
-                X estadoDelProveedor = (X)state;
+                
                 bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
                 if (seSincronzo)
                 {
@@ -1751,7 +1774,13 @@ namespace ServerCore
             catch (Exception ex)
             {
                 EscribirLog("TickTimer, " + ex.Message, tipoLog.ERROR, true);
+                if (estadoDelProveedor.providerTimer != null)
+                {
+                    estadoDelProveedor.providerTimer.Dispose();
+                    estadoDelProveedor.providerTimer = null;
+                }
             }
+
         }
 
         /// <summary>
@@ -1857,73 +1886,148 @@ namespace ServerCore
         /// </summary>
         public void DetenerServidor()
         {
-            // se indica que se está ejecutando el proceso de desconexión de los clientes
-            desconectando = true;
-            List<T> listaDeClientesEliminar = new List<T>();
+            //// se indica que se está ejecutando el proceso de desconexión de los clientes
+            //desconectando = true;
+            //List<T> listaDeClientesEliminar = new List<T>();
 
-            //// Primero se detiene y se cierra el socket de escucha
-            //try
-            //{
-            //    if (this.socketDeEscucha != null && this.socketDeEscucha.Connected)
-            //    {
-            //        // Solo se apaga si está conectado y no está enviando datos
-            //        if (!this.socketDeEscucha.Poll(0, SelectMode.SelectWrite))
-            //        {
-            //            this.socketDeEscucha.Shutdown(SocketShutdown.Send);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
-            //}
+            ////// Primero se detiene y se cierra el socket de escucha
+            ////try
+            ////{
+            ////    if (this.socketDeEscucha != null && this.socketDeEscucha.Connected)
+            ////    {
+            ////        // Solo se apaga si está conectado y no está enviando datos
+            ////        if (!this.socketDeEscucha.Poll(0, SelectMode.SelectWrite))
+            ////        {
+            ////            this.socketDeEscucha.Shutdown(SocketShutdown.Send);
+            ////        }
+            ////    }
+            ////}
+            ////catch (Exception ex)
+            ////{
+            ////    EscribirLog(ex.Message + " en detenerServidor.Shutdown", tipoLog.ERROR);
+            ////}
 
+            ////try
+            ////{
+            ////    if (this.socketDeEscucha != null)
+            ////    {
+            ////        this.socketDeEscucha.Close();
+            ////    }
+            ////}
+            ////catch (Exception ex)
+            ////{
+            ////    EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);                
+            ////}
+            //// Refactorización del bloque para simplificar y mejorar la robustez del cierre del socket de escucha
             //try
             //{
             //    if (this.socketDeEscucha != null)
             //    {
+            //        if (this.socketDeEscucha.Connected)
+            //        {
+            //            // Solo se apaga si está conectado y no está enviando datos
+            //            if (!this.socketDeEscucha.Poll(0, SelectMode.SelectWrite))
+            //            {
+            //                this.socketDeEscucha.Shutdown(SocketShutdown.Send);
+            //            }
+            //        }
             //        this.socketDeEscucha.Close();
             //    }
             //}
             //catch (Exception ex)
             //{
-            //    EscribirLog(ex.Message + " en detenerServidor.Close", tipoLog.ERROR);                
+            //    EscribirLog(ex.Message + " en detenerServidor (Shutdown/Close)", tipoLog.ERROR);
             //}
-            // Refactorización del bloque para simplificar y mejorar la robustez del cierre del socket de escucha
+
+            //// se recorre la lista de clientes conectados y se adiciona a la lista de clientes para desconectar
+            //foreach (T socketDeTrabajoPorCliente in listaClientes.Values)
+            //{
+            //    listaDeClientesEliminar.Add(socketDeTrabajoPorCliente);
+            //}
+
+            //// luego se cierran las conexiones de los clientes en la lista anterior
+            //foreach (T socketDeTrabajoPorCliente in listaDeClientesEliminar)
+            //{
+            //    CerrarConexionForzadaCliente(socketDeTrabajoPorCliente.socketDeTrabajo);
+            //}
+            //// se limpia la lista
+            //listaDeClientesEliminar.Clear();
+            //listaClientes.Clear();
+            //enEjecucion = false;
+            //desconectando = false;
+
+
+            desconectando = true;
+
+            // Cerrar y liberar todos los clientes
+            foreach (T cliente in listaClientes.Values)
+            {
+                try
+                {
+                    // Cerrar socket
+                    cliente.socketDeTrabajo?.Shutdown(SocketShutdown.Both);
+                    cliente.socketDeTrabajo?.Close();
+
+                    // Liberar buffer y referencias
+                    if (cliente.saeaDeEnvioRecepcion != null)
+                    {
+                        administradorBuffer.LiberarBuffer(cliente.saeaDeEnvioRecepcion);
+                        cliente.saeaDeEnvioRecepcion.UserToken = null;
+                        cliente.saeaDeEnvioRecepcion.AcceptSocket = null;
+                        // Si no se reutiliza, puedes llamar a Dispose()
+                        //cliente.saeaDeEnvioRecepcion.Dispose();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    EscribirLog(ex.Message + " al liberar cliente en DetenerServidor", tipoLog.ERROR);
+                }
+            }
+            listaClientes.Clear();
+
+            // Cerrar y liberar todos los proveedores (si tienes una lista)
+            if (listaProveedoresPendientesDesconexion != null)
+            {
+                foreach (X proveedor in listaProveedoresPendientesDesconexion)
+                {
+                    try
+                    {
+                        proveedor.socketDeTrabajo?.Shutdown(SocketShutdown.Both);
+                        proveedor.socketDeTrabajo?.Close();
+
+                        if (proveedor.saeaDeEnvioRecepcion != null)
+                        {
+                            administradorBuffer.LiberarBuffer(proveedor.saeaDeEnvioRecepcion);
+                            proveedor.saeaDeEnvioRecepcion.UserToken = null;
+                            proveedor.saeaDeEnvioRecepcion.AcceptSocket = null;
+                            // proveedor.saeaDeEnvioRecepcion.Dispose();
+                        }
+
+                        proveedor.providerTimer?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        EscribirLog(ex.Message + " al liberar proveedor en DetenerServidor", tipoLog.ERROR);
+                    }
+                }
+                listaProveedoresPendientesDesconexion.Clear();
+            }
+
+            // Liberar el socket de escucha
             try
             {
-                if (this.socketDeEscucha != null)
-                {
-                    if (this.socketDeEscucha.Connected)
-                    {
-                        // Solo se apaga si está conectado y no está enviando datos
-                        if (!this.socketDeEscucha.Poll(0, SelectMode.SelectWrite))
-                        {
-                            this.socketDeEscucha.Shutdown(SocketShutdown.Send);
-                        }
-                    }
-                    this.socketDeEscucha.Close();
-                }
+                socketDeEscucha?.Shutdown(SocketShutdown.Both);
+                socketDeEscucha?.Close();
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + " en detenerServidor (Shutdown/Close)", tipoLog.ERROR);
+                EscribirLog(ex.Message + " al cerrar socket de escucha en DetenerServidor", tipoLog.ERROR);
             }
 
-            // se recorre la lista de clientes conectados y se adiciona a la lista de clientes para desconectar
-            foreach (T socketDeTrabajoPorCliente in listaClientes.Values)
-            {
-                listaDeClientesEliminar.Add(socketDeTrabajoPorCliente);
-            }
+            // Liberar PerformanceCounter
+            peformanceConexionesEntrantes?.Dispose();
 
-            // luego se cierran las conexiones de los clientes en la lista anterior
-            foreach (T socketDeTrabajoPorCliente in listaDeClientesEliminar)
-            {
-                CerrarConexionForzadaCliente(socketDeTrabajoPorCliente.socketDeTrabajo);
-            }
-            // se limpia la lista
-            listaDeClientesEliminar.Clear();
-            listaClientes.Clear();
+
             enEjecucion = false;
             desconectando = false;
         }
