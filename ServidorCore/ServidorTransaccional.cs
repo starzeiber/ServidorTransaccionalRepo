@@ -643,7 +643,7 @@ namespace ServerCore
             // se comprueba que el estado haya sido obtenido correctamente
             if (!(saea.UserToken is T estadoDelCliente))
             {
-                EscribirLog("estadoDelCliente recibido es inválido para la operacion", tipoLog.ERROR);
+                EscribirLog("estadoDelCliente recibido es inválido para la operacion.", tipoLog.ERROR);
                 return;
             }
 
@@ -714,7 +714,12 @@ namespace ServerCore
             if (bloqueo)
             {
                 estadoDelCliente.fechaInicioTrx = DateTime.Now;
-                EscribirLog("Se coloca la fecha de recepción " + estadoDelCliente.fechaInicioTrx + " al cliente: " + estadoDelCliente.IdUnicoCliente, tipoLog.INFORMACION, true);
+                var sb = new StringBuilder();
+                sb.Append("Se coloca la fecha de recepción ");
+                sb.Append(estadoDelCliente.fechaInicioTrx);
+                sb.Append(" al cliente: ");
+                sb.Append(estadoDelCliente.IdUnicoCliente);
+                EscribirLog(sb.ToString(), tipoLog.INFORMACION, true);
             }
             else
             {
@@ -952,7 +957,6 @@ namespace ServerCore
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
         private void ResponderAlCliente(T estadoDelCliente)
         {
-
             if (estadoDelCliente == null || estadoDelCliente.seEstaRespondiendo)
             {
                 return;
@@ -1059,7 +1063,6 @@ namespace ServerCore
         /// <param name="estadoDelCliente">Objeto con la información y socket de trabajo de cliente</param>
         private void ProcesarRecepcionEnvioCiclicoCliente(T estadoDelCliente)
         {
-
             // Una vez terminado el envio, se continua escuchando por el Socket de trabajo
             try
             {
@@ -1145,6 +1148,7 @@ namespace ServerCore
             try
             {
                 socketDeTrabajoACerrar.Close();
+                socketDeTrabajoACerrar.Dispose();
             }
             catch (Exception ex)
             {
@@ -1160,7 +1164,7 @@ namespace ServerCore
             {
                 administradorBuffer.LiberarBuffer(estadoDelCliente.saeaDeEnvioRecepcion);
                 //estadoDelCliente.saeaDeEnvioRecepcion.Completed -= RecepcionEnvioEntranteCallBack;
-                estadoDelCliente.saeaDeEnvioRecepcion.UserToken = null;
+                //estadoDelCliente.saeaDeEnvioRecepcion.UserToken = null;
                 estadoDelCliente.saeaDeEnvioRecepcion.AcceptSocket = null;
             }
             adminEstadosCliente.ingresarUnElemento(estadoDelCliente);
@@ -1168,7 +1172,6 @@ namespace ServerCore
 
             if (semaforoParaAceptarClientes.CurrentCount < numeroConexionesSimultaneasCliente)
             {
-                //EscribirLog("Se libera semaforoParaAceptarClientes " + semaforoParaAceptarClientes.CurrentCount.ToString() + ", para el cliente " + estadoDelCliente.IdUnicoCliente, tipoLog.ALERTA);
                 semaforoParaAceptarClientes.Release();
             }
         }
@@ -1549,6 +1552,7 @@ namespace ServerCore
                     try
                     {
                         socketDeTrabajoACerrar.Close();
+                        socketDeTrabajoACerrar.Dispose();
                     }
                     catch (Exception ex)
                     {
@@ -1568,7 +1572,6 @@ namespace ServerCore
                 // se marca el semáforo de que puede aceptar otro cliente
                 if (this.semaforoParaAceptarProveedores.CurrentCount < this.numeroConexionesSimultaneasProveedor)
                 {
-                    //EscribirLog("Se libera semaforoParaAceptarProveedores " + semaforoParaAceptarProveedores.CurrentCount.ToString() + ", para el cliente " + estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente, tipoLog.ALERTA);
                     this.semaforoParaAceptarProveedores.Release();
                 }
 
@@ -1589,6 +1592,8 @@ namespace ServerCore
                     }
                     Monitor.Exit(estadoDelProveedor);
                 }
+
+                //TODO implementar la lista de proveedores conectados
             }
             catch (Exception)
             {
@@ -1738,7 +1743,7 @@ namespace ServerCore
             X estadoDelProveedor = (X)state;
             try
             {
-                
+
                 bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
                 if (seSincronzo)
                 {
@@ -1799,11 +1804,12 @@ namespace ServerCore
                 if (seSincronzo)
                 {
                     TimeSpan timeSpan = DateTime.Now - estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx;
-                    EscribirLog($"fechaDeComprobacion:{DateTime.Now} - fechaInicioTrx:{estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx}, dan{timeSpan.Seconds} segundos de diferencia. El timeout establecido:{estadoDelProveedor.estadoDelClienteOrigen.timeOut} - los {timeSpan.Seconds} segundos transcurridos:{estadoDelProveedor.estadoDelClienteOrigen.timeOut - timeSpan.Seconds} segundos restantes. cliente:{estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente}", tipoLog.ALERTA, false);
+                    EscribirLog($"fechaDeComprobacion: {DateTime.Now} - fechaInicioTrx: {estadoDelProveedor.estadoDelClienteOrigen.fechaInicioTrx}, resultado: {timeSpan.Seconds} segundos de transcurridos. El timeout establecido es de: {estadoDelProveedor.estadoDelClienteOrigen.timeOut} - {timeSpan.Seconds} segundos transcurridos: {estadoDelProveedor.estadoDelClienteOrigen.timeOut - timeSpan.Seconds} segundos restantes. cliente:{estadoDelProveedor.estadoDelClienteOrigen.IdUnicoCliente}", tipoLog.ALERTA, false);
                     if (estadoDelProveedor.estadoDelClienteOrigen.timeOut - timeSpan.Seconds > 25)
                         hasEnoughTime = true;
                     else
-                        hasEnoughTime = false;
+                        EscribirLog("No es tiempo suficiente para completar la transacción", tipoLog.ALERTA);
+                    hasEnoughTime = false;
                     Monitor.Exit(estadoDelProveedor);
                 }
                 return hasEnoughTime;
@@ -2092,6 +2098,7 @@ namespace ServerCore
                         break;
                 }
             }
+            Trace.Flush();
         }
 
         /// <summary>

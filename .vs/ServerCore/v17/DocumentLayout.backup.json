@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\estadodelproveedorbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\estadodelproveedorbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\estadodelclientebase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\estadodelclientebase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,6 +47,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:1:0:{dcc4ea97-1c0c-482b-b205-e541c0df9728}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EstadoDelProveedorBase.cs",
+              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\EstadoDelProveedorBase.cs",
+              "RelativeDocumentMoniker": "ServidorCore\\EstadoDelProveedorBase.cs",
+              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\EstadoDelProveedorBase.cs",
+              "RelativeToolTip": "ServidorCore\\EstadoDelProveedorBase.cs",
+              "ViewState": "AgIAALMAAAAAAAAAAAAUwP8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T18:57:07.758Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EstadoDelClienteBase.cs",
+              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\EstadoDelClienteBase.cs",
+              "RelativeDocumentMoniker": "ServidorCore\\EstadoDelClienteBase.cs",
+              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\EstadoDelClienteBase.cs",
+              "RelativeToolTip": "ServidorCore\\EstadoDelClienteBase.cs",
+              "ViewState": "AgIAAL8AAAAAAAAAAAAowOkAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T18:48:47.637Z",
+              "EditorCaption": ""
             }
           ]
         }

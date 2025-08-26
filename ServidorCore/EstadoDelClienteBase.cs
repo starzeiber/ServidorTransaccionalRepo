@@ -9,7 +9,7 @@ namespace ServerCore
     /// Clase contiene toda la información relevante de un cliente así como un socket
     /// que será el de trabajo para el envío y recepción de mensajes
     /// </summary>
-    public class EstadoDelClienteBase
+    public class EstadoDelClienteBase : IDisposable
     {
         /// <summary>
         /// Identificador único para un cliente
@@ -103,6 +103,7 @@ namespace ServerCore
         public string msg230 = "";
 
         private readonly object objetoDeBloqueo = new object();
+        private bool disposed = false;
 
 
         /// <summary>
@@ -121,18 +122,42 @@ namespace ServerCore
         /// </summary>
         public virtual void InicializarEstadoDelClienteBase()
         {
+            // Liberar y limpiar el socket si existe
+            if (socketDeTrabajo != null)
+            {
+                try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
+                try { socketDeTrabajo.Close(); } catch { }
+                try { socketDeTrabajo.Dispose(); } catch { }
+                socketDeTrabajo = null;
+            }
+
+            // Limpiar el buffer del SAEA si aplica
+            if (saeaDeEnvioRecepcion != null)
+            {
+                saeaDeEnvioRecepcion.AcceptSocket = null;
+                //No puedo liberar el buffer porque lo administra el core
+                //saeaDeEnvioRecepcion.UserToken = null;
+                // El buffer se libera en el core con AdminBuffer.LiberarBuffer
+            }
+
+            // Limpiar otros datos de sesión
             IdUnicoCliente = Guid.NewGuid();
-            referenciaSocketPrincipal = null;
-            tramaRespuesta = "";
             esperandoEnvio.Set();
-            socketDeTrabajo = null;
-            codigoRespuesta = 0;
-            codigoAutorizacion = 0;
+            tramaRespuesta = "";
             objSolicitud = null;
             objRespuesta = null;
+            objSolicitudProveedor = null;
+            objRespuestaProveedor = null;
+            codigoRespuesta = 0;
+            codigoAutorizacion = 0;
+            fechaInicioTrx = DateTime.Now;
             timeOut = Configuracion.timeOutCliente;
             esConsulta = false;
-            //este no porque hay una función con lock para hacerlo seEstaRespondiendo = false;
+            seEstaRespondiendo = false;
+            idTrxBD = 0;
+            msg210 = "";
+            msg230 = "";
+            referenciaSocketPrincipal = null;
         }
 
         /// <summary>
@@ -186,6 +211,57 @@ namespace ServerCore
         {
             lock (objetoDeBloqueo)
                 if (seEstaRespondiendo) seEstaRespondiendo = false;
+        }
+
+        /// <summary>
+        /// Releases the resources used by the current instance of the class.
+        /// </summary>
+        /// <remarks>This method should be called when the instance is no longer needed to free up
+        /// resources.  After calling this method, the instance should not be used.</remarks>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the object and, optionally, releases the managed resources.
+        /// </summary>
+        /// <remarks>This method is called by the public <c>Dispose</c> method and the finalizer. When
+        /// <paramref name="disposing"/> is <see langword="true"/>, this method releases all resources held by managed
+        /// objects that the object references. Override this method in a derived class to release additional
+        /// resources.</remarks>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release
+        /// only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    saeaDeEnvioRecepcion?.Dispose();
+                    saeaDeEnvioRecepcion = null;
+
+                    if (socketDeTrabajo != null)
+                    {
+                        try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
+                        socketDeTrabajo.Close();
+                        socketDeTrabajo.Dispose();
+                        socketDeTrabajo = null;
+                    }
+                }
+                disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Finalizes the instance of the <see cref="EstadoDelClienteBase"/> class.
+        /// </summary>
+        /// <remarks>This destructor ensures that unmanaged resources are released by calling the <see
+        /// cref="Dispose(bool)"/> method.</remarks>
+        ~EstadoDelClienteBase()
+        {
+            Dispose(false);
         }
     }
 }

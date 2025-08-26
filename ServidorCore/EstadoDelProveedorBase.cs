@@ -8,7 +8,7 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
     /// </summary>
-    public class EstadoDelProveedorBase
+    public class EstadoDelProveedorBase : IDisposable
     {
 
         /// <summary>
@@ -72,7 +72,11 @@ namespace ServerCore
         public object objRespuesta;
 
 
-
+        /// <summary>
+        /// Represents a timer used to trigger events or actions at specified intervals.
+        /// </summary>
+        /// <remarks>This timer can be used to schedule recurring tasks or delayed actions. Ensure proper
+        /// disposal of the timer to release resources when it is no longer needed.</remarks>
         public Timer providerTimer;
 
         /// <summary>
@@ -85,6 +89,11 @@ namespace ServerCore
 
 
         internal IPEndPoint endPoint;
+
+
+        private bool disposed = false;
+
+
 
         /// <summary>
         /// Constructor
@@ -101,8 +110,33 @@ namespace ServerCore
         /// </summary>
         public virtual void InicializarEstadoDelProveedorBase()
         {
+            // Liberar y limpiar el socket si existe
+            if (socketDeTrabajo != null)
+            {
+                try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
+                try { socketDeTrabajo.Close(); } catch { }
+                try { socketDeTrabajo.Dispose(); } catch { }
+                socketDeTrabajo = null;
+            }
+
+            // Limpiar el buffer del SAEA si aplica
+            if (saeaDeEnvioRecepcion != null)
+            {
+                saeaDeEnvioRecepcion.AcceptSocket = null;
+                //No puedo liberar el buffer porque lo administra el core
+                //saeaDeEnvioRecepcion.UserToken = null;
+                // El buffer se libera en el core con AdminBuffer.LiberarBuffer
+            }
+
+            // Liberar y limpiar el timer si existe
+            if (providerTimer != null)
+            {
+                try { providerTimer.Dispose(); } catch { }
+                providerTimer = null;
+            }
+
+
             referenciaSocketPrincipal = null;
-            socketDeTrabajo = null;
             codigoRespuesta = 0;
             codigoAutorizacion = 0;
             tramaSolicitud = "";
@@ -110,6 +144,8 @@ namespace ServerCore
             estadoDelClienteOrigen = null;
             objSolicitud = null;
             objRespuesta = null;
+            endPoint = null;
+
         }
 
         /// <summary>
@@ -163,6 +199,11 @@ namespace ServerCore
 
         }
 
+        /// <summary>
+        /// Marks the operation as timed out if it has not already been marked.
+        /// </summary>
+        /// <remarks>This method is thread-safe and ensures that the timeout state is set only
+        /// once.</remarks>
         public void IndicarVencimientoPorTimeOut()
         {
             lock (objetoDeBloqueo)
@@ -170,10 +211,72 @@ namespace ServerCore
 
         }
 
+        /// <summary>
+        /// Resets the timeout flag to indicate that the timeout condition is no longer met.
+        /// </summary>
+        /// <remarks>This method is thread-safe and ensures that the timeout flag is reset only when it
+        /// has been set.  It should be called to clear the timeout state after handling a timeout condition.</remarks>
         public void ReinicioBanderaTimeOut()
         {
             lock (objetoDeBloqueo)
                 if (seVencioElTimeOut) seVencioElTimeOut = false;
         }
+
+        /// <summary>
+        /// Releases the resources used by the current instance of the class.
+        /// </summary>
+        /// <remarks>Call this method when you are finished using the object to release both managed and
+        /// unmanaged resources.  After calling <see cref="Dispose"/>, the object is in an unusable state and should not
+        /// be used further.</remarks>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases the resources used by the current instance of the class.
+        /// </summary>
+        /// <remarks>This method releases both managed and unmanaged resources. It is called by the public
+        /// <see cref="Dispose()"/> method and the finalizer. When the <paramref name="disposing"/> parameter is <see
+        /// langword="true"/>, this method releases all resources held by managed objects referenced by this instance.
+        /// Override this method in a derived class to release additional resources.</remarks>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release
+        /// only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Liberar recursos administrados
+                    if (saeaDeEnvioRecepcion != null)
+                    {
+                        saeaDeEnvioRecepcion.Dispose();
+                        saeaDeEnvioRecepcion = null;
+                    }
+                    if (socketDeTrabajo != null)
+                    {
+                        try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
+                        socketDeTrabajo.Close();
+                        socketDeTrabajo.Dispose();
+                        socketDeTrabajo = null;
+                    }
+                }
+                // Liberar recursos no administrados aquí si los hubiera
+                disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Finalizes the instance of the <see cref="EstadoDelProveedorBase"/> class.
+        /// </summary>
+        /// <remarks>This destructor ensures that unmanaged resources are released by calling the <see
+        /// cref="Dispose(bool)"/> method.</remarks>
+        ~EstadoDelProveedorBase()
+        {
+            Dispose(false);
+        }
+
     }
 }
