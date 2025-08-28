@@ -1,5 +1,7 @@
-﻿using System;
+﻿using NLog.Common;
+using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace ServerCore
 {
@@ -37,7 +39,10 @@ namespace ServerCore
         /// </summary>
         public virtual void OnInicio()
         {
-            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha iniciado el servidor");
+            var sb =new  StringBuilder();
+            sb.Append(DateTime.Now);
+            sb.Append(" - Iniciando servidor");
+            Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
         }
 
         /// <summary>
@@ -46,8 +51,14 @@ namespace ServerCore
         /// <param name="args"></param>
         public virtual void OnClienteCerrado(object args)
         {
-            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha desconectado el cliente: " + (args as EstadoDelClienteBase).IdUnicoCliente.ToString() +
-                ", desde la IP:" + (args as EstadoDelClienteBase).IpCliente);
+            var sb = new StringBuilder();
+            sb.Append(DateTime.Now);
+            sb.Append(" - Cerrando servidor");
+            sb.Append(" - Se ha desconectado el cliente: ");
+            sb.Append((args as EstadoDelClienteBase).IdUnicoCliente.ToString());
+            sb.Append(", desde la IP: ");
+            sb.Append((args as EstadoDelClienteBase).IpCliente);
+            Utileria.EscribirLog(sb.ToString(),Utileria.tipoLog.INFORMACION);
         }
 
         /// <summary>
@@ -63,8 +74,14 @@ namespace ServerCore
         /// <param name="args"></param>
         public virtual void OnAceptacion(object args)
         {
-            Trace.TraceInformation(DateTime.Now.ToString() + ". Se ha conectado el cliente: " + (args as EstadoDelClienteBase).IdUnicoCliente.ToString() +
-                ", desde la IP:" + (args as EstadoDelClienteBase).IpCliente);
+            var sb = new StringBuilder();
+            sb.Append(DateTime.Now);
+            sb.Append(" - Aceptando conexión");
+            sb.Append(" - Se ha conectado el cliente: ");
+            sb.Append((args as EstadoDelClienteBase).IdUnicoCliente.ToString());
+            sb.Append(", desde la IP: ");
+            sb.Append((args as EstadoDelClienteBase).IpCliente);
+            Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
         }
 
         /// <summary>

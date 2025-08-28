@@ -96,5 +96,28 @@
             ALERTA = 1,
             ERROR = 2
         }
+
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        internal static void EscribirLog(string mensaje, tipoLog tipoLog, bool porDepuracion = false)
+        {
+            if (porDepuracion) return;
+
+            switch (tipoLog)
+            {
+                case tipoLog.INFORMACION:
+                    logger.Info(mensaje);
+                    break;
+                case tipoLog.ALERTA:
+                    logger.Warn(mensaje);
+                    break;
+                case tipoLog.ERROR:
+                    logger.Error(mensaje);
+                    break;
+                default:
+                    logger.Debug(mensaje);
+                    break;
+            }
+        }
     }
 }

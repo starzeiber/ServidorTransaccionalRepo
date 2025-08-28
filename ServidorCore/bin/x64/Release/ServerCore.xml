@@ -650,14 +650,6 @@
             Se detiene el servidor
             </summary>
         </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.EscribirLog(System.String,ServerCore.Utileria.tipoLog,System.Boolean)">
-            <summary>
-            Funcion que el guardado de logs en el event log de windows
-            </summary>
-            <param name="mensaje"></param>
-            <param name="tipoLog"></param>
-            <param name="porDepuracion"></param>
-        </member>
         <member name="M:ServerCore.ServidorTransaccional`3.SeVencioTO(`0)">
             <summary>
             Verificación del tiempo de la transacción sobre el proceso del clente
