@@ -62,5 +62,5 @@ using System.Runtime.InteropServices;
 //@UMB      15/08/25    9.2.1.0     Se limpian los buffers después de cada uso al cerrar la conexión
 //@UMB      21/08/25    10.0.0.0    Se validan todas las fugas de memoria y se optimiza el uso de recursos, se agrega un nuevo log para el cierre de conexiones
 
-[assembly: AssemblyVersion("10.0.0.0")]
-[assembly: AssemblyFileVersion("10.0.0.0")]
+[assembly: AssemblyVersion("10.0.1.0")]
+[assembly: AssemblyFileVersion("10.0.1.0")]

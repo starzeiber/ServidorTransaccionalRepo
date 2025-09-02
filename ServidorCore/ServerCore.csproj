@@ -81,6 +81,7 @@
     <Compile Include="EstadoDelServidorBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EstadoDelClienteBase.cs" />
+    <Compile Include="SocketPool.cs" />
     <Compile Include="Utileria.cs" />
   </ItemGroup>
   <ItemGroup>

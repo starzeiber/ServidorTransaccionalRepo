@@ -72,7 +72,17 @@ namespace ServerCore
         /// </summary>
         public object objRespuesta;
 
+        /// <summary>
+        /// Represents the supplier request object.
+        /// </summary>
+        /// <remarks>This field is intended to store data related to a supplier request.  Ensure that the
+        /// object assigned to this field is of the expected type and structure.</remarks>
         public object objSolicitudProveedor;
+        /// <summary>
+        /// Represents the response object from a provider.
+        /// </summary>
+        /// <remarks>This property is intended to store the result or data returned by an external
+        /// provider.  The specific type and structure of the object depend on the provider's implementation.</remarks>
         public object objRespuestaProveedor;
 
         /// <summary>

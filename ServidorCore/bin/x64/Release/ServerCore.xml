@@ -459,11 +459,6 @@
             Tamaño del buffer por petición
             </summary>
         </member>
-        <member name="F:ServerCore.ServidorTransaccional`3.maxRetrasoParaEnvio">
-            <summary>
-            Retraso en el envío, es para uso en Debug
-            </summary>
-        </member>
         <member name="P:ServerCore.ServidorTransaccional`3.numeroDeRecursosDisponiblesCliente">
             <summary>
             Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del cliente
@@ -593,12 +588,12 @@
             </summary>
             <param name="socketCliente">The socket to close</param>
         </member>
-        <member name="M:ServerCore.ServidorTransaccional`3.ConexionProveedorCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
+        <member name="M:ServerCore.ServidorTransaccional`3.AceptarConexionProveedorCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Funcion callback para la conexión al proveedor
             </summary>
             <param name="sender"></param>
-            <param name="e"></param>
+            <param name="saea"></param>
         </member>
         <member name="M:ServerCore.ServidorTransaccional`3.RecepcionEnvioSalienteCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
@@ -933,6 +928,21 @@
             </summary>
             <remarks>This destructor ensures that unmanaged resources are released by calling the <see
             cref="M:ServerCore.EstadoDelClienteBase.Dispose(System.Boolean)"/> method.</remarks>
+        </member>
+        <member name="T:ServerCore.SocketPool">
+            <summary>
+            Pool de sockets TCP para reutilización eficiente de conexiones.
+            </summary>
+        </member>
+        <member name="M:ServerCore.SocketPool.Rent">
+            <summary>
+            Obtiene un socket del pool o crea uno nuevo si hay capacidad.
+            </summary>
+        </member>
+        <member name="M:ServerCore.SocketPool.Return(System.Net.Sockets.Socket)">
+            <summary>
+            Devuelve el socket al pool para reutilización.
+            </summary>
         </member>
         <member name="F:ServerCore.Utileria.CodigosRespuesta.TransaccionExitosa">
             <summary>

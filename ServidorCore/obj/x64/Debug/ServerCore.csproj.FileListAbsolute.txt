@@ -1,11 +1,11 @@
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\ServerCore.dll
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\ServerCore.pdb
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\Encrypter.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\NLog.dll
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\Encrypter.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\NLog.xml
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\x64\Debug\ServerCore.csproj.AssemblyReference.cache
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\x64\Debug\ServerCore.csproj.CoreCompileInputs.cache
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\x64\Debug\ServerCore.csproj.Up2Date
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\x64\Debug\ServerCore.dll
 C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\obj\x64\Debug\ServerCore.pdb
-C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\NLog.dll
-C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\ServidorCore\bin\x64\Debug\NLog.xml

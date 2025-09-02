@@ -53,7 +53,7 @@ namespace ServerCore
         {
             var sb = new StringBuilder();
             sb.Append(DateTime.Now);
-            sb.Append(" - Cerrando servidor");
+            sb.Append(" - Cerrando cliente");
             sb.Append(" - Se ha desconectado el cliente: ");
             sb.Append((args as EstadoDelClienteBase).IdUnicoCliente.ToString());
             sb.Append(", desde la IP: ");

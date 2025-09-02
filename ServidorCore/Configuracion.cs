@@ -17,6 +17,6 @@
         /// </summary>
         internal static bool modoRouter = false;
 
-        internal static int timeOutCliente = 50;
+        internal static int timeOutCliente = 40;
     }
 }
