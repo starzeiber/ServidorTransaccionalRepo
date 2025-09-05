@@ -95,7 +95,7 @@ namespace ServerCore
                 {
                     return false;
                 }
-                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);
+                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);                
                 // aquí está la clave, con este offset, me posiciono dentro del buffer enorme para saber en que sección me encuentro después de haber asignado un pedazo
                 this.indiceBuffer += this.tamanoBufferPorSeccion;
             }

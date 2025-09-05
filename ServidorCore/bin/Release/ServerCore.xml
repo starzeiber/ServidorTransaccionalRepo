@@ -219,7 +219,7 @@
             <remarks>This timer can be used to schedule recurring tasks or delayed actions. Ensure proper
             disposal of the timer to release resources when it is no longer needed.</remarks>
         </member>
-        <member name="P:ServerCore.EstadoDelProveedorBase.seVencioElTimeOut">
+        <member name="F:ServerCore.EstadoDelProveedorBase.seVencioElTimeOut">
             <summary>
             Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
             </summary>
@@ -843,6 +843,20 @@
             <summary>
             Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
             </summary>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.objSolicitudProveedor">
+            <summary>
+            Represents the supplier request object.
+            </summary>
+            <remarks>This field is intended to store data related to a supplier request.  Ensure that the
+            object assigned to this field is of the expected type and structure.</remarks>
+        </member>
+        <member name="F:ServerCore.EstadoDelClienteBase.objRespuestaProveedor">
+            <summary>
+            Represents the response object from a provider.
+            </summary>
+            <remarks>This property is intended to store the result or data returned by an external
+            provider.  The specific type and structure of the object depend on the provider's implementation.</remarks>
         </member>
         <member name="P:ServerCore.EstadoDelClienteBase.fechaInicioTrx">
             <summary>

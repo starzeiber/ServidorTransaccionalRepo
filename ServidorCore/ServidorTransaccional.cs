@@ -933,7 +933,7 @@ namespace ServerCore
         /// <param name="estadoDelCliente">Estado del cliente con los valores de retorno</param>
         private void ResponderAlCliente(T estadoDelCliente)
         {
-            if (estadoDelCliente == null || estadoDelCliente.seEstaRespondiendo)
+            if (estadoDelCliente == null || estadoDelCliente.seEstaRespondiendo==1)
             {
                 return;
             }
@@ -1212,6 +1212,8 @@ namespace ServerCore
             {
                 semaforoParaAceptarClientes.Release();
             }
+
+
         }
 
         /// <summary>
@@ -1283,7 +1285,7 @@ namespace ServerCore
                 EscribirLog(sb.ToString(), tipoLog.ALERTA);
                 endPointProveedor = new IPEndPoint(iPAddress, listaPuertosProveedor.First());
             }
-            
+            iPAddress = null;
 
             if (contadorPuertos == listaPuertosProveedor.Count)
             {
@@ -1296,9 +1298,8 @@ namespace ServerCore
 
             saeaProveedor.RemoteEndPoint = endPointProveedor;
             // se genera un socket que será usado en el envío y recepción
-            Socket socketDelProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            
-
+            Socket socketDelProveedor = new Socket(endPointProveedor.AddressFamily, SocketType.Stream, ProtocolType.Tcp);         
+            endPointProveedor = null;
 
             saeaProveedor.UserToken = estadoDelCliente;
             try
@@ -1377,8 +1378,8 @@ namespace ServerCore
             estadoDelProveedor.endPoint = (IPEndPoint)saea.RemoteEndPoint;
 
             //por seguridad, se coloca la bandera de vencimiento por TimeOut en false
-            estadoDelProveedor.ReinicioBanderaTimeOut();            
-            
+            estadoDelProveedor.ReinicioBanderaTimeOut();                        
+
             if (estadoDelProveedor.codigoRespuesta != (int)CodigosRespuesta.TransaccionExitosa)
             {
                 estadoDelProveedor.codigoAutorizacion = 0;
@@ -1602,7 +1603,7 @@ namespace ServerCore
                         estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                         estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
                         ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
-                        if (!estadoDelProveedor.seVencioElTimeOut)
+                        if (estadoDelProveedor.seVencioElTimeOut==0)
                             CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
@@ -1621,7 +1622,7 @@ namespace ServerCore
                         estadoDelProveedor.estadoDelClienteOrigen.codigoRespuesta = estadoDelProveedor.codigoRespuesta;
                         estadoDelProveedor.estadoDelClienteOrigen.codigoAutorizacion = estadoDelProveedor.codigoAutorizacion;
                         ResponderAlCliente((T)estadoDelProveedor.estadoDelClienteOrigen);
-                        if (!estadoDelProveedor.seVencioElTimeOut)
+                        if (estadoDelProveedor.seVencioElTimeOut == 0)
                             CerrarSocketProveedor(estadoDelProveedor);
                     }
                     break;
@@ -1980,7 +1981,7 @@ namespace ServerCore
                 bool seSincronzo = Monitor.TryEnter(estadoDelProveedor, 500);
                 if (seSincronzo)
                 {
-                    if (estadoDelProveedor.estadoDelClienteOrigen.seEstaRespondiendo)
+                    if (estadoDelProveedor.estadoDelClienteOrigen.seEstaRespondiendo==1)
                     {
                         estadoDelProveedor.providerTimer.Change(Timeout.Infinite, Timeout.Infinite);
                         estadoDelProveedor.providerTimer.Dispose();

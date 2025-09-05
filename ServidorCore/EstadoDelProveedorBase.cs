@@ -82,10 +82,10 @@ namespace ServerCore
         /// <summary>
         /// Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
         /// </summary>
-        internal bool seVencioElTimeOut { get; set; } = false;
+        internal int seVencioElTimeOut;
 
 
-        private readonly object objetoDeBloqueo = new object();
+        //private readonly object objetoDeBloqueo = new object();
 
 
         internal IPEndPoint endPoint;
@@ -206,9 +206,9 @@ namespace ServerCore
         /// once.</remarks>
         public void IndicarVencimientoPorTimeOut()
         {
-            lock (objetoDeBloqueo)
-                if (!seVencioElTimeOut) seVencioElTimeOut = true;
-
+            //lock (objetoDeBloqueo)
+            //    if (!seVencioElTimeOut) seVencioElTimeOut = true;
+            Interlocked.CompareExchange(ref seVencioElTimeOut, 1, 0);
         }
 
         /// <summary>
@@ -218,8 +218,9 @@ namespace ServerCore
         /// has been set.  It should be called to clear the timeout state after handling a timeout condition.</remarks>
         public void ReinicioBanderaTimeOut()
         {
-            lock (objetoDeBloqueo)
-                if (seVencioElTimeOut) seVencioElTimeOut = false;
+            //lock (objetoDeBloqueo)
+            //    if (seVencioElTimeOut) seVencioElTimeOut = false;
+            Interlocked.CompareExchange(ref seVencioElTimeOut, 0, 1);
         }
 
         /// <summary>

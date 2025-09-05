@@ -105,14 +105,14 @@ namespace ServerCore
         ///// </summary>
         //public bool seHaRespondido { get; set; } = false;
 
-        public bool seEstaRespondiendo;
+        public int seEstaRespondiendo;
 
         public int idTrxBD;
 
         public string msg210 = "";
         public string msg230 = "";
 
-        private readonly object objetoDeBloqueo = new object();
+        //private readonly object objetoDeBloqueo = new object();
         private bool disposed = false;
 
 
@@ -163,7 +163,8 @@ namespace ServerCore
             fechaInicioTrx = DateTime.Now;
             timeOut = Configuracion.timeOutCliente;
             esConsulta = false;
-            seEstaRespondiendo = false;
+            //seEstaRespondiendo = false;
+            seEstaRespondiendo = 0;
             idTrxBD = 0;
             msg210 = "";
             msg230 = "";
@@ -210,8 +211,9 @@ namespace ServerCore
         /// </summary>
         public void SeEstaProcesandoRespuesta()
         {
-            lock (objetoDeBloqueo)
-                if (!seEstaRespondiendo) seEstaRespondiendo = true;
+            //lock (objetoDeBloqueo)
+            //    if (!seEstaRespondiendo) seEstaRespondiendo = true;
+            Interlocked.CompareExchange(ref seEstaRespondiendo, 1, 0);
         }
 
         /// <summary>
@@ -219,8 +221,9 @@ namespace ServerCore
         /// </summary>
         public void SeFinalizaProcesoRespuesta()
         {
-            lock (objetoDeBloqueo)
-                if (seEstaRespondiendo) seEstaRespondiendo = false;
+            //lock (objetoDeBloqueo)
+            //    if (seEstaRespondiendo) seEstaRespondiendo = false;
+            Interlocked.CompareExchange(ref seEstaRespondiendo, 0, 1);
         }
 
         /// <summary>
