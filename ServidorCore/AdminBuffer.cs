@@ -36,6 +36,11 @@ namespace ServerCore
         /// </summary>
         private readonly Int32 numeroBytesAdministrados;
 
+        internal int ContadorDeBuffersDisponibles
+        {
+            get { return this.pilaDeIndicesDeDesplazamientoBuffer.Count; }
+        }
+
         /// <summary>
         /// Constructor que inicializa los valores del administrador de buffer
         /// </summary>
@@ -69,6 +74,7 @@ namespace ServerCore
         {
             // Se crea un enorme buffer y se divide después para cada objeto SocketAsyncEventArg
             this.bufferCompleto = new Byte[this.numeroBytesAdministrados];
+            //InicializarPilaDeIndices();
         }
 
         /// <summary>
@@ -102,5 +108,32 @@ namespace ServerCore
 
             return true;
         }
+        /// <summary>
+        /// Limpia el contenido del buffer completo, estableciendo todos los bytes en cero.
+        /// </summary>
+        internal void LimpiarBufferCompleto()
+        {
+            if (this.bufferCompleto != null)
+            {
+                Array.Clear(this.bufferCompleto, 0, this.bufferCompleto.Length);
+            }
+        }
+
+        /// <summary>
+        /// Limpia la pila de índices de desplazamiento del buffer, eliminando todos los elementos.
+        /// </summary>
+        internal void LimpiarPilaDeIndices()
+        {
+            this.pilaDeIndicesDeDesplazamientoBuffer.Clear();
+        }
+
+        //internal void InicializarPilaDeIndices()
+        //{
+        //    this.pilaDeIndicesDeDesplazamientoBuffer.Clear();
+        //    for (int i = 0; i < this.numeroBytesAdministrados; i += this.tamanoBufferPorSeccion)
+        //    {
+        //        this.pilaDeIndicesDeDesplazamientoBuffer.Push(i);
+        //    }
+        //}
     }
 }

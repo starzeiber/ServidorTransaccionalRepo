@@ -114,6 +114,29 @@ namespace ServerCore
         /// </summary>
         public string ipProveedor { get; set; }
 
+        public int contadorEstadosCliente
+        {
+            get
+            {
+                return adminEstadosCliente.contadorElementos;
+            }
+        }
+
+        public int contadorEstadosProveedor
+        {
+            get
+            {
+                return adminEstadosDeProveedor.contadorElementos;
+            }
+        }
+
+        public int contadorStackBuffer
+        {
+            get
+            {
+                return administradorBuffer.ContadorDeBuffersDisponibles;
+            }
+        }
 
         /// <summary>
         /// 
@@ -470,7 +493,7 @@ namespace ServerCore
             this.listaPuertosProveedor = listaPuertosProveedor;
 
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);
-
+            
             // se crea el socket que se utilizará de escucha para las conexiones entrantes
             socketDeEscucha = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -983,10 +1006,23 @@ namespace ServerCore
                     EscribirLog(sb.ToString(), tipoLog.INFORMACION);
                 }
 
-                // se obtiene la cantidad de bytes de la trama completa
-                int numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
-                // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
-                if (numeroDeBytes > tamanoBufferPorPeticion)
+                int numeroDeBytes;
+                try
+                {
+                    // se obtiene la cantidad de bytes de la trama completa
+                    numeroDeBytes = Encoding.ASCII.GetBytes(mensajeRespuesta, 0, mensajeRespuesta.Length, estadoDelCliente.saeaDeEnvioRecepcion.Buffer, estadoDelCliente.saeaDeEnvioRecepcion.Offset);
+                    // si el número de bytes es mayor al buffer que se tiene destinado a la recepción, no se puede proceder, no es válido el mensaje
+                    if (numeroDeBytes > tamanoBufferPorPeticion)
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("La respuesta es más grande que el buffer, cliente ");
+                        sb.Append(estadoDelCliente.IdUnicoCliente);
+                        EscribirLog(sb.ToString(), tipoLog.ALERTA);
+                        CerrarSocketCliente(estadoDelCliente);
+                        return;
+                    }
+                }
+                catch (Exception)
                 {
                     var sb = new StringBuilder();
                     sb.Append("La respuesta es más grande que el buffer, cliente ");
@@ -995,6 +1031,9 @@ namespace ServerCore
                     CerrarSocketCliente(estadoDelCliente);
                     return;
                 }
+                
+
+
                 try
                 {
                     // Se solicita el espacio de buffer para los bytes que se van a enviar                    
@@ -2154,6 +2193,7 @@ namespace ServerCore
         /// </summary>
         public void DetenerServidor()
         {
+            #region codigo pendiente
             //// se indica que se está ejecutando el proceso de desconexión de los clientes
             //desconectando = true;
             //List<T> listaDeClientesEliminar = new List<T>();
@@ -2224,6 +2264,7 @@ namespace ServerCore
             //enEjecucion = false;
             //desconectando = false;
 
+            #endregion
 
             desconectando = true;
 
@@ -2243,7 +2284,7 @@ namespace ServerCore
                         cliente.saeaDeEnvioRecepcion.UserToken = null;
                         cliente.saeaDeEnvioRecepcion.AcceptSocket = null;
                         // Si no se reutiliza, puedes llamar a Dispose()
-                        //cliente.saeaDeEnvioRecepcion.Dispose();
+                        cliente.saeaDeEnvioRecepcion.Dispose();
                     }
                 }
                 catch (Exception ex)
@@ -2295,12 +2336,11 @@ namespace ServerCore
             try
             {
                 socketDeEscucha?.Shutdown(SocketShutdown.Both);
-                socketDeEscucha?.Close();
             }
             catch (Exception ex)
             {
                 var sb = new StringBuilder();
-                sb.Append("Error al cerrar socket de escucha en DetenerServidor, ");
+                sb.Append("Error al detener socket de escucha en DetenerServidor, ");
                 sb.Append(ex.Message);
                 EscribirLog(sb.ToString(), tipoLog.ERROR);
             }
@@ -2308,6 +2348,9 @@ namespace ServerCore
             // Liberar PerformanceCounter
             peformanceConexionesEntrantes?.Dispose();
 
+            administradorBuffer.LimpiarBufferCompleto();
+            administradorBuffer.LimpiarPilaDeIndices();
+                      
 
             enEjecucion = false;
             desconectando = false;

@@ -62,6 +62,16 @@
             <param name="socketAsyncEventArgs">SocketAsyncEventArgs donde el buffer se asignará</param>
             <returns>True si el buffer fue correctamente asignado</returns>
         </member>
+        <member name="M:ServerCore.AdminBuffer.LimpiarBufferCompleto">
+            <summary>
+            Limpia el contenido del buffer completo, estableciendo todos los bytes en cero.
+            </summary>
+        </member>
+        <member name="M:ServerCore.AdminBuffer.LimpiarPilaDeIndices">
+            <summary>
+            Limpia la pila de índices de desplazamiento del buffer, eliminando todos los elementos.
+            </summary>
+        </member>
         <member name="T:ServerCore.AdminEstadosDeProveedor`1">
             <summary>
             Clase que controla el almacenado y asignación de estados de un socket, que sirven en 
