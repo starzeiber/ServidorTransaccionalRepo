@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServerCore
 {
@@ -72,28 +73,31 @@ namespace ServerCore
         public object objRespuesta;
 
 
-        /// <summary>
-        /// Represents a timer used to trigger events or actions at specified intervals.
-        /// </summary>
-        /// <remarks>This timer can be used to schedule recurring tasks or delayed actions. Ensure proper
-        /// disposal of the timer to release resources when it is no longer needed.</remarks>
-        public Timer providerTimer;
+        ///// <summary>
+        ///// Represents a timer used to trigger events or actions at specified intervals.
+        ///// </summary>
+        ///// <remarks>This timer can be used to schedule recurring tasks or delayed actions. Ensure proper
+        ///// disposal of the timer to release resources when it is no longer needed.</remarks>
+        //public Timer providerTimer;
 
         /// <summary>
         /// Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
         /// </summary>
         internal int seVencioElTimeOut;
 
-
-        //private readonly object objetoDeBloqueo = new object();
-
-
+        /// <summary>
+        /// Represents the network endpoint, including the IP address and port, used for communication.
+        /// </summary>
+        /// <remarks>This field is intended for internal use and should not be accessed directly by
+        /// external code. It specifies the endpoint to which the connection is bound or will be established.</remarks>
         internal IPEndPoint endPoint;
 
-
+        /// <summary>
+        /// Indicates whether the object has been disposed.
+        /// </summary>
+        /// <remarks>This field is used internally to track the disposal state of the object.  It should
+        /// not be accessed directly outside of the class.</remarks>
         private bool disposed = false;
-
-
 
         /// <summary>
         /// Constructor
@@ -111,13 +115,14 @@ namespace ServerCore
         public virtual void InicializarEstadoDelProveedorBase()
         {
             // Liberar y limpiar el socket si existe
-            if (socketDeTrabajo != null)
-            {
-                try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
-                try { socketDeTrabajo.Close(); } catch { }
-                try { socketDeTrabajo.Dispose(); } catch { }
-                socketDeTrabajo = null;
-            }
+            //TODO se quitó para utilizar el socket pool
+            //if (socketDeTrabajo != null)
+            //{
+            //    try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
+            //    try { socketDeTrabajo.Close(); } catch { }
+            //    try { socketDeTrabajo.Dispose(); } catch { }
+            //    socketDeTrabajo = null;
+            //}
 
             // Limpiar el buffer del SAEA si aplica
             if (saeaDeEnvioRecepcion != null)
@@ -128,12 +133,12 @@ namespace ServerCore
                 // El buffer se libera en el core con AdminBuffer.LiberarBuffer
             }
 
-            // Liberar y limpiar el timer si existe
-            if (providerTimer != null)
-            {
-                try { providerTimer.Dispose(); } catch { }
-                providerTimer = null;
-            }
+            //// Liberar y limpiar el timer si existe
+            //if (providerTimer != null)
+            //{
+            //    try { providerTimer.Dispose(); } catch { }
+            //    providerTimer = null;
+            //}
 
 
             referenciaSocketPrincipal = null;
@@ -279,5 +284,48 @@ namespace ServerCore
             Dispose(false);
         }
 
+        /// <summary>
+        /// Represents the <see cref="CancellationTokenSource"/> used to manage timeouts for operations.
+        /// </summary>
+        /// <remarks>This field is used internally to signal cancellation when a timeout occurs. It is not
+        /// exposed publicly and should be properly disposed of to avoid resource leaks.</remarks>
+        private CancellationTokenSource _timeoutCts;
+
+        /// <summary>
+        /// Occurs when the timeout period has expired.
+        /// </summary>
+        /// <remarks>This event is triggered to notify subscribers that the timeout period has elapsed. 
+        /// Subscribers can handle this event to perform any necessary actions when the timeout occurs.</remarks>
+        public event EventHandler<EventArgs> TimeOutVencido;
+
+        /// <summary>
+        /// Inicia una tarea asíncrona que espera X segundos y permite cancelación.
+        /// </summary>
+        internal async Task TimeOutCounterAsync(int timeOut)
+        {
+            timeOut = 10;
+            _timeoutCts = new CancellationTokenSource();
+            try
+            {
+                await Task.Delay(timeOut * 1000, _timeoutCts.Token);
+                IndicarVencimientoPorTimeOut();
+                Utileria.EscribirLog($"Se venció el timeout a proveedor {ipProveedor}:{puertoProveedor}.", Utileria.tipoLog.ALERTA);
+
+                // Disparar el evento para notificar a ServidorTransaccional
+                TimeOutVencido?.Invoke(this, EventArgs.Empty);                
+            }
+            catch (TaskCanceledException)
+            {
+                Utileria.EscribirLog("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utileria.tipoLog.INFORMACION);
+            }
+        }
+
+        /// <summary>
+        /// Llama este método cuando recibas la respuesta antes del timeout.
+        /// </summary>
+        public void CancelarTimeout()
+        {
+            _timeoutCts?.Cancel();
+        }
     }
 }

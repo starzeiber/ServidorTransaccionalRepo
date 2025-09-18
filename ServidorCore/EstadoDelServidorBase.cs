@@ -1,6 +1,4 @@
-﻿using NLog.Common;
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Text;
 
 namespace ServerCore
@@ -39,7 +37,7 @@ namespace ServerCore
         /// </summary>
         public virtual void OnInicio()
         {
-            var sb =new  StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(DateTime.Now);
             sb.Append(" - Iniciando servidor");
             Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
@@ -58,7 +56,7 @@ namespace ServerCore
             sb.Append((args as EstadoDelClienteBase).IdUnicoCliente.ToString());
             sb.Append(", desde la IP: ");
             sb.Append((args as EstadoDelClienteBase).IpCliente);
-            Utileria.EscribirLog(sb.ToString(),Utileria.tipoLog.INFORMACION);
+            Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
         }
 
         /// <summary>

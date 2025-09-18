@@ -59,12 +59,24 @@ namespace ServerCore
         /// lo regresar a la pila de bufferes disponibles para volver a usarlo
         /// </summary>
         /// <param name="args">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
-        internal void LiberarBuffer(SocketAsyncEventArgs args)
+        internal void LiberarBuffer(SocketAsyncEventArgs args, Guid guid)
         {
-            //Se inserta al principio de la pila un índice que muestra el desplazamiento en el buffer que utilizó SocketAsyncEventArgs
-            //para que sea reutilizado, de esta forma secciones iguales se toman y se regresan
-            this.pilaDeIndicesDeDesplazamientoBuffer.Push(args.Offset);
-            args.SetBuffer(null, 0, 0);
+            try
+            {
+                //Se inserta al principio de la pila un índice que muestra el desplazamiento en el buffer que utilizó SocketAsyncEventArgs
+                //para que sea reutilizado, de esta forma secciones iguales se toman y se regresan
+                this.pilaDeIndicesDeDesplazamientoBuffer.Push(args.Offset);
+                args.SetBuffer(null, 0, 0);
+            }
+            catch (Exception ex)
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.Append("Error en AdminBuffer.LiberarBuffer");
+                sb.Append(ex.Message);
+                sb.Append(" cliente: ");
+                sb.Append(guid.ToString());
+                Utileria.EscribirLog(sb.ToString(),Utileria.tipoLog.ALERTA);
+            }            
         }
 
         /// <summary>
@@ -101,7 +113,7 @@ namespace ServerCore
                 {
                     return false;
                 }
-                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);                
+                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);
                 // aquí está la clave, con este offset, me posiciono dentro del buffer enorme para saber en que sección me encuentro después de haber asignado un pedazo
                 this.indiceBuffer += this.tamanoBufferPorSeccion;
             }
