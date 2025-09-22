@@ -104,7 +104,7 @@ namespace ServerCore
                 var sb =new  StringBuilder();
                 sb.AppendLine("Error al obtener un socket del pool:");
                 sb.AppendLine(ex.Message);
-                Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.ERROR);
+                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
                 return null;
             }
         }
@@ -136,7 +136,7 @@ namespace ServerCore
                 var sb = new StringBuilder();
                 sb.AppendLine("Error al devolver un socket al pool:");
                 sb.AppendLine(ex.Message);
-                Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.ERROR);
+                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
             }            
         }
 

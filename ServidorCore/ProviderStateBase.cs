@@ -9,81 +9,80 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las propiedades de un proveedor en el flujo del servidor
     /// </summary>
-    public class EstadoDelProveedorBase : IDisposable
+    public class ProviderStateBase : IDisposable
     {
 
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        public object referenciaSocketPrincipal;
+        public object mainSocketReference;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
-        internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
+        internal SocketAsyncEventArgs saeaSendReceive;
 
         /// <summary>
         /// Ip del proveedor
         /// </summary>
-        public string ipProveedor { get; set; } = "127.0.0.0";
+        public string ProviderIp { get; set; } = "127.0.0.0";
 
         /// <summary>
         /// Puerto del proveedor
         /// </summary>
-        public Int32 puertoProveedor { get; set; } = 0;
+        public Int32 ProviderPort { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        public Socket socketDeTrabajo { get; set; }
+        public Socket SocketOfWork { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// </summary>
-        public int codigoRespuesta;
+        public int responseCode;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int codigoAutorizacion;
+        public int authorizacionCode;
 
         /// <summary>
         /// Estado del cliente desde donde proviene la petición para un retorno
         /// </summary>
-        public EstadoDelClienteBase estadoDelClienteOrigen { get; set; }
+        public ClientStateBase clientStateSource { get; private set; }
 
         /// <summary>
         /// Trama de petición a un proveedor
         /// </summary>
-        public string tramaSolicitud;
+        public string messageRequest;
 
         /// <summary>
         /// Trama de respuesta de un proveedor
         /// </summary>
-        public string tramaRespuesta;
+        public string messageResponse;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un proveedor
         /// </summary>
-        public object objSolicitud;
+        public object objRequest;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un proveedor
         /// </summary>
-        public object objRespuesta;
+        public object objResponse;
 
-
-        ///// <summary>
-        ///// Represents a timer used to trigger events or actions at specified intervals.
-        ///// </summary>
-        ///// <remarks>This timer can be used to schedule recurring tasks or delayed actions. Ensure proper
-        ///// disposal of the timer to release resources when it is no longer needed.</remarks>
-        //public Timer providerTimer;
+        /// <summary>
+        /// Indicates whether the resource is currently in use.
+        /// </summary>
+        /// <remarks>A value of 0 indicates that the resource is free, while a value of 1 indicates that
+        /// the resource is in use.</remarks>
+        public int InUse; // 0 = libre, 1 = en uso
 
         /// <summary>
         /// Bandera para indicar que hubo un vencimiento de TimeOut  y poder controlar la respuesta
         /// </summary>
-        internal int seVencioElTimeOut;
+        internal int wasTimeOutExpired;
 
         /// <summary>
         /// Represents the network endpoint, including the IP address and port, used for communication.
@@ -102,17 +101,17 @@ namespace ServerCore
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelProveedorBase()
+        public ProviderStateBase()
         {
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
-            InicializarEstadoDelProveedorBase();
+            InitializeProviderStateBase();
         }
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        public virtual void InicializarEstadoDelProveedorBase()
+        public virtual void InitializeProviderStateBase()
         {
             // Liberar y limpiar el socket si existe
             //TODO se quitó para utilizar el socket pool
@@ -125,39 +124,31 @@ namespace ServerCore
             //}
 
             // Limpiar el buffer del SAEA si aplica
-            if (saeaDeEnvioRecepcion != null)
+            if (saeaSendReceive != null)
             {
-                saeaDeEnvioRecepcion.AcceptSocket = null;
+                saeaSendReceive.AcceptSocket = null;
                 //No puedo liberar el buffer porque lo administra el core
                 //saeaDeEnvioRecepcion.UserToken = null;
                 // El buffer se libera en el core con AdminBuffer.LiberarBuffer
             }
 
-            //// Liberar y limpiar el timer si existe
-            //if (providerTimer != null)
-            //{
-            //    try { providerTimer.Dispose(); } catch { }
-            //    providerTimer = null;
-            //}
-
-
-            referenciaSocketPrincipal = null;
-            codigoRespuesta = 0;
-            codigoAutorizacion = 0;
-            tramaSolicitud = "";
-            tramaRespuesta = "";
-            estadoDelClienteOrigen = null;
-            objSolicitud = null;
-            objRespuesta = null;
+            mainSocketReference = null;
+            responseCode = 0;
+            authorizacionCode = 0;
+            messageRequest = "";
+            messageResponse = "";
+            clientStateSource = null;
+            objRequest = null;
+            objResponse = null;
             endPoint = null;
-
+            TimeOutReset();
         }
 
         /// <summary>
         /// Ingresa de forma segura el valor de la instancia de socket principal para un retorno de flujo
         /// </summary>
-        /// <param name="obj"></param>
-        public virtual void IngresarObjetoPeticionCliente(object obj)
+        /// <param name="objClient"></param>
+        public virtual void SetObjClientRequest(object objClient)
         {
 
         }
@@ -166,7 +157,7 @@ namespace ServerCore
         /// Función virtual para poder sobre escribirla, en esta se controla
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
-        public virtual void ProcesarTramaDelProveeedor(string trama)
+        public virtual void ProcessMessage(string message)
         {
         }
 
@@ -174,16 +165,16 @@ namespace ServerCore
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
         /// se inició toda la operación
         /// </summary>
-        /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        public void IngresarReferenciaSocketPrincipal(object socketPrincipal)
+        /// <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        public void SetMainSocketReference(object mainSocket)
         {
-            this.referenciaSocketPrincipal = socketPrincipal;
+            this.mainSocketReference = mainSocket;
         }
 
         /// <summary>
         /// Función que obtiene la trama de petición al proveedor
         /// </summary>
-        public virtual void ObtenerTramaPeticion()
+        public virtual void GetRequestMessage()
         {
 
         }
@@ -191,7 +182,7 @@ namespace ServerCore
         /// <summary>
         /// Función que obtiene la trama de respuesta de una proveedor
         /// </summary>
-        public virtual void ObtenerTramaRespuesta()
+        public virtual void GetResponseMessage()
         {
 
         }
@@ -199,7 +190,7 @@ namespace ServerCore
         /// <summary>
         /// Función que guardará la operación con el proveedor
         /// </summary>
-        public virtual void GuardarTransaccion()
+        public virtual void SaveTransaction()
         {
 
         }
@@ -209,11 +200,11 @@ namespace ServerCore
         /// </summary>
         /// <remarks>This method is thread-safe and ensures that the timeout state is set only
         /// once.</remarks>
-        public void IndicarVencimientoPorTimeOut()
+        public void SetTimeOutExpired()
         {
             //lock (objetoDeBloqueo)
             //    if (!seVencioElTimeOut) seVencioElTimeOut = true;
-            Interlocked.CompareExchange(ref seVencioElTimeOut, 1, 0);
+            Interlocked.CompareExchange(ref wasTimeOutExpired, 1, 0);
         }
 
         /// <summary>
@@ -221,11 +212,11 @@ namespace ServerCore
         /// </summary>
         /// <remarks>This method is thread-safe and ensures that the timeout flag is reset only when it
         /// has been set.  It should be called to clear the timeout state after handling a timeout condition.</remarks>
-        public void ReinicioBanderaTimeOut()
+        public void TimeOutReset()
         {
             //lock (objetoDeBloqueo)
             //    if (seVencioElTimeOut) seVencioElTimeOut = false;
-            Interlocked.CompareExchange(ref seVencioElTimeOut, 0, 1);
+            Interlocked.CompareExchange(ref wasTimeOutExpired, 0, 1);
         }
 
         /// <summary>
@@ -256,17 +247,17 @@ namespace ServerCore
                 if (disposing)
                 {
                     // Liberar recursos administrados
-                    if (saeaDeEnvioRecepcion != null)
+                    if (saeaSendReceive != null)
                     {
-                        saeaDeEnvioRecepcion.Dispose();
-                        saeaDeEnvioRecepcion = null;
+                        saeaSendReceive.Dispose();
+                        saeaSendReceive = null;
                     }
-                    if (socketDeTrabajo != null)
+                    if (SocketOfWork != null)
                     {
-                        try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
-                        socketDeTrabajo.Close();
-                        socketDeTrabajo.Dispose();
-                        socketDeTrabajo = null;
+                        try { SocketOfWork.Shutdown(SocketShutdown.Both); } catch { }
+                        SocketOfWork.Close();
+                        SocketOfWork.Dispose();
+                        SocketOfWork = null;
                     }
                 }
                 // Liberar recursos no administrados aquí si los hubiera
@@ -275,11 +266,11 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// Finalizes the instance of the <see cref="EstadoDelProveedorBase"/> class.
+        /// Finalizes the instance of the <see cref="ProviderStateBase"/> class.
         /// </summary>
         /// <remarks>This destructor ensures that unmanaged resources are released by calling the <see
         /// cref="Dispose(bool)"/> method.</remarks>
-        ~EstadoDelProveedorBase()
+        ~ProviderStateBase()
         {
             Dispose(false);
         }
@@ -296,7 +287,7 @@ namespace ServerCore
         /// </summary>
         /// <remarks>This event is triggered to notify subscribers that the timeout period has elapsed. 
         /// Subscribers can handle this event to perform any necessary actions when the timeout occurs.</remarks>
-        public event EventHandler<EventArgs> TimeOutVencido;
+        public event EventHandler<EventArgs> TimeOutExpired;
 
         /// <summary>
         /// Inicia una tarea asíncrona que espera X segundos y permite cancelación.
@@ -308,24 +299,50 @@ namespace ServerCore
             try
             {
                 await Task.Delay(timeOut * 1000, _timeoutCts.Token);
-                IndicarVencimientoPorTimeOut();
-                Utileria.EscribirLog($"Se venció el timeout a proveedor {ipProveedor}:{puertoProveedor}.", Utileria.tipoLog.ALERTA);
+                SetTimeOutExpired();
+                Utilities.EscribirLog($"Se venció el timeout a proveedor {ProviderIp}:{ProviderPort}.", Utilities.tipoLog.ALERTA);
 
                 // Disparar el evento para notificar a ServidorTransaccional
-                TimeOutVencido?.Invoke(this, EventArgs.Empty);                
+                TimeOutExpired?.Invoke(this, EventArgs.Empty);
             }
             catch (TaskCanceledException)
             {
-                Utileria.EscribirLog("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utileria.tipoLog.INFORMACION);
+                Utilities.EscribirLog("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utilities.tipoLog.INFORMACION);
             }
         }
 
         /// <summary>
         /// Llama este método cuando recibas la respuesta antes del timeout.
         /// </summary>
-        public void CancelarTimeout()
+        public void CancelTimeout()
         {
             _timeoutCts?.Cancel();
         }
+        
+        public void SetClientState(ClientStateBase clientState)
+        {
+            this.clientStateSource = clientState;
+        }
+
+        public void SetResponseCode(int code)
+        {
+            this.responseCode = code;
+        }
+
+        public void SetAuthorizationCode(int code)
+        {
+            this.authorizacionCode = code;
+        }
+
+        public void SetInUse()
+        {
+            Interlocked.CompareExchange(ref InUse, 0, 1);
+        }
+
+        public void SetFree()
+        {
+            Interlocked.CompareExchange(ref InUse, 1, 0);
+        }
+
     }
 }

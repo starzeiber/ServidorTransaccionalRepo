@@ -1,6 +1,6 @@
 ﻿namespace ServerCore
 {
-    internal static class Configuracion
+    internal static class ServerConfiguration
     {
         /// <summary>
         /// Limite para el marcador de bytes procesados en el servidor

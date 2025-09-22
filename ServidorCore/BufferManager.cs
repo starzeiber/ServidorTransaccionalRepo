@@ -9,7 +9,7 @@ namespace ServerCore
     /// necesario en cada envío y recepción de información para después, volver a agregar la sección utilizada.
     /// De esta manera, siempre se tiene un buffer justo a cada operación y reusable
     /// </summary>
-    class AdminBuffer
+    class BufferManager
     {
         /// <summary>        
         /// Matriz de bytes utilizada como buffer en la operación
@@ -46,7 +46,7 @@ namespace ServerCore
         /// </summary>
         /// <param name="totalBytesAdministrar">Número total de bytes que tendrá la pila del buffer</param>
         /// <param name="tamanoBuffer">Tamaño del buffer para la operación</param>
-        internal AdminBuffer(Int32 totalBytesAdministrar, Int32 tamanoBuffer)
+        internal BufferManager(Int32 totalBytesAdministrar, Int32 tamanoBuffer)
         {
             this.numeroBytesAdministrados = totalBytesAdministrar;
             this.indiceBuffer = 0;
@@ -75,7 +75,7 @@ namespace ServerCore
                 sb.Append(ex.Message);
                 sb.Append(" cliente: ");
                 sb.Append(guid.ToString());
-                Utileria.EscribirLog(sb.ToString(),Utileria.tipoLog.ALERTA);
+                Utilities.EscribirLog(sb.ToString(),Utilities.tipoLog.ALERTA);
             }            
         }
 

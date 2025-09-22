@@ -6,12 +6,12 @@ namespace ServerCore
     /// <summary>
     /// Clase que contiene las funciones que se utilizan para indicar el flujo de una operación con el cliente en el servidor
     /// </summary>
-    public class EstadoDelServidorBase
+    public class ServerStateBase
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelServidorBase()
+        public ServerStateBase()
         {
 
         }
@@ -40,7 +40,7 @@ namespace ServerCore
             var sb = new StringBuilder();
             sb.Append(DateTime.Now);
             sb.Append(" - Iniciando servidor");
-            Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
+            Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
         }
 
         /// <summary>
@@ -53,10 +53,10 @@ namespace ServerCore
             sb.Append(DateTime.Now);
             sb.Append(" - Cerrando cliente");
             sb.Append(" - Se ha desconectado el cliente: ");
-            sb.Append((args as EstadoDelClienteBase).IdUnicoCliente.ToString());
+            sb.Append((args as ClientStateBase).UniqueClientId.ToString());
             sb.Append(", desde la IP: ");
-            sb.Append((args as EstadoDelClienteBase).IpCliente);
-            Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
+            sb.Append((args as ClientStateBase).ClientIp);
+            Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
         }
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace ServerCore
             sb.Append(DateTime.Now);
             sb.Append(" - Aceptando conexión");
             sb.Append(" - Se ha conectado el cliente: ");
-            sb.Append((args as EstadoDelClienteBase).IdUnicoCliente.ToString());
+            sb.Append((args as ClientStateBase).UniqueClientId.ToString());
             sb.Append(", desde la IP: ");
-            sb.Append((args as EstadoDelClienteBase).IpCliente);
-            Utileria.EscribirLog(sb.ToString(), Utileria.tipoLog.INFORMACION);
+            sb.Append((args as ClientStateBase).ClientIp);
+            Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
         }
 
         /// <summary>

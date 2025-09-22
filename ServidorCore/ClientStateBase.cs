@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServerCore
 {
@@ -9,27 +10,27 @@ namespace ServerCore
     /// Clase contiene toda la información relevante de un cliente así como un socket
     /// que será el de trabajo para el envío y recepción de mensajes
     /// </summary>
-    public class EstadoDelClienteBase : IDisposable
+    public class ClientStateBase : IDisposable
     {
         /// <summary>
         /// Identificador único para un cliente
         /// </summary>
-        public Guid IdUnicoCliente { get; set; }
+        public Guid UniqueClientId { get; set; }
 
         /// <summary>
         /// Referencia al servidor de socket principal
         /// </summary>
-        public object referenciaSocketPrincipal;
+        public object mainSocketReference;
 
         /// <summary>
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
-        internal SocketAsyncEventArgs saeaDeEnvioRecepcion;
+        internal SocketAsyncEventArgs saeaOfSendReceive;
 
         /// <summary>        
         /// trama de respuesta al cliente
         /// </summary>
-        public string tramaRespuesta;
+        public string messageResponse;
 
         /// <summary>        
         /// evento para sincronización de procesos, con este manejador de evento controlo
@@ -40,55 +41,56 @@ namespace ServerCore
         /// <summary>
         /// Ip del cliente
         /// </summary>
-        public string IpCliente { get; set; } = "127.0.0.0";
+        public string ClientIp { get; set; } = "127.0.0.0";
 
         /// <summary>
         /// Puerto del cliente
         /// </summary>
-        public Int32 PuertoCliente { get; set; } = 0;
+        public Int32 ClientPort { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        public Socket socketDeTrabajo { get; set; }
+        public Socket SocketToWork { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
         /// </summary>
-        public int codigoRespuesta;
+        public int responseCode;
 
         /// <summary>
         /// Codigo de autorización sobre el proceso del cliente
         /// </summary>
-        public int codigoAutorizacion;
+        public int authorizationCode;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de petición de un cliente
         /// </summary>
-        public object objSolicitud;
+        public object objRequest;
 
         /// <summary>
         /// Objeto genérico donde se almacena la clase donde se encuentran los valores de respuesta de un cliente
         /// </summary>
-        public object objRespuesta;
+        public object objResponse;
 
         /// <summary>
         /// Represents the supplier request object.
         /// </summary>
         /// <remarks>This field is intended to store data related to a supplier request.  Ensure that the
         /// object assigned to this field is of the expected type and structure.</remarks>
-        public object objSolicitudProveedor;
+        public object objRequestToProvider;
+
         /// <summary>
         /// Represents the response object from a provider.
         /// </summary>
         /// <remarks>This property is intended to store the result or data returned by an external
         /// provider.  The specific type and structure of the object depend on the provider's implementation.</remarks>
-        public object objRespuestaProveedor;
+        public object objResponseFromProvider;
 
         /// <summary>
         /// Fecha marcada como inicio de operaciones con el cliente
         /// </summary>
-        public DateTime fechaInicioTrx { get; set; } = DateTime.Now;
+        public DateTime StartDateTrx { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Tiempo de espera general del lado del cliente
@@ -98,18 +100,28 @@ namespace ServerCore
         /// <summary>
         /// Bandera para identificar si el proceso solo es de consulta sobre una transacción
         /// </summary>
-        public bool esConsulta;
+        public bool isQuery;
 
-        ///// <summary>
-        ///// Bandera  para indicar que el proceso de responder se ha concluido correctamente
-        ///// </summary>
-        //public bool seHaRespondido { get; set; } = false;
+        /// <summary>
+        /// Indicates whether the system is responding.
+        /// </summary>
+        public int isResponding;
 
-        public int seEstaRespondiendo;
-
+        /// <summary>
+        /// Represents the unique identifier for a database transaction.
+        /// </summary>
+        /// <remarks>This field is intended to store the transaction ID associated with a specific
+        /// database operation.</remarks>
         public int idTrxBD;
 
+        /// <summary>
+        /// Represents a message string. This field is intended to store a textual message.
+        /// </summary>
         public string msg210 = "";
+
+        /// <summary>
+        /// Represents a message string. This field is intended to store a textual message.
+        /// </summary>
         public string msg230 = "";
 
         //private readonly object objetoDeBloqueo = new object();
@@ -119,56 +131,58 @@ namespace ServerCore
         /// <summary>
         /// Constructor
         /// </summary>
-        public EstadoDelClienteBase()
+        public ClientStateBase()
         {
             esperandoEnvio = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
-            InicializarEstadoDelClienteBase();
+            InitializeClientStateBase();
         }
 
         /// <summary>
         /// Función virtual para poder sobre escribirla, sirve para limpiar e inicializar 
         /// todas las variables del info y socket de trabajo
         /// </summary>
-        public virtual void InicializarEstadoDelClienteBase()
+        public virtual void InitializeClientStateBase()
         {
             // Liberar y limpiar el socket si existe
-            if (socketDeTrabajo != null)
+            if (SocketToWork != null)
             {
-                try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
-                try { socketDeTrabajo.Close(); } catch { }
-                try { socketDeTrabajo.Dispose(); } catch { }
-                socketDeTrabajo = null;
+                try { SocketToWork.Shutdown(SocketShutdown.Both); } catch { }
+                try { SocketToWork.Close(); } catch { }
+                try { SocketToWork.Dispose(); } catch { }
+                SocketToWork = null;
             }
 
             // Limpiar el buffer del SAEA si aplica
-            if (saeaDeEnvioRecepcion != null)
+            if (saeaOfSendReceive != null)
             {
-                saeaDeEnvioRecepcion.AcceptSocket = null;
+                saeaOfSendReceive.AcceptSocket = null;
                 //No puedo liberar el buffer porque lo administra el core
                 //saeaDeEnvioRecepcion.UserToken = null;
                 // El buffer se libera en el core con AdminBuffer.LiberarBuffer
             }
 
             // Limpiar otros datos de sesión
-            IdUnicoCliente = Guid.NewGuid();
+            UniqueClientId = Guid.NewGuid();
             esperandoEnvio.Set();
-            tramaRespuesta = "";
-            objSolicitud = null;
-            objRespuesta = null;
-            objSolicitudProveedor = null;
-            objRespuestaProveedor = null;
-            codigoRespuesta = 0;
-            codigoAutorizacion = 0;
-            fechaInicioTrx = DateTime.Now;
-            timeOut = Configuracion.timeOutCliente;
-            esConsulta = false;
+            messageResponse = "";
+            objRequest = null;
+            objResponse = null;
+            objRequestToProvider = null;
+            objResponseFromProvider = null;
+            responseCode = 0;
+            authorizationCode = 0;
+            StartDateTrx = DateTime.Now;
+            timeOut = ServerConfiguration.timeOutCliente;
+            isQuery = false;
             //seEstaRespondiendo = false;
-            seEstaRespondiendo = 0;
+            isResponding = 0;
             idTrxBD = 0;
             msg210 = "";
             msg230 = "";
-            referenciaSocketPrincipal = null;
+            mainSocketReference = null;
+            //por precaución se coloca que no se está procesando respuesta
+            ReleaseResponseProcess();
         }
 
         /// <summary>
@@ -176,7 +190,7 @@ namespace ServerCore
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
         /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void ProcesarTrama(string mensajeCliente)
+        public virtual void ProcessMessage(string mensajeCliente)
         {
         }
 
@@ -184,16 +198,16 @@ namespace ServerCore
         /// Funcion en la que se va a indicar cuál fue el socket principal sobre el cual
         /// se inició toda la operación
         /// </summary>
-        /// <param name="socketPrincipal"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
-        public void IngresarReferenciaSocketPrincipal(object socketPrincipal)
+        /// <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
+        public void SetMainSocketReference(object mainSocket)
         {
-            this.referenciaSocketPrincipal = socketPrincipal;
+            this.mainSocketReference = mainSocket;
         }
 
         /// <summary>
         /// Función para obtener la trama de respuesta al cliente dependiendo de su mensajería entrante
         /// </summary>
-        public virtual void ObtenerTramaRespuesta()
+        public virtual void GetResponseMessage()
         {
 
         }
@@ -201,29 +215,30 @@ namespace ServerCore
         /// <summary>
         /// Función que guardará el resultado de la transacción
         /// </summary>
-        public virtual void ActualizarTransaccion()
+        public virtual void UpdateTransaction()
         {
 
         }
 
         /// <summary>
-        /// 
+        /// Marks the current instance as processing a response, ensuring thread-safe access.
         /// </summary>
-        public void SeEstaProcesandoRespuesta()
+        /// <remarks>This method uses an atomic operation to update the internal state, ensuring that 
+        /// only one thread can mark the instance as processing a response at a time.  Subsequent calls from other
+        /// threads will have no effect if the instance is already marked.</remarks>
+        public void SetResponseProcess()
         {
             //lock (objetoDeBloqueo)
             //    if (!seEstaRespondiendo) seEstaRespondiendo = true;
-            Interlocked.CompareExchange(ref seEstaRespondiendo, 1, 0);
+            Interlocked.CompareExchange(ref isResponding, 1, 0);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public void SeFinalizaProcesoRespuesta()
+        public void ReleaseResponseProcess()
         {
-            //lock (objetoDeBloqueo)
-            //    if (seEstaRespondiendo) seEstaRespondiendo = false;
-            Interlocked.CompareExchange(ref seEstaRespondiendo, 0, 1);
+            Interlocked.CompareExchange(ref isResponding, 0, 1);
         }
 
         /// <summary>
@@ -252,15 +267,15 @@ namespace ServerCore
             {
                 if (disposing)
                 {
-                    saeaDeEnvioRecepcion?.Dispose();
-                    saeaDeEnvioRecepcion = null;
+                    saeaOfSendReceive?.Dispose();
+                    saeaOfSendReceive = null;
 
-                    if (socketDeTrabajo != null)
+                    if (SocketToWork != null)
                     {
-                        try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
-                        socketDeTrabajo.Close();
-                        socketDeTrabajo.Dispose();
-                        socketDeTrabajo = null;
+                        try { SocketToWork.Shutdown(SocketShutdown.Both); } catch { }
+                        SocketToWork.Close();
+                        SocketToWork.Dispose();
+                        SocketToWork = null;
                     }
                 }
                 disposed = true;
@@ -268,13 +283,33 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// Finalizes the instance of the <see cref="EstadoDelClienteBase"/> class.
+        /// Finalizes the instance of the <see cref="ClientStateBase"/> class.
         /// </summary>
         /// <remarks>This destructor ensures that unmanaged resources are released by calling the <see
         /// cref="Dispose(bool)"/> method.</remarks>
-        ~EstadoDelClienteBase()
+        ~ClientStateBase()
         {
             Dispose(false);
+        }
+
+        /// <summary>
+        /// Sets the HTTP response code for the current operation.
+        /// </summary>
+        /// <remarks>The response code is used to indicate the result of the operation. Ensure that the
+        /// provided code adheres to the standard HTTP status code conventions.</remarks>
+        /// <param name="code">The HTTP status code to set. Must be a valid HTTP status code (e.g., 200, 404, 500).</param>
+        public void SetResponseCode(int code)
+        {
+            this.responseCode = code;
+        }
+
+        /// <summary>
+        /// Sets the authorization code used for authentication or access control.
+        /// </summary>
+        /// <param name="code">The authorization code to set. Must be a valid integer representing the required authorization.</param>
+        public void SetAuthorizationCode(int code)
+        {
+            this.authorizationCode = code;
         }
     }
 }

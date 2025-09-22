@@ -1,6 +1,6 @@
 ﻿namespace ServerCore
 {
-    internal static class Utileria
+    internal static class Utilities
     {
 
         internal enum CodigosRespuesta

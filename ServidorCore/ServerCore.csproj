@@ -71,18 +71,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdminBuffer.cs" />
-    <Compile Include="AdminEstadosDeProveedor.cs" />
-    <Compile Include="AdminEstadosDeCliente.cs" />
-    <Compile Include="Configuracion.cs" />
-    <Compile Include="EstadoDelProveedorBase.cs" />
-    <Compile Include="ServidorTransaccional.cs" />
-    <Compile Include="ClienteBloqueo.cs" />
-    <Compile Include="EstadoDelServidorBase.cs" />
+    <Compile Include="BufferManager.cs" />
+    <Compile Include="ProviderStateManager.cs" />
+    <Compile Include="ClientStateManager.cs" />
+    <Compile Include="ServerConfiguration.cs" />
+    <Compile Include="ProviderStateBase.cs" />
+    <Compile Include="TransactionalServer.cs" />
+    <Compile Include="ClientBlocker.cs" />
+    <Compile Include="ServerStateBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EstadoDelClienteBase.cs" />
+    <Compile Include="ClientStateBase.cs" />
     <Compile Include="SocketPool.cs" />
-    <Compile Include="Utileria.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Guia.txt" />
