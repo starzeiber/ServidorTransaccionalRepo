@@ -129,14 +129,13 @@ namespace ServerCore
                     socket.Close();
                     Interlocked.Decrement(ref currentCount);
                 }
-                //semaphore.Release();
             }
             catch (Exception ex)
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Error al devolver un socket al pool:");
                 sb.AppendLine(ex.Message);
-                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
+                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
             }            
         }
 

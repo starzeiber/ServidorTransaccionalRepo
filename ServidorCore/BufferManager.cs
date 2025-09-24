@@ -59,7 +59,7 @@ namespace ServerCore
         /// lo regresar a la pila de bufferes disponibles para volver a usarlo
         /// </summary>
         /// <param name="args">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
-        internal void LiberarBuffer(SocketAsyncEventArgs args, Guid guid)
+        internal void LiberarBuffer(SocketAsyncEventArgs args, string uniqueId)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace ServerCore
                 sb.Append("Error en AdminBuffer.LiberarBuffer");
                 sb.Append(ex.Message);
                 sb.Append(" cliente: ");
-                sb.Append(guid.ToString());
+                sb.Append(uniqueId);
                 Utilities.EscribirLog(sb.ToString(),Utilities.tipoLog.ALERTA);
             }            
         }

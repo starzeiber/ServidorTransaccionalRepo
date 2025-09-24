@@ -11,6 +11,7 @@ namespace ServerCore
     /// </summary>
     public class ProviderStateBase : IDisposable
     {
+        public string UniqueProviderId { get; set; }
 
         /// <summary>
         /// Referencia al servidor de socket principal
@@ -21,16 +22,6 @@ namespace ServerCore
         /// SocketAsyncEventArgs que se utilizará en la recepción
         /// </summary>
         internal SocketAsyncEventArgs saeaSendReceive;
-
-        /// <summary>
-        /// Ip del proveedor
-        /// </summary>
-        public string ProviderIp { get; set; } = "127.0.0.0";
-
-        /// <summary>
-        /// Puerto del proveedor
-        /// </summary>
-        public Int32 ProviderPort { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
@@ -141,6 +132,7 @@ namespace ServerCore
             objRequest = null;
             objResponse = null;
             endPoint = null;
+            UniqueProviderId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
             TimeOutReset();
         }
 
@@ -202,8 +194,6 @@ namespace ServerCore
         /// once.</remarks>
         public void SetTimeOutExpired()
         {
-            //lock (objetoDeBloqueo)
-            //    if (!seVencioElTimeOut) seVencioElTimeOut = true;
             Interlocked.CompareExchange(ref wasTimeOutExpired, 1, 0);
         }
 
@@ -294,19 +284,19 @@ namespace ServerCore
         /// </summary>
         internal async Task TimeOutCounterAsync(int timeOut)
         {
-            timeOut = 10;
             _timeoutCts = new CancellationTokenSource();
             try
             {
                 await Task.Delay(timeOut * 1000, _timeoutCts.Token);
                 SetTimeOutExpired();
-                Utilities.EscribirLog($"Se venció el timeout a proveedor {ProviderIp}:{ProviderPort}.", Utilities.tipoLog.ALERTA);
+                Utilities.EscribirLog($"Se venció el timeout a proveedor {endPoint.Address}:{endPoint.Port}.", Utilities.tipoLog.ALERTA);
 
                 // Disparar el evento para notificar a ServidorTransaccional
                 TimeOutExpired?.Invoke(this, EventArgs.Empty);
             }
             catch (TaskCanceledException)
             {
+                TimeOutReset();
                 Utilities.EscribirLog("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utilities.tipoLog.INFORMACION);
             }
         }
@@ -314,11 +304,11 @@ namespace ServerCore
         /// <summary>
         /// Llama este método cuando recibas la respuesta antes del timeout.
         /// </summary>
-        public void CancelTimeout()
+        public void CancelTimeoutCounter()
         {
             _timeoutCts?.Cancel();
         }
-        
+
         public void SetClientState(ClientStateBase clientState)
         {
             this.clientStateSource = clientState;
@@ -336,12 +326,12 @@ namespace ServerCore
 
         public void SetInUse()
         {
-            Interlocked.CompareExchange(ref InUse, 0, 1);
+            Interlocked.CompareExchange(ref InUse, 1, 0);
         }
 
         public void SetFree()
         {
-            Interlocked.CompareExchange(ref InUse, 1, 0);
+            Interlocked.CompareExchange(ref InUse, 0, 1);
         }
 
     }

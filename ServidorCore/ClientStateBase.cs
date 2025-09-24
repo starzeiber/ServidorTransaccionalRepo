@@ -15,7 +15,7 @@ namespace ServerCore
         /// <summary>
         /// Identificador único para un cliente
         /// </summary>
-        public Guid UniqueClientId { get; set; }
+        public string UniqueClientId { get; set; }
 
         /// <summary>
         /// Referencia al servidor de socket principal
@@ -103,9 +103,9 @@ namespace ServerCore
         public bool isQuery;
 
         /// <summary>
-        /// Indicates whether the system is responding.
+        /// Indicates whether the system is in use.
         /// </summary>
-        public int isResponding;
+        public int inUse;
 
         /// <summary>
         /// Represents the unique identifier for a database transaction.
@@ -163,7 +163,7 @@ namespace ServerCore
             }
 
             // Limpiar otros datos de sesión
-            UniqueClientId = Guid.NewGuid();
+            UniqueClientId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
             esperandoEnvio.Set();
             messageResponse = "";
             objRequest = null;
@@ -176,13 +176,13 @@ namespace ServerCore
             timeOut = ServerConfiguration.timeOutCliente;
             isQuery = false;
             //seEstaRespondiendo = false;
-            isResponding = 0;
+            inUse = 0;
             idTrxBD = 0;
             msg210 = "";
             msg230 = "";
             mainSocketReference = null;
             //por precaución se coloca que no se está procesando respuesta
-            ReleaseResponseProcess();
+            SetFree();
         }
 
         /// <summary>
@@ -226,19 +226,17 @@ namespace ServerCore
         /// <remarks>This method uses an atomic operation to update the internal state, ensuring that 
         /// only one thread can mark the instance as processing a response at a time.  Subsequent calls from other
         /// threads will have no effect if the instance is already marked.</remarks>
-        public void SetResponseProcess()
+        public void SetInUse()
         {
-            //lock (objetoDeBloqueo)
-            //    if (!seEstaRespondiendo) seEstaRespondiendo = true;
-            Interlocked.CompareExchange(ref isResponding, 1, 0);
+            Interlocked.CompareExchange(ref inUse, 1, 0);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public void ReleaseResponseProcess()
+        public void SetFree()
         {
-            Interlocked.CompareExchange(ref isResponding, 0, 1);
+            Interlocked.CompareExchange(ref inUse, 0, 1);
         }
 
         /// <summary>
