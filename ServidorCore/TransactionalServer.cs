@@ -27,8 +27,26 @@ namespace ServerCore
         where S : ServerStateBase
         where X : ProviderStateBase
     {
+        /// <summary>
+        /// A factory method used to create instances of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <remarks>This delegate is expected to return a new or existing instance of <typeparamref
+        /// name="T"/>  when invoked. Ensure that the factory method is properly configured to provide valid instances 
+        /// of the required type.</remarks>
         private Func<T> clientFactory;
+
+        /// <summary>
+        /// A delegate that creates and returns an instance of type <typeparamref name="S"/>.
+        /// </summary>
+        /// <remarks>This factory function is used to generate instances of the specified type
+        /// <typeparamref name="S"/>  on demand. Ensure that the delegate is properly initialized before use.</remarks>
         private Func<S> serverFactory;
+
+        /// <summary>
+        /// A delegate that provides a factory method for creating instances of type <see cref="X"/>.
+        /// </summary>
+        /// <remarks>This delegate is used to encapsulate the logic for creating instances of <see
+        /// cref="X"/>.  It allows for deferred or customized instantiation of the type.</remarks>
         private Func<X> providerFactory;
 
         /// <summary>
@@ -176,7 +194,7 @@ namespace ServerCore
         {
             get
             {
-                return bufferManager.ContadorDeBuffersDisponibles;
+                return bufferManager.AvailableBuffersCounter;
             }
         }
 
@@ -196,6 +214,13 @@ namespace ServerCore
         /// </summary>
         public List<int> ProviderPortsList { get; set; }
 
+
+        private int mensajesRecibidosEnSegundo = 0;
+        private int mensajesPorSegundo = 0;
+        private DateTime ultimoSegundo = DateTime.UtcNow;
+        private readonly object lockMensajes = new object();
+
+        public int MensajesPorSegundo => mensajesPorSegundo;
 
 
         /// <summary>
@@ -480,7 +505,7 @@ namespace ServerCore
             }
 
             //Se prepara un buffer suficientemente grande para todas las operaciones y poder reutilizarlo por secciones
-            bufferManager.inicializarBuffer();
+            bufferManager.InitializeFullBuffer();
             SetClientStatePool();
             SetProviderStatePool();
         }
@@ -512,7 +537,7 @@ namespace ServerCore
                     //SocketAsyncEventArgs necesita un objeto con la información de cada proveedor para su administración
                     saeaDeEnvioRecepcionAlProveedor.UserToken = estadoDelProveedor;
                     //Se establece el buffer que se utilizará en la operación de lectura del proveedor en el eventArgDeEnvioRecepcion
-                    bufferManager.asignarBuffer(saeaDeEnvioRecepcionAlProveedor);
+                    bufferManager.SetBuffer(saeaDeEnvioRecepcionAlProveedor);
                     //Se establece el socket asincrono de EventArg a utilizar en las operaciones con el proveedor
                     estadoDelProveedor.saeaSendReceive = saeaDeEnvioRecepcionAlProveedor;
 
@@ -563,7 +588,7 @@ namespace ServerCore
                     //SocketAsyncEventArgs necesita un objeto con la información de cada cliente para su administración
                     saeaDeEnvioRecepcionCliente.UserToken = clientState;
                     //Se establece el buffer que se utilizará en la operación de lectura del cliente en el eventArgDeRecepcion
-                    bufferManager.asignarBuffer(saeaDeEnvioRecepcionCliente);
+                    bufferManager.SetBuffer(saeaDeEnvioRecepcionCliente);
                     //Se establece el socket asincrono de EventArg a utilizar en la lectura del cliente
                     clientState.saeaOfSendReceive = saeaDeEnvioRecepcionCliente;
 
@@ -641,11 +666,17 @@ namespace ServerCore
         /// <returns>An <see cref="IPEndPoint"/> representing the provider's IP address and the selected port.</returns>
         private IPEndPoint GetIPEndPointFromProviderPortsList()
         {
-            IPAddress iPAddress = IPAddress.Parse(ProviderIp);
-            bool seSincronzo = Monitor.TryEnter(ProviderPortsList, 1000);
+            IPAddress iPAddress = IPAddress.Parse(ProviderIp);            
             IPEndPoint endPointProveedor;
+//#if DEBUG
+//            iPAddress= IPAddress.Parse("192.168.100.25");
+//            endPointProveedor = new IPEndPoint(iPAddress, 9540);
+//#else
+            bool seSincronzo = Monitor.TryEnter(ProviderPortsList, 1000);
             if (seSincronzo)
             {
+
+
                 try
                 {
                     //192.168.69.91
@@ -672,6 +703,7 @@ namespace ServerCore
             {
                 endPointProveedor = new IPEndPoint(iPAddress, ProviderPortsList.First());
             }
+
             if (portCounter == ProviderPortsList.Count)
             {
                 Interlocked.Exchange(ref portCounter, 0);
@@ -680,7 +712,7 @@ namespace ServerCore
             {
                 Interlocked.Increment(ref portCounter);
             }
-
+//#endif
             return endPointProveedor;
         }
 
@@ -820,7 +852,7 @@ namespace ServerCore
 
             //Se establece el buffer que se utilizará en la operación de lectura del cliente en el eventArgDeRecepcion
             if (clientState.saeaOfSendReceive.Buffer == null)
-                bufferManager.asignarBuffer(clientState.saeaOfSendReceive);
+                bufferManager.SetBuffer(clientState.saeaOfSendReceive);
 
             //  de la misma forma se ingresa la ip y puerto del cliente que se aceptó
             clientState.ClientIp = (saea.AcceptSocket.RemoteEndPoint as IPEndPoint).Address.ToString();
@@ -1018,6 +1050,8 @@ namespace ServerCore
         /// <param name="clientState">Objeto que tiene la información y socket de trabajo del cliente</param>
         private void ReceivingProcess(T clientState)
         {
+            MessagePerSecond();
+
             // se ingresa el cliente a la lista de clientes
             SetStartDateTrxReceive(clientState);
 
@@ -1127,6 +1161,27 @@ namespace ServerCore
                 sb.Append(clientState.UniqueClientId);
                 EscribirLog(sb.ToString(), tipoLog.ERROR);
                 ClientSocketClose(clientState);
+            }
+        }
+
+        private void MessagePerSecond()
+        {
+            lock (lockMensajes)
+            {
+                mensajesRecibidosEnSegundo++;
+                var ahora = DateTime.UtcNow;
+                if ((ahora - ultimoSegundo).TotalSeconds >= 1)
+                {
+                    mensajesPorSegundo = mensajesRecibidosEnSegundo;
+                    mensajesRecibidosEnSegundo = 0;
+                    ultimoSegundo = ahora;
+                }
+                else
+                {
+                    mensajesRecibidosEnSegundo++;
+                    mensajesPorSegundo = mensajesRecibidosEnSegundo;
+                }
+
             }
         }
 
@@ -1539,7 +1594,7 @@ namespace ServerCore
                 else
                 {
                     EscribirLog("Liberando buffer del cliente " + clientState.UniqueClientId, tipoLog.INFORMACION);
-                    bufferManager.LiberarBuffer(clientState.saeaOfSendReceive, clientState.UniqueClientId);
+                    bufferManager.FreeBuffer(clientState.saeaOfSendReceive, clientState.UniqueClientId);
                     clientState.saeaOfSendReceive.AcceptSocket = null;
                     clientStateManager.ingresarUnElemento(clientState);
                 }
@@ -1567,7 +1622,7 @@ namespace ServerCore
         /// Cierra el socket asociado a un cliente y retira al cliente de la lista de clientes conectados
         /// </summary>
         /// <param name="clientState">Instancia del cliente a cerrar</param>
-        public void ClientSocketForcedClose(T clientState)
+        public void RemoveForcedClient(T clientState)
         {
             // Se comprueba que la información del socket de trabajo sea null, ya que podría ser invocado como resultado 
             // de una operación de E / S sin valores
@@ -1575,7 +1630,7 @@ namespace ServerCore
             {
                 var sb = new StringBuilder();
                 sb.Append("No se pudo obtener el estado del cliente, ");
-                sb.Append(nameof(ClientSocketForcedClose));
+                sb.Append(nameof(RemoveForcedClient));
                 EscribirLog(sb.ToString(), tipoLog.ERROR);
                 return;
             }
@@ -1593,7 +1648,9 @@ namespace ServerCore
             {
                 var sb = new StringBuilder();
                 sb.Append(ex.Message);
-                sb.Append(" en CerrarSocketCliente, shutdown de envío en el socket de trabajo del cliente ");
+                sb.Append(", ");
+                sb.Append(nameof(RemoveForcedClient));
+                sb.Append(", shutdown de envío en el socket de trabajo del cliente ");
                 sb.Append(clientState.UniqueClientId);
                 EscribirLog(sb.ToString(), tipoLog.ALERTA);
             }
@@ -1607,7 +1664,9 @@ namespace ServerCore
             {
                 var sb = new StringBuilder();
                 sb.Append(ex.Message);
-                sb.Append(" en CerrarSocketCliente, close en el socket de trabajo del cliente ");
+                sb.Append(", ");
+                sb.Append(nameof(RemoveForcedClient));
+                sb.Append(", close en el socket de trabajo del cliente ");
                 sb.Append(clientState.UniqueClientId);
                 EscribirLog(sb.ToString(), tipoLog.ERROR);
             }
@@ -1615,18 +1674,30 @@ namespace ServerCore
             // se llama a la secuencia de cerrando para tener un flujo de eventos
             serverStateBase.OnClienteCerrado(clientState);
 
-
-            // se libera la instancia de socket de trabajo para reutilizarlo
-            // Antes de liberar el cliente al pool, libera el buffer
-            if (clientState.saeaOfSendReceive != null && clientState.inUse == 0)
+            try
             {
-                if (!RemoveClientToClientList(clientState))
-                    return;
-                EscribirLog("Liberando buffer del cliente " + clientState.UniqueClientId.ToString(), tipoLog.INFORMACION);
-                bufferManager.LiberarBuffer(clientState.saeaOfSendReceive, clientState.UniqueClientId);
-                clientState.saeaOfSendReceive.AcceptSocket = null;
-                clientStateManager.ingresarUnElemento(clientState);
+                // se libera la instancia de socket de trabajo para reutilizarlo
+                // Antes de liberar el cliente al pool, libera el buffer
+                if (clientState.saeaOfSendReceive != null && clientState.inUse == 0)
+                {
+                    if (!RemoveClientToClientList(clientState))
+                        return;
+                    EscribirLog("Liberando buffer del cliente " + clientState.UniqueClientId.ToString(), tipoLog.INFORMACION);
+                    bufferManager.FreeBuffer(clientState.saeaOfSendReceive, clientState.UniqueClientId);
+                    clientState.saeaOfSendReceive.AcceptSocket = null;
+                    clientStateManager.ingresarUnElemento(clientState);
+                }
             }
+            catch (Exception ex)
+            {
+                var sb = new StringBuilder();
+                sb.Append(ex.Message);
+                sb.Append(", ");
+                sb.Append(nameof(RemoveForcedClient));
+                sb.Append(", liberando buffer del cliente ");
+                sb.Append(clientState.UniqueClientId);
+                EscribirLog(sb.ToString(), tipoLog.ERROR);
+            }            
         }
 
         /// <summary>
@@ -1714,10 +1785,18 @@ namespace ServerCore
             saeaProveedor.UserToken = clientState;
             try
             {
-                Socket providerSocket = socketPool.GetSocket(endPointProveedor);
+                Socket providerSocket = socketPool.GetSocket(endPointProveedor, clientState.UniqueClientId);
                 if (providerSocket == null)
                 {
                     throw new Exception("No se pudo obtener un socket del pool");
+                }
+                if(saeaProveedor == null)
+                {
+                    throw new Exception("SocketAsyncEventArgs del proveedor es nulo");
+                }
+                if(endPointProveedor == null)
+                {
+                    throw new Exception("EndPoint del proveedor es nulo");
                 }
                 saeaProveedor.RemoteEndPoint = endPointProveedor;
                 saeaProveedor.AcceptSocket = providerSocket;
@@ -1734,10 +1813,16 @@ namespace ServerCore
             catch (Exception ex)
             {
                 var sb = new StringBuilder();
-                sb.Append("Error al intentar conectar con el proveedor, se cerrará la conexión, cliente ");
+                sb.Append("Error al intentar conectar con el proveedor: ");
+                sb.Append(endPointProveedor);
+                sb.Append(", se cerrará la conexión, cliente ");
                 sb.Append(clientState.UniqueClientId);
                 sb.Append(", ");
                 sb.Append(ex.Message);
+                sb.Append(",  ");
+                sb.Append(ex.StackTrace);
+                sb.Append(",  ");
+                sb.Append(nameof(StartProviderProcess));
                 EscribirLog(sb.ToString(), tipoLog.ERROR);
 
                 // se libera el semaforo por si otra petición está solicitando acceso
@@ -1777,7 +1862,7 @@ namespace ServerCore
 
             //Se establece el buffer que se utilizará en la operación de lectura del cliente en el eventArgDeRecepcion
             if (providerState.saeaSendReceive.Buffer == null)
-                bufferManager.asignarBuffer(providerState.saeaSendReceive);
+                bufferManager.SetBuffer(providerState.saeaSendReceive);
 
             if (providerState.responseCode != (int)CodigosRespuesta.TransaccionExitosa)
             {
@@ -2051,7 +2136,7 @@ namespace ServerCore
         {
             try
             {
-                bufferManager.LiberarBuffer(estadoDelProveedor.saeaSendReceive, estadoDelProveedor.clientStateSource.UniqueClientId);
+                bufferManager.FreeBuffer(estadoDelProveedor.saeaSendReceive, estadoDelProveedor.clientStateSource.UniqueClientId);
                 estadoDelProveedor.saeaSendReceive.AcceptSocket = null;
             }
             catch (Exception ex)
@@ -2227,13 +2312,17 @@ namespace ServerCore
             //si aún no expira el timeout
             if (providerState.wasTimeOutExpired == 0)
             {
-                // se obtiene el mensaje y se decodifica
-                string messageReceive = Encoding.ASCII.GetString(saeaReceive.Buffer, saeaReceive.Offset, bytesTransferred);
-
                 // el mensaje recibido llevará un proceso, que no debe ser llevado por el core, se coloca en la función virtual
                 // para que se consuma en otra capa, se procese y se entregue una respuesta
                 try
                 {
+                    if (saeaReceive.Buffer == null)
+                    {
+                        throw new Exception("Buffer nulo en ReceiveProcess para el cliente: " + providerState.clientStateSource.UniqueClientId);                       
+                    }
+                    // se obtiene el mensaje y se decodifica
+                    string messageReceive = Encoding.ASCII.GetString(saeaReceive.Buffer, saeaReceive.Offset, bytesTransferred);
+
                     var sb = new StringBuilder();
                     sb.Append("Mensaje recibido del proveedor: ");
                     sb.Append(messageReceive.Trim().Substring(2));
@@ -2250,7 +2339,10 @@ namespace ServerCore
                     providerState.SetAuthorizationCode(0);
                     var sb = new StringBuilder();
                     sb.Append(ex.Message);
-                    sb.Append(", procesando trama del proveedor, ProcesarRecepcion, cliente ");
+                    sb.Append(", procesando trama del proveedor");
+                    sb.Append(" , ");
+                    sb.Append(nameof(ReceiveProcess));
+                    sb.Append(", cliente ");
                     sb.Append(providerState.clientStateSource.UniqueClientId);
                     EscribirLog(sb.ToString(), tipoLog.ERROR);
                     return;
@@ -2293,12 +2385,11 @@ namespace ServerCore
 
                 // se obtiene el socket específico del proveedor en cuestión
                 Socket socketDeTrabajoACerrar = providerState.SocketOfWork;
-                socketPool.ReturnSocket(socketDeTrabajoACerrar);
+                socketPool.ReturnSocket(socketDeTrabajoACerrar,providerState.clientStateSource.UniqueClientId);
 
                 // se libera la instancia de socket de trabajo para reutilizarlo
                 if (providerState.saeaSendReceive != null && providerState.InUse == 0 && providerState.wasTimeOutExpired == 0)
                 {
-
                     if (!RemoveProviderToProviderList(providerState))
                     {
                         if (!ProvidersPendingDisconnectionList.Contains(providerState))
@@ -2307,7 +2398,7 @@ namespace ServerCore
                     else
                     {
                         EscribirLog("Liberando buffer del proveedor para el cliente: " + providerState.clientStateSource.UniqueClientId, tipoLog.INFORMACION);
-                        bufferManager.LiberarBuffer(providerState.saeaSendReceive, providerState.clientStateSource.UniqueClientId);
+                        bufferManager.FreeBuffer(providerState.saeaSendReceive, providerState.clientStateSource.UniqueClientId);
                         providerState.saeaSendReceive.AcceptSocket = null;
                         providerStateManager.ingresarUnElemento(providerState);
                     }
@@ -2346,7 +2437,17 @@ namespace ServerCore
             }
         }
 
-        public void ProviderSocketForcedClose(X providerState)
+        /// <summary>
+        /// Forces the closure of a provider's socket and releases associated resources.
+        /// </summary>
+        /// <remarks>This method ensures that the provider's socket is properly closed and its resources
+        /// are released  for reuse. If the socket is no longer in use and can be removed from the pending list, the
+        /// associated  buffer is released, and the state object is returned to the state manager. If the socket has
+        /// been  inactive for more than 10 minutes, it is forcibly closed.   Any exceptions encountered during the
+        /// operation are logged, including the unique client identifier  if available.</remarks>
+        /// <param name="providerState">The state object representing the provider's socket and its associated resources.  This parameter cannot be
+        /// null.</param>
+        public void RemoveForcedProvider(X providerState)
         {
             var sb = new StringBuilder();
             try
@@ -2365,11 +2466,11 @@ namespace ServerCore
                     else
                     {
                         EscribirLog("Liberando buffer del proveedor para el cliente: " + providerState.clientStateSource.UniqueClientId, tipoLog.INFORMACION);
-                        bufferManager.LiberarBuffer(providerState.saeaSendReceive, providerState.clientStateSource.UniqueClientId);
+                        bufferManager.FreeBuffer(providerState.saeaSendReceive, providerState.clientStateSource.UniqueClientId);
                         providerState.saeaSendReceive.AcceptSocket = null;
                         providerStateManager.ingresarUnElemento(providerState);
                     }
-                }
+                }                    
             }
             catch (Exception ex)
             {
@@ -2487,7 +2588,7 @@ namespace ServerCore
             {
                 var sb = new StringBuilder();
                 sb.Append(ex.Message);
-                sb.Append(" Error removiendo el cliente de la lista de proveedores, cliente ");
+                sb.Append(" Error removiendo el proveedor de la lista de proveedores, cliente ");
                 sb.Append(providerState.clientStateSource.UniqueClientId.ToString());
                 EscribirLog(sb.ToString(), tipoLog.ERROR);
                 return false;
@@ -2585,8 +2686,26 @@ namespace ServerCore
             sb.Append(", cliente ");
             sb.Append(providerState.clientStateSource.UniqueClientId);
             EscribirLog(sb.ToString(), tipoLog.ALERTA);
-            ResponseToClient((T)providerState.clientStateSource);
-            ProviderSocketClose(providerState);
+
+            // Forzar cierre del socket si sigue abierto
+            try
+            {
+                if (providerState.SocketOfWork != null)
+                {
+                    providerState.SocketOfWork.Shutdown(SocketShutdown.Both);
+                    providerState.SocketOfWork.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.Append("Error forzando cierre de socket por timeout: " + ex.Message);
+                sb.Append(", cliente ");
+                sb.Append(providerState.clientStateSource.UniqueClientId);
+                EscribirLog(sb.ToString(), tipoLog.ERROR);
+            }
+
+            //ResponseToClient((T)providerState.clientStateSource);
+            //ProviderSocketClose(providerState);
         }
 
         #endregion
@@ -2701,7 +2820,7 @@ namespace ServerCore
                     // Liberar buffer y referencias
                     if (cliente.saeaOfSendReceive != null)
                     {
-                        bufferManager.LiberarBuffer(cliente.saeaOfSendReceive, cliente.UniqueClientId);
+                        bufferManager.FreeBuffer(cliente.saeaOfSendReceive, cliente.UniqueClientId);
                         cliente.saeaOfSendReceive.UserToken = null;
                         cliente.saeaOfSendReceive.AcceptSocket = null;
                         // Si no se reutiliza, puedes llamar a Dispose()
@@ -2732,7 +2851,7 @@ namespace ServerCore
 
                         if (proveedor.saeaSendReceive != null)
                         {
-                            bufferManager.LiberarBuffer(proveedor.saeaSendReceive, proveedor.clientStateSource.UniqueClientId);
+                            bufferManager.FreeBuffer(proveedor.saeaSendReceive, proveedor.clientStateSource.UniqueClientId);
                             proveedor.saeaSendReceive.UserToken = null;
                             proveedor.saeaSendReceive.AcceptSocket = null;
                             // proveedor.saeaDeEnvioRecepcion.Dispose();
@@ -2769,8 +2888,8 @@ namespace ServerCore
             // Liberar PerformanceCounter
             incommigConnectionsPerformanceCounter?.Dispose();
 
-            bufferManager.LimpiarBufferCompleto();
-            bufferManager.LimpiarPilaDeIndices();
+            bufferManager.ClearFullBuffer();
+            bufferManager.ClearStackBuffer();
 
 
             inExecution = false;

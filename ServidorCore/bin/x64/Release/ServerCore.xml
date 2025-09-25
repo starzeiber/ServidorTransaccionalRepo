@@ -11,66 +11,79 @@
             De esta manera, siempre se tiene un buffer justo a cada operación y reusable
             </summary>
         </member>
-        <member name="F:ServerCore.BufferManager.bufferCompleto">
+        <member name="F:ServerCore.BufferManager.fullBuffer">
             <summary>        
             Matriz de bytes utilizada como buffer en la operación
             </summary>
         </member>
-        <member name="F:ServerCore.BufferManager.tamanoBufferPorSeccion">
+        <member name="F:ServerCore.BufferManager.sizeBufferPerRequest">
             <summary>
             Tamaño del arreglo de bytes usado como buffer en cada operación
             </summary>
         </member>
-        <member name="F:ServerCore.BufferManager.indiceBuffer">
+        <member name="F:ServerCore.BufferManager.bufferIndex">
             <summary>
             indice en el arreglo de byte (buffer).
             </summary>
         </member>
-        <member name="F:ServerCore.BufferManager.pilaDeIndicesDeDesplazamientoBuffer">
+        <member name="F:ServerCore.BufferManager.bufferStackOffsetsIndex">
             <summary>
             Pila de indices para el administrador de buffer
             </summary>
         </member>
-        <member name="F:ServerCore.BufferManager.numeroBytesAdministrados">
+        <member name="F:ServerCore.BufferManager.managedByteCounter">
             <summary>
             Número de total de bytes controlados por la pila de buffer
+            </summary>
+        </member>
+        <member name="P:ServerCore.BufferManager.AvailableBuffersCounter">
+            <summary>
+            Gets the number of available buffers in the internal buffer stack.
             </summary>
         </member>
         <member name="M:ServerCore.BufferManager.#ctor(System.Int32,System.Int32)">
             <summary>
             Constructor que inicializa los valores del administrador de buffer
             </summary>
-            <param name="totalBytesAdministrar">Número total de bytes que tendrá la pila del buffer</param>
-            <param name="tamanoBuffer">Tamaño del buffer para la operación</param>
+            <param name="managedByteCounter">Número total de bytes que tendrá la pila del buffer</param>
+            <param name="bufferSize">Tamaño del buffer para la operación</param>
         </member>
-        <member name="M:ServerCore.BufferManager.LiberarBuffer(System.Net.Sockets.SocketAsyncEventArgs,System.String)">
+        <member name="M:ServerCore.BufferManager.FreeBuffer(System.Net.Sockets.SocketAsyncEventArgs,System.String)">
             <summary>
             Remueve el buffer de un objeto SocketAsyncEventArg. Al liberarlo
             lo regresar a la pila de bufferes disponibles para volver a usarlo
             </summary>
             <param name="args">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
         </member>
-        <member name="M:ServerCore.BufferManager.inicializarBuffer">
+        <member name="M:ServerCore.BufferManager.InitializeFullBuffer">
             <summary>
              Asigna el espacio de buffer usado por la pila de buffer
             </summary>
         </member>
-        <member name="M:ServerCore.BufferManager.asignarBuffer(System.Net.Sockets.SocketAsyncEventArgs)">
+        <member name="M:ServerCore.BufferManager.SetBuffer(System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Asigna un buffer desde la pila de bufferes para el objeto SocketAsyncEventArgs específico
             </summary>
             <param name="socketAsyncEventArgs">SocketAsyncEventArgs donde el buffer se asignará</param>
             <returns>True si el buffer fue correctamente asignado</returns>
         </member>
-        <member name="M:ServerCore.BufferManager.LimpiarBufferCompleto">
+        <member name="M:ServerCore.BufferManager.ClearFullBuffer">
             <summary>
             Limpia el contenido del buffer completo, estableciendo todos los bytes en cero.
             </summary>
         </member>
-        <member name="M:ServerCore.BufferManager.LimpiarPilaDeIndices">
+        <member name="M:ServerCore.BufferManager.ClearStackBuffer">
             <summary>
             Limpia la pila de índices de desplazamiento del buffer, eliminando todos los elementos.
             </summary>
+        </member>
+        <member name="M:ServerCore.BufferManager.InitializeStackBuffer">
+            <summary>
+            Initializes the stack of buffer indices used for managing offsets in the buffer pool.
+            </summary>
+            <remarks>This method clears the existing stack and repopulates it with indices calculated
+            based on          the buffer size per request. The indices represent the starting positions of buffers
+            within          the managed byte pool.</remarks>
         </member>
         <member name="T:ServerCore.ProviderStateManager`1">
             <summary>
@@ -367,6 +380,28 @@
             <typeparam name="S">Instancia sobre la clase que contiene el estado de flujo de una operación en el servidor</typeparam>
             <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
             socket de trabajo una vez asignado desde el pool</typeparam>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.clientFactory">
+            <summary>
+            A factory method used to create instances of type <typeparamref name="T"/>.
+            </summary>
+            <remarks>This delegate is expected to return a new or existing instance of <typeparamref
+            name="T"/>  when invoked. Ensure that the factory method is properly configured to provide valid instances 
+            of the required type.</remarks>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.serverFactory">
+            <summary>
+            A delegate that creates and returns an instance of type <typeparamref name="S"/>.
+            </summary>
+            <remarks>This factory function is used to generate instances of the specified type
+            <typeparamref name="S"/>  on demand. Ensure that the delegate is properly initialized before use.</remarks>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.providerFactory">
+            <summary>
+            A delegate that provides a factory method for creating instances of type <see cref="!:X"/>.
+            </summary>
+            <remarks>This delegate is used to encapsulate the logic for creating instances of <see
+            cref="!:X"/>.  It allows for deferred or customized instantiation of the type.</remarks>
         </member>
         <member name="F:ServerCore.TransactionalServer`3.socketPool">
             <summary>
@@ -837,7 +872,7 @@
             </summary>
             <param name="clientState">Instancia del cliente a cerrar</param>
         </member>
-        <member name="M:ServerCore.TransactionalServer`3.ClientSocketForcedClose(`0)">
+        <member name="M:ServerCore.TransactionalServer`3.RemoveForcedClient(`0)">
             <summary>
             Cierra el socket asociado a un cliente y retira al cliente de la lista de clientes conectados
             </summary>
@@ -939,6 +974,18 @@
             <summary>
             Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
             </summary>
+        </member>
+        <member name="M:ServerCore.TransactionalServer`3.RemoveForcedProvider(`2)">
+            <summary>
+            Forces the closure of a provider's socket and releases associated resources.
+            </summary>
+            <remarks>This method ensures that the provider's socket is properly closed and its resources
+            are released  for reuse. If the socket is no longer in use and can be removed from the pending list, the
+            associated  buffer is released, and the state object is returned to the state manager. If the socket has
+            been  inactive for more than 10 minutes, it is forcibly closed.   Any exceptions encountered during the
+            operation are logged, including the unique client identifier  if available.</remarks>
+            <param name="providerState">The state object representing the provider's socket and its associated resources.  This parameter cannot be
+            null.</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.RemoveProviderToProviderList(`2)">
             <summary>
@@ -1359,7 +1406,7 @@
             <param name="maxSize">The maximum number of sockets that can be held in the pool. Must be a positive integer.  The default value
             is 10.</param>
         </member>
-        <member name="M:ServerCore.SocketPool.GetSocket(System.Net.IPEndPoint)">
+        <member name="M:ServerCore.SocketPool.GetSocket(System.Net.IPEndPoint,System.String)">
             <summary>
             Retrieves a socket from the pool or creates a new one if the pool is not at maximum capacity.
             </summary>
@@ -1370,7 +1417,7 @@
             <returns>A connected <see cref="T:System.Net.Sockets.Socket"/> instance. Returns <see langword="null"/> if an error
             occurs during socket creation or retrieval.</returns>
         </member>
-        <member name="M:ServerCore.SocketPool.ReturnSocket(System.Net.Sockets.Socket)">
+        <member name="M:ServerCore.SocketPool.ReturnSocket(System.Net.Sockets.Socket,System.String)">
             <summary>
             Returns a socket to the pool if it is connected; otherwise, closes the socket and updates the pool count.
             </summary>

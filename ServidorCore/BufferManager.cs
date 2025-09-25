@@ -14,44 +14,50 @@ namespace ServerCore
         /// <summary>        
         /// Matriz de bytes utilizada como buffer en la operación
         /// </summary>
-        private Byte[] bufferCompleto;
+        private Byte[] fullBuffer;
 
         /// <summary>
         /// Tamaño del arreglo de bytes usado como buffer en cada operación
         /// </summary>
-        private readonly Int32 tamanoBufferPorSeccion;
+        private readonly Int32 sizeBufferPerRequest;
 
         /// <summary>
         /// indice en el arreglo de byte (buffer).
         /// </summary>
-        private Int32 indiceBuffer;
+        private Int32 bufferIndex;
 
         /// <summary>
         /// Pila de indices para el administrador de buffer
         /// </summary>
-        private readonly Stack<Int32> pilaDeIndicesDeDesplazamientoBuffer;
+        private readonly Stack<Int32> bufferStackOffsetsIndex;
+
+        private readonly int maxNumberStackBuffers;
 
         /// <summary>
         /// Número de total de bytes controlados por la pila de buffer
         /// </summary>
-        private readonly Int32 numeroBytesAdministrados;
+        private readonly Int32 managedByteCounter;
 
-        internal int ContadorDeBuffersDisponibles
+        /// <summary>
+        /// Gets the number of available buffers in the internal buffer stack.
+        /// </summary>
+        internal int AvailableBuffersCounter
         {
-            get { return this.pilaDeIndicesDeDesplazamientoBuffer.Count; }
+            get { return this.bufferStackOffsetsIndex.Count; }
         }
 
         /// <summary>
         /// Constructor que inicializa los valores del administrador de buffer
         /// </summary>
-        /// <param name="totalBytesAdministrar">Número total de bytes que tendrá la pila del buffer</param>
-        /// <param name="tamanoBuffer">Tamaño del buffer para la operación</param>
-        internal BufferManager(Int32 totalBytesAdministrar, Int32 tamanoBuffer)
+        /// <param name="managedByteCounter">Número total de bytes que tendrá la pila del buffer</param>
+        /// <param name="bufferSize">Tamaño del buffer para la operación</param>
+        internal BufferManager(Int32 managedByteCounter, Int32 bufferSize)
         {
-            this.numeroBytesAdministrados = totalBytesAdministrar;
-            this.indiceBuffer = 0;
-            this.tamanoBufferPorSeccion = tamanoBuffer;
-            this.pilaDeIndicesDeDesplazamientoBuffer = new Stack<Int32>();
+            this.managedByteCounter = managedByteCounter;
+            this.bufferIndex = 0;
+            this.sizeBufferPerRequest = bufferSize;
+            this.bufferStackOffsetsIndex = new Stack<Int32>();
+            maxNumberStackBuffers = this.managedByteCounter / sizeBufferPerRequest;
         }
 
         /// <summary>
@@ -59,13 +65,25 @@ namespace ServerCore
         /// lo regresar a la pila de bufferes disponibles para volver a usarlo
         /// </summary>
         /// <param name="args">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
-        internal void LiberarBuffer(SocketAsyncEventArgs args, string uniqueId)
+        internal void FreeBuffer(SocketAsyncEventArgs args, string uniqueId)
         {
             try
             {
+                // Validar que el offset no supere el tamaño del buffer principal
+                if (args.Offset < 0 || args.Offset >= this.managedByteCounter)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append("Offset fuera de rango en AdminBuffer.LiberarBuffer: ");
+                    sb.Append(args.Offset);
+                    sb.Append(" cliente: ");
+                    sb.Append(uniqueId);
+                    Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
+                    return;
+                }
+
                 //Se inserta al principio de la pila un índice que muestra el desplazamiento en el buffer que utilizó SocketAsyncEventArgs
                 //para que sea reutilizado, de esta forma secciones iguales se toman y se regresan
-                this.pilaDeIndicesDeDesplazamientoBuffer.Push(args.Offset);
+                this.bufferStackOffsetsIndex.Push(args.Offset);
                 args.SetBuffer(null, 0, 0);
             }
             catch (Exception ex)
@@ -82,11 +100,11 @@ namespace ServerCore
         /// <summary>
         ///  Asigna el espacio de buffer usado por la pila de buffer
         /// </summary>
-        internal void inicializarBuffer()
+        internal void InitializeFullBuffer()
         {
             // Se crea un enorme buffer y se divide después para cada objeto SocketAsyncEventArg
-            this.bufferCompleto = new Byte[this.numeroBytesAdministrados];
-            //InicializarPilaDeIndices();
+            this.fullBuffer = new Byte[this.managedByteCounter];
+            InitializeStackBuffer();
         }
 
         /// <summary>
@@ -94,58 +112,65 @@ namespace ServerCore
         /// </summary>
         /// <param name="socketAsyncEventArgs">SocketAsyncEventArgs donde el buffer se asignará</param>
         /// <returns>True si el buffer fue correctamente asignado</returns>
-        internal Boolean asignarBuffer(SocketAsyncEventArgs socketAsyncEventArgs)
+        internal Boolean SetBuffer(SocketAsyncEventArgs socketAsyncEventArgs)
         {
-            // si el indice de la pila es mayor a cero quiere decir que tenemos disponible espacio en
-            // el buffer grande para asignar una sección de buffer al objeto
-            if (this.pilaDeIndicesDeDesplazamientoBuffer.Count > 0)
+            // si el indice de la pila es mayor a cero quiere decir que tenemos disponible un espacio seccionado en
+            // el buffer grande para asignarlo de buffer al objeto
+            if (this.bufferStackOffsetsIndex.Count > 0)
             {
                 // se asigna un espacio para ser el buffer de trabajo, indicando el tamaño
                 // para la operación y su desplazamiento será el número del elemento de 
                 // la pila de indices, al mismo tiempo se le quita un elemento a dicha pila
-                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.pilaDeIndicesDeDesplazamientoBuffer.Pop(), this.tamanoBufferPorSeccion);
+                socketAsyncEventArgs.SetBuffer(this.fullBuffer, this.bufferStackOffsetsIndex.Pop(), this.sizeBufferPerRequest);
             }
             else // si es la primera vez que se utiliza este socketAsyncEventArgs
             {
                 // se comprueba que si le restamos el número de bytes a utilizar del número
                 // de bytes disponibles, si es menor al indice actual entonces no alcanza
-                if ((this.numeroBytesAdministrados - this.tamanoBufferPorSeccion) < this.indiceBuffer)
+                if ((this.managedByteCounter - this.sizeBufferPerRequest) < this.bufferIndex)
                 {
                     return false;
                 }
-                socketAsyncEventArgs.SetBuffer(this.bufferCompleto, this.indiceBuffer, this.tamanoBufferPorSeccion);
+                socketAsyncEventArgs.SetBuffer(this.fullBuffer, this.bufferIndex, this.sizeBufferPerRequest);
                 // aquí está la clave, con este offset, me posiciono dentro del buffer enorme para saber en que sección me encuentro después de haber asignado un pedazo
-                this.indiceBuffer += this.tamanoBufferPorSeccion;
+                this.bufferIndex += this.sizeBufferPerRequest;
             }
 
             return true;
         }
+
         /// <summary>
         /// Limpia el contenido del buffer completo, estableciendo todos los bytes en cero.
         /// </summary>
-        internal void LimpiarBufferCompleto()
+        internal void ClearFullBuffer()
         {
-            if (this.bufferCompleto != null)
+            if (this.fullBuffer != null)
             {
-                Array.Clear(this.bufferCompleto, 0, this.bufferCompleto.Length);
+                Array.Clear(this.fullBuffer, 0, this.fullBuffer.Length);
             }
         }
 
         /// <summary>
         /// Limpia la pila de índices de desplazamiento del buffer, eliminando todos los elementos.
         /// </summary>
-        internal void LimpiarPilaDeIndices()
+        internal void ClearStackBuffer()
         {
-            this.pilaDeIndicesDeDesplazamientoBuffer.Clear();
+            this.bufferStackOffsetsIndex.Clear();
         }
 
-        //internal void InicializarPilaDeIndices()
-        //{
-        //    this.pilaDeIndicesDeDesplazamientoBuffer.Clear();
-        //    for (int i = 0; i < this.numeroBytesAdministrados; i += this.tamanoBufferPorSeccion)
-        //    {
-        //        this.pilaDeIndicesDeDesplazamientoBuffer.Push(i);
-        //    }
-        //}
+        /// <summary>
+        /// Initializes the stack of buffer indices used for managing offsets in the buffer pool.
+        /// </summary>
+        /// <remarks>This method clears the existing stack and repopulates it with indices calculated
+        /// based on          the buffer size per request. The indices represent the starting positions of buffers
+        /// within          the managed byte pool.</remarks>
+        internal void InitializeStackBuffer()
+        {
+            this.bufferStackOffsetsIndex.Clear();
+            for (int i = 0; i < this.managedByteCounter; i += this.sizeBufferPerRequest)
+            {
+                this.bufferStackOffsetsIndex.Push(i);
+            }
+        }
     }
 }

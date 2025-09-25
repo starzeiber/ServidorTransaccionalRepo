@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -89,6 +90,8 @@ namespace ServerCore
         /// not be accessed directly outside of the class.</remarks>
         private bool disposed = false;
 
+        public DateTime lastActivityTime;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -134,6 +137,8 @@ namespace ServerCore
             endPoint = null;
             UniqueProviderId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
             TimeOutReset();
+            InUse = 0;
+            lastActivityTime = DateTime.Now;
         }
 
         /// <summary>
@@ -289,7 +294,14 @@ namespace ServerCore
             {
                 await Task.Delay(timeOut * 1000, _timeoutCts.Token);
                 SetTimeOutExpired();
-                Utilities.EscribirLog($"Se venció el timeout a proveedor {endPoint.Address}:{endPoint.Port}.", Utilities.tipoLog.ALERTA);
+                //var sb = new StringBuilder();
+                //sb.Append("Se venció el timeout a proveedor ");
+                //sb.Append(endPoint.Address);
+                //sb.Append(":");
+                //sb.Append(endPoint.Port);
+                //sb.Append(". cliente ");
+                //sb.Append(clientStateSource.UniqueClientId);
+                //Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
 
                 // Disparar el evento para notificar a ServidorTransaccional
                 TimeOutExpired?.Invoke(this, EventArgs.Empty);

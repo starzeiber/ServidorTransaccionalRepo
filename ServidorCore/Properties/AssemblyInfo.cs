@@ -62,8 +62,12 @@ using System.Runtime.InteropServices;
 //@UMB      15/08/25    9.2.1.0     Se limpian los buffers después de cada uso al cerrar la conexión
 //@UMB      21/08/25    10.0.0.0    Se validan todas las fugas de memoria y se optimiza el uso de recursos, se agrega un nuevo log para el cierre de conexiones
 //@UMB      11/09/25    11.0.0.0    Implementación de SocketPool para manejo eficiente de conexiones
+//@UMB      25/09/25    12.0.0.0    Se crea una nueva rutina para comprobar la conectividad del socket antes de reutilizarlo
+//                                  También se optimiza el manejo de excepciones y logs en la clase SocketPool
+//                                  También se implementa BufferManager para la gestión eficiente de buffers en operaciones asíncronas
+//                                  Se crea un nuevo validador de timeout para la clase proveedor
+//                                  por último se crea una rutina de devolución de saeas al pool de proveedores cuando se genera un timeout   
 
 
-
-[assembly: AssemblyVersion("11.0.0.0")]
-[assembly: AssemblyFileVersion("11.0.0.0")]
+[assembly: AssemblyVersion("12.0.0.0")]
+[assembly: AssemblyFileVersion("12.0.0.0")]

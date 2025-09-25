@@ -67,46 +67,58 @@ namespace ServerCore
         /// <param name="endPoint">The <see cref="System.Net.IPEndPoint"/> to which the socket will connect if a new socket is created.</param>
         /// <returns>A connected <see cref="System.Net.Sockets.Socket"/> instance. Returns <see langword="null"/> if an error
         /// occurs during socket creation or retrieval.</returns>
-        public Socket GetSocket(IPEndPoint endPoint)
+        public Socket GetSocket(IPEndPoint endPoint, string uniqueId)
         {
-            
-            bool released = false;
+            Socket socket = null;
             try
             {
-                //semaphore.Wait();
-                if (pool.TryTake(out Socket socket))
+                if (pool.TryTake(out socket))
                 {
-                    if (IsSocketConnected(socket))
-                        return socket;
-
-                    socket.Close();
                     Interlocked.Decrement(ref currentCount);
+                    if (socket == null)
+                    {
+                        throw new InvalidOperationException("El socket obtenido del pool es nulo.");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                var sb = new StringBuilder();
+                sb.Append("Error al obtener un socket del pool: ");
+                sb.Append(ex.Message);
+                sb.Append(", cliente: ");
+                sb.Append(uniqueId);
+                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
+            }
 
-                if (Interlocked.Increment(ref currentCount) <= maxPoolSize)
+            if (socket != null && IsSocketConnected(socket))
+            {
+                return socket;
+            }
+            socket?.Close();
+
+            if (Interlocked.Increment(ref currentCount) <= maxPoolSize)
+            {
+                try
                 {
                     var newSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     newSocket.Connect(endPoint);
                     return newSocket;
                 }
-
-                Interlocked.Decrement(ref currentCount);
-                throw new InvalidOperationException("No hay sockets disponibles en el pool.");
-            }
-            catch (Exception ex)
-            {
-                // Solo libera el semáforo si no se liberó antes
-                if (!released)
+                catch (Exception ex)
                 {
-                    //semaphore.Release();
-                    released = true;
+                    Interlocked.Decrement(ref currentCount);                    
+                    var sb = new StringBuilder();
+                    sb.Append("Error al obtener un nuevo socket del pool: ");
+                    sb.Append(ex.Message);
+                    sb.Append(", cliente: ");
+                    sb.Append(uniqueId);
+                    Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
+                    return null;
                 }
-                var sb =new  StringBuilder();
-                sb.AppendLine("Error al obtener un socket del pool:");
-                sb.AppendLine(ex.Message);
-                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
-                return null;
             }
+            Interlocked.Decrement(ref currentCount);
+            return null;
         }
 
         /// <summary>
@@ -116,27 +128,30 @@ namespace ServerCore
         /// not connected, it is closed,  and the total count of active sockets in the pool is decremented. Regardless
         /// of the socket's state, the semaphore  is released to signal that a slot in the pool is available.</remarks>
         /// <param name="socket">The <see cref="Socket"/> instance to return to the pool. Must not be <see langword="null"/>.</param>
-        public void ReturnSocket(Socket socket)
+        public void ReturnSocket(Socket socket, string clientId)
         {
             try
-            {
+            {                
                 if (IsSocketConnected(socket))
                 {
                     pool.Add(socket);
                 }
                 else
                 {
-                    socket.Close();
+                    socket?.Close();
                     Interlocked.Decrement(ref currentCount);
                 }
             }
             catch (Exception ex)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine("Error al devolver un socket al pool:");
-                sb.AppendLine(ex.Message);
-                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
-            }            
+                //var sb = new StringBuilder();
+                //sb.Append("Error al devolver un socket al pool:");
+                //sb.Append(ex.Message);
+                //sb.Append(", cliente: ");
+                //sb.Append(clientId);
+                //Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
+                Interlocked.Decrement(ref currentCount);
+            }
         }
 
         /// <summary>
@@ -149,12 +164,24 @@ namespace ServerCore
         /// <returns><see langword="true"/> if the socket is connected; otherwise, <see langword="false"/>.</returns>
         private bool IsSocketConnected(Socket socket)
         {
+            var sb = new StringBuilder();
             try
             {
+                if (socket == null)
+                {
+                    return false;
+                }
+                sb.Append("verificando conectividad del socket.");
+                sb.Append(socket.RemoteEndPoint.ToString());
+                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
                 return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
             }
-            catch (SocketException)
+            catch (SocketException sex)
             {
+
+                sb.Append("SocketException al verificar la conectividad del socket. ");
+                sb.Append(sex.Message);
+                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
                 return false;
             }
         }
