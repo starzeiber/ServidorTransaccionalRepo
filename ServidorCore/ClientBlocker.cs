@@ -11,56 +11,54 @@ namespace ServerCore
         /// <summary>
         /// IP del cliente a bloquear
         /// </summary>
-        public IPAddress ipBloqueada { get; set; }
+        public IPAddress IpBlocked { get; set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         public ClientBlocker()
         {
-            this.ipBloqueada = null;
-            this.razonDelBloqueo = "";
-            this.segundosBloqueo = 0;
-            this.fechaHoraBloqueo = DateTime.MinValue;
-            this.estaActivoBloqueo = true;
+            this.IpBlocked = null;
+            this.reasonBlock = "";
+            this.secondsBlocking = 0;
+            this.DateTimeBlocking = DateTime.MinValue;
+            this.ActivateBlocking = true;
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="ip">Ip del cliente a bloquear</param>
-        /// <param name="razonBloqueo">La razón del bloqueo</param>
-        /// <param name="segundosDeBloqueo">tiempo en segundos que durará el bloqueo</param>
-        /// <param name="estaActivoBloqueo">Variable para indicar que se activa o desactiva el bloqueo para la IP</param>
-        public ClientBlocker(IPAddress ip, string razonBloqueo, double segundosDeBloqueo, bool estaActivoBloqueo)
+        /// <param name="reasonBlock">La razón del bloqueo</param>
+        /// <param name="secondsBlocking">tiempo en segundos que durará el bloqueo</param>
+        /// <param name="activateBlocking">Variable para indicar que se activa o desactiva el bloqueo para la IP</param>
+        public ClientBlocker(IPAddress ip, string reasonBlock, double secondsBlocking, bool activateBlocking)
         {
-            this.ipBloqueada = ip;
-            this.razonDelBloqueo = razonBloqueo;
-            this.segundosBloqueo = segundosDeBloqueo;
-            this.fechaHoraBloqueo = DateTime.Now;
-            // me di cuenta de que siempre lo activo
-            // this.estaActivoBloqueo = true;
-            this.estaActivoBloqueo = estaActivoBloqueo;
+            this.IpBlocked = ip;
+            this.reasonBlock = reasonBlock;
+            this.secondsBlocking = secondsBlocking;
+            this.DateTimeBlocking = DateTime.Now;
+            this.ActivateBlocking = activateBlocking;
         }
 
         /// <summary>
         /// Motivo por el que se bloquea la IP
         /// </summary>
-        public string razonDelBloqueo { get; set; }
+        public string reasonBlock { get; set; }
 
         /// <summary>
         /// Tiempo en segundos que se va a bloquear la IP: 0 => bloqueo permanente
         /// </summary>
-        public double segundosBloqueo { get; set; }
+        public double secondsBlocking { get; set; }
 
         /// <summary>
         /// Fecha y hora en que fue bloqueado
         /// </summary>
-        public DateTime fechaHoraBloqueo { get; set; }
+        public DateTime DateTimeBlocking { get; set; }
 
         /// <summary>
         /// Get or set if ban is active
         /// </summary>
-        public bool estaActivoBloqueo { get; set; }
+        public bool ActivateBlocking { get; set; }
     }
 }

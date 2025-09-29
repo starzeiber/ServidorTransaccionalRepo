@@ -36,22 +36,22 @@ namespace ServerCore
         /// evento para sincronización de procesos, con este manejador de evento controlo
         /// el flujo cuando el fin de un envío ocurre
         /// </summary>
-        internal EventWaitHandle esperandoEnvio;
+        internal EventWaitHandle waitSendingEvent;
 
         /// <summary>
         /// Ip del cliente
         /// </summary>
-        public string ClientIp { get; set; } = "127.0.0.0";
+        public string IpClient { get; set; } = "127.0.0.0";
 
         /// <summary>
         /// Puerto del cliente
         /// </summary>
-        public Int32 ClientPort { get; set; } = 0;
+        public Int32 PortClient { get; set; } = 0;
 
         /// <summary>
         /// Socket asignado de trabajo sobre la conexión del cliente
         /// </summary>
-        public Socket SocketToWork { get; set; }
+        public Socket SocketOfWork { get; set; }
 
         /// <summary>
         /// Codigo de respuesta sobre el proceso del cliente
@@ -133,7 +133,7 @@ namespace ServerCore
         /// </summary>
         public ClientStateBase()
         {
-            esperandoEnvio = new ManualResetEvent(true);
+            waitSendingEvent = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InitializeClientStateBase();
         }
@@ -145,12 +145,12 @@ namespace ServerCore
         public virtual void InitializeClientStateBase()
         {
             // Liberar y limpiar el socket si existe
-            if (SocketToWork != null)
+            if (SocketOfWork != null)
             {
-                try { SocketToWork.Shutdown(SocketShutdown.Both); } catch { }
-                try { SocketToWork.Close(); } catch { }
-                try { SocketToWork.Dispose(); } catch { }
-                SocketToWork = null;
+                try { SocketOfWork.Shutdown(SocketShutdown.Both); } catch { }
+                try { SocketOfWork.Close(); } catch { }
+                try { SocketOfWork.Dispose(); } catch { }
+                SocketOfWork = null;
             }
 
             // Limpiar el buffer del SAEA si aplica
@@ -164,7 +164,7 @@ namespace ServerCore
 
             // Limpiar otros datos de sesión
             UniqueClientId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
-            esperandoEnvio.Set();
+            waitSendingEvent.Set();
             messageResponse = "";
             objRequest = null;
             objResponse = null;
@@ -173,7 +173,7 @@ namespace ServerCore
             responseCode = 0;
             authorizationCode = 0;
             StartDateTrx = DateTime.Now;
-            timeOut = ServerConfiguration.timeOutCliente;
+            timeOut = ServerConfiguration.clientTimeOut;
             isQuery = false;
             //seEstaRespondiendo = false;
             inUse = 0;
@@ -232,8 +232,10 @@ namespace ServerCore
         }
 
         /// <summary>
-        /// 
+        /// Marks the resource as free, allowing it to be reused.
         /// </summary>
+        /// <remarks>This method uses an atomic operation to ensure thread safety when updating the
+        /// resource's state.</remarks>
         public void SetFree()
         {
             Interlocked.CompareExchange(ref inUse, 0, 1);
@@ -268,12 +270,12 @@ namespace ServerCore
                     saeaOfSendReceive?.Dispose();
                     saeaOfSendReceive = null;
 
-                    if (SocketToWork != null)
+                    if (SocketOfWork != null)
                     {
-                        try { SocketToWork.Shutdown(SocketShutdown.Both); } catch { }
-                        SocketToWork.Close();
-                        SocketToWork.Dispose();
-                        SocketToWork = null;
+                        try { SocketOfWork.Shutdown(SocketShutdown.Both); } catch { }
+                        SocketOfWork.Close();
+                        SocketOfWork.Dispose();
+                        SocketOfWork = null;
                     }
                 }
                 disposed = true;

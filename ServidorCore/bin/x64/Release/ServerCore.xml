@@ -92,7 +92,7 @@
             </summary>
             <typeparam name="X">Instancia de la clase estadoDelClienteBase</typeparam>
         </member>
-        <member name="F:ServerCore.ProviderStateManager`1.pilaEstadosDeProveedor">
+        <member name="F:ServerCore.ProviderStateManager`1.providerStateStack">
             <summary>
             El conjunto de estados se almacena como una pila
             </summary>
@@ -101,20 +101,20 @@
             <summary>
             Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
             </summary>
-            <param name="capacidadPilaEstados">Máximo número de objetos que la pila de estados podrá almacenar</param>
+            <param name="sizeProviderStateStack">Máximo número de objetos que la pila de estados podrá almacenar</param>
         </member>
-        <member name="P:ServerCore.ProviderStateManager`1.contadorElementos">
+        <member name="P:ServerCore.ProviderStateManager`1.ProviderStateCounter">
             <summary>
             Variable que contiene el número de elementos en la pila 
             </summary>
         </member>
-        <member name="M:ServerCore.ProviderStateManager`1.obtenerUnElemento">
+        <member name="M:ServerCore.ProviderStateManager`1.GetProviderState">
             <summary>
             Obtiene un estadoDelClienteBase de la pila de estados del cliente
             </summary>
             <returns>Objeto de la pila que es también removido mientras se usa</returns>
         </member>
-        <member name="M:ServerCore.ProviderStateManager`1.ingresarUnElemento(`0)">
+        <member name="M:ServerCore.ProviderStateManager`1.AddProviderState(`0)">
             <summary>
             Ingresa un estadoDelClienteBase a la pila de estados del cliente
             </summary>
@@ -127,7 +127,7 @@
             </summary>
             <typeparam name="T">Instancia de la clase estadoDelClienteBase</typeparam>
         </member>
-        <member name="F:ServerCore.ClientStateManager`1.pilaEstadosDeCliente">
+        <member name="F:ServerCore.ClientStateManager`1.clientStateStack">
             <summary>
             El conjunto de estados se almacena como una pila
             </summary>
@@ -136,43 +136,69 @@
             <summary>
             Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
             </summary>
-            <param name="capacidadPilaEstadosSocket">Máximo número de objetos que la pila de estados podrá almacenar</param>
+            <param name="sizeClientStateStack">Máximo número de objetos que la pila de estados podrá almacenar</param>
         </member>
-        <member name="P:ServerCore.ClientStateManager`1.contadorElementos">
+        <member name="P:ServerCore.ClientStateManager`1.ClientStateCounter">
             <summary>
             Variable que contiene el número de elementos en la pila 
             </summary>
         </member>
-        <member name="M:ServerCore.ClientStateManager`1.obtenerUnElemento">
+        <member name="M:ServerCore.ClientStateManager`1.GetClientState">
             <summary>
             Obtiene un estadoDelClienteBase de la pila de estados del cliente
             </summary>
             <returns>Objeto de la pila que es también removido mientras se usa</returns>
         </member>
-        <member name="M:ServerCore.ClientStateManager`1.ingresarUnElemento(`0)">
+        <member name="M:ServerCore.ClientStateManager`1.AddClientState(`0)">
             <summary>
             Ingresa un estadoDelClienteBase a la pila de estados del cliente
             </summary>
             <param name="estadoDelClienteBase">Objeto de EstadoDelClienteBase a ingresar</param>
+        </member>
+        <member name="T:ServerCore.ServerConfiguration">
+            <summary>
+            Provides configuration settings for the server, including operational modes and timeout values.
+            </summary>
+            <remarks>This class contains constants and static fields that define various server configuration
+            options. It is intended for internal use and is not exposed to external consumers.</remarks>
         </member>
         <member name="F:ServerCore.ServerConfiguration.LIMITE_BYTES_CONTADOR">
             <summary>
             Limite para el marcador de bytes procesados en el servidor
             </summary>
         </member>
-        <member name="F:ServerCore.ServerConfiguration.modoTest">
+        <member name="F:ServerCore.ServerConfiguration.testMode">
             <summary>
             Variable que indicará si el server entra en modo test
             </summary>
         </member>
-        <member name="F:ServerCore.ServerConfiguration.modoRouter">
+        <member name="F:ServerCore.ServerConfiguration.routerMode">
             <summary>
             Activación para que el servidor pueda enviar mensajes a otro proveedor
             </summary>
         </member>
+        <member name="F:ServerCore.ServerConfiguration.clientTimeOut">
+            <summary>
+            Represents the default client timeout value, in seconds, for internal operations.
+            </summary>
+            <remarks>This value is used as the default timeout for client-related operations within the
+            system. It is not exposed for external configuration and is intended for internal use only.</remarks>
+        </member>
+        <member name="F:ServerCore.ServerConfiguration.providerTimeout">
+            <summary>
+            Represents the default timeout value, in seconds, for the provider.
+            </summary>
+            <remarks>This value is used internally to configure the maximum time a provider operation can
+            take before timing out.</remarks>
+        </member>
         <member name="T:ServerCore.ProviderStateBase">
             <summary>
             Clase que contiene las propiedades de un proveedor en el flujo del servidor
+            </summary>
+        </member>
+        <member name="P:ServerCore.ProviderStateBase.UniqueProviderId">
+            <summary>
+            Gets or sets the unique identifier for the provider.
             </summary>
         </member>
         <member name="F:ServerCore.ProviderStateBase.mainSocketReference">
@@ -250,6 +276,13 @@
             </summary>
             <remarks>This field is used internally to track the disposal state of the object.  It should
             not be accessed directly outside of the class.</remarks>
+        </member>
+        <member name="F:ServerCore.ProviderStateBase.lastActivityTime">
+            <summary>
+            The timestamp of the last recorded activity.
+            </summary>
+            <remarks>This field represents the date and time of the most recent activity.  It is expected
+            to be in UTC format.</remarks>
         </member>
         <member name="M:ServerCore.ProviderStateBase.#ctor">
             <summary>
@@ -359,6 +392,38 @@
             <summary>
             Llama este método cuando recibas la respuesta antes del timeout.
             </summary>
+        </member>
+        <member name="M:ServerCore.ProviderStateBase.SetClientState(ServerCore.ClientStateBase)">
+            <summary>
+            Sets the current state of the client.
+            </summary>
+            <param name="clientState">The new state to assign to the client. Cannot be <see langword="null"/>.</param>
+        </member>
+        <member name="M:ServerCore.ProviderStateBase.SetResponseCode(System.Int32)">
+            <summary>
+            Sets the HTTP response code for the current operation.
+            </summary>
+            <param name="code">The HTTP status code to set. Must be a valid HTTP status code (e.g., 200, 404, 500).</param>
+        </member>
+        <member name="M:ServerCore.ProviderStateBase.SetAuthorizationCode(System.Int32)">
+            <summary>
+            Sets the authorization code for the current instance.
+            </summary>
+            <param name="code">The authorization code to set. Must be a valid integer representing the desired authorization code.</param>
+        </member>
+        <member name="M:ServerCore.ProviderStateBase.SetInUse">
+            <summary>
+            Marks the current instance as being in use.
+            </summary>
+            <remarks>This method uses an atomic operation to ensure thread safety when updating the state.
+            If the instance is already in use, the state remains unchanged.</remarks>
+        </member>
+        <member name="M:ServerCore.ProviderStateBase.SetFree">
+            <summary>
+            Marks the resource as free, allowing it to be reused.
+            </summary>
+            <remarks>This method uses an atomic operation to ensure thread safety when updating the
+            resource's state.</remarks>
         </member>
         <member name="F:ServerCore.StatisticsAndCounters.totalBytesRead">
             <summary>
@@ -702,7 +767,7 @@
             <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="clienteFactory"/>, <paramref name="servidorFactory"/>, or <paramref
             name="proveedorFactory"/> is <see langword="null"/>.</exception>
         </member>
-        <member name="M:ServerCore.TransactionalServer`3.ServerConfiguration(System.Int32)">
+        <member name="M:ServerCore.TransactionalServer`3.ServerConfiguration(System.Int32,System.Int32)">
             <summary>
             Inicializa el servidor con una pre asignación de buffers reusables y estados de sockets
             </summary>
@@ -1078,7 +1143,7 @@
             Clase que contiene las propiedades y métodos para poder agregar a la lista de clientes bloqueados
             </summary>
         </member>
-        <member name="P:ServerCore.ClientBlocker.ipBloqueada">
+        <member name="P:ServerCore.ClientBlocker.IpBlocked">
             <summary>
             IP del cliente a bloquear
             </summary>
@@ -1093,26 +1158,26 @@
             Constructor
             </summary>
             <param name="ip">Ip del cliente a bloquear</param>
-            <param name="razonBloqueo">La razón del bloqueo</param>
-            <param name="segundosDeBloqueo">tiempo en segundos que durará el bloqueo</param>
-            <param name="estaActivoBloqueo">Variable para indicar que se activa o desactiva el bloqueo para la IP</param>
+            <param name="reasonBlock">La razón del bloqueo</param>
+            <param name="secondsBlocking">tiempo en segundos que durará el bloqueo</param>
+            <param name="activateBlocking">Variable para indicar que se activa o desactiva el bloqueo para la IP</param>
         </member>
-        <member name="P:ServerCore.ClientBlocker.razonDelBloqueo">
+        <member name="P:ServerCore.ClientBlocker.reasonBlock">
             <summary>
             Motivo por el que se bloquea la IP
             </summary>
         </member>
-        <member name="P:ServerCore.ClientBlocker.segundosBloqueo">
+        <member name="P:ServerCore.ClientBlocker.secondsBlocking">
             <summary>
             Tiempo en segundos que se va a bloquear la IP: 0 => bloqueo permanente
             </summary>
         </member>
-        <member name="P:ServerCore.ClientBlocker.fechaHoraBloqueo">
+        <member name="P:ServerCore.ClientBlocker.DateTimeBlocking">
             <summary>
             Fecha y hora en que fue bloqueado
             </summary>
         </member>
-        <member name="P:ServerCore.ClientBlocker.estaActivoBloqueo">
+        <member name="P:ServerCore.ClientBlocker.ActivateBlocking">
             <summary>
             Get or set if ban is active
             </summary>
@@ -1127,12 +1192,12 @@
             Constructor
             </summary>
         </member>
-        <member name="P:ServerCore.ServerStateBase.procesoPrincipal">
+        <member name="P:ServerCore.ServerStateBase.MainProcees">
             <summary>
             Referencia al proceso principal donde se encuentra el socket principal que disparó el flujo
             </summary>
         </member>
-        <member name="M:ServerCore.ServerStateBase.mensajeBienvenida(System.Object)">
+        <member name="M:ServerCore.ServerStateBase.WelcomeMessage(System.Object)">
             <summary>
             Función virtual para sobre escribirla que se utiliza cuando se requiera un mensaje de
             bienvenida a una conexión de un cliente
@@ -1140,34 +1205,34 @@
             <param name="args"></param>
             <returns></returns>
         </member>
-        <member name="M:ServerCore.ServerStateBase.OnInicio">
+        <member name="M:ServerCore.ServerStateBase.OnStart">
             <summary>
             función virtual para sobre escribirla que se utiliza para indicar el principio del flujo
             </summary>
         </member>
-        <member name="M:ServerCore.ServerStateBase.OnClienteCerrado(System.Object)">
+        <member name="M:ServerCore.ServerStateBase.OnClientClose(System.Object)">
             <summary>
             función virtual para sobre escribirla que se utiliza para indicar en el flujo que un cliente se cierra
             </summary>
             <param name="args"></param>
         </member>
-        <member name="M:ServerCore.ServerStateBase.OnConexion">
+        <member name="M:ServerCore.ServerStateBase.OnConnection">
             <summary>
             función virtual para sobre escribirla que se utiliza para indicar en el flujo que hay una conexión
             </summary>
         </member>
-        <member name="M:ServerCore.ServerStateBase.OnAceptacion(System.Object)">
+        <member name="M:ServerCore.ServerStateBase.OnAccept(System.Object)">
             <summary>
             función virtual para sobre escribirla que se utiliza indicar en el flujo que se acepta una solicitud de mensaje
             </summary>
             <param name="args"></param>
         </member>
-        <member name="M:ServerCore.ServerStateBase.OnRecibido">
+        <member name="M:ServerCore.ServerStateBase.OnReceive">
             <summary>
             función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha recibido un mensaje
             </summary>
         </member>
-        <member name="M:ServerCore.ServerStateBase.OnEnviado">
+        <member name="M:ServerCore.ServerStateBase.OnSent">
             <summary>
             función virtual para sobre escribirla que se utiliza indicar en el flujo que se ha enviado un mensaje
             </summary>
@@ -1198,23 +1263,23 @@
             trama de respuesta al cliente
             </summary>
         </member>
-        <member name="F:ServerCore.ClientStateBase.esperandoEnvio">
+        <member name="F:ServerCore.ClientStateBase.waitSendingEvent">
             <summary>        
             evento para sincronización de procesos, con este manejador de evento controlo
             el flujo cuando el fin de un envío ocurre
             </summary>
         </member>
-        <member name="P:ServerCore.ClientStateBase.ClientIp">
+        <member name="P:ServerCore.ClientStateBase.IpClient">
             <summary>
             Ip del cliente
             </summary>
         </member>
-        <member name="P:ServerCore.ClientStateBase.ClientPort">
+        <member name="P:ServerCore.ClientStateBase.PortClient">
             <summary>
             Puerto del cliente
             </summary>
         </member>
-        <member name="P:ServerCore.ClientStateBase.SocketToWork">
+        <member name="P:ServerCore.ClientStateBase.SocketOfWork">
             <summary>
             Socket asignado de trabajo sobre la conexión del cliente
             </summary>
@@ -1335,8 +1400,10 @@
         </member>
         <member name="M:ServerCore.ClientStateBase.SetFree">
             <summary>
-            
+            Marks the resource as free, allowing it to be reused.
             </summary>
+            <remarks>This method uses an atomic operation to ensure thread safety when updating the
+            resource's state.</remarks>
         </member>
         <member name="M:ServerCore.ClientStateBase.Dispose">
             <summary>

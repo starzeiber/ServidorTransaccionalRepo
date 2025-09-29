@@ -12,6 +12,9 @@ namespace ServerCore
     /// </summary>
     public class ProviderStateBase : IDisposable
     {
+        /// <summary>
+        /// Gets or sets the unique identifier for the provider.
+        /// </summary>
         public string UniqueProviderId { get; set; }
 
         /// <summary>
@@ -90,6 +93,11 @@ namespace ServerCore
         /// not be accessed directly outside of the class.</remarks>
         private bool disposed = false;
 
+        /// <summary>
+        /// The timestamp of the last recorded activity.
+        /// </summary>
+        /// <remarks>This field represents the date and time of the most recent activity.  It is expected
+        /// to be in UTC format.</remarks>
         public DateTime lastActivityTime;
 
         /// <summary>
@@ -321,26 +329,48 @@ namespace ServerCore
             _timeoutCts?.Cancel();
         }
 
+        /// <summary>
+        /// Sets the current state of the client.
+        /// </summary>
+        /// <param name="clientState">The new state to assign to the client. Cannot be <see langword="null"/>.</param>
         public void SetClientState(ClientStateBase clientState)
         {
             this.clientStateSource = clientState;
         }
 
+        /// <summary>
+        /// Sets the HTTP response code for the current operation.
+        /// </summary>
+        /// <param name="code">The HTTP status code to set. Must be a valid HTTP status code (e.g., 200, 404, 500).</param>
         public void SetResponseCode(int code)
         {
             this.responseCode = code;
         }
 
+        /// <summary>
+        /// Sets the authorization code for the current instance.
+        /// </summary>
+        /// <param name="code">The authorization code to set. Must be a valid integer representing the desired authorization code.</param>
         public void SetAuthorizationCode(int code)
         {
             this.authorizacionCode = code;
         }
 
+        /// <summary>
+        /// Marks the current instance as being in use.
+        /// </summary>
+        /// <remarks>This method uses an atomic operation to ensure thread safety when updating the state.
+        /// If the instance is already in use, the state remains unchanged.</remarks>
         public void SetInUse()
         {
             Interlocked.CompareExchange(ref InUse, 1, 0);
         }
 
+        /// <summary>
+        /// Marks the resource as free, allowing it to be reused.
+        /// </summary>
+        /// <remarks>This method uses an atomic operation to ensure thread safety when updating the
+        /// resource's state.</remarks>
         public void SetFree()
         {
             Interlocked.CompareExchange(ref InUse, 0, 1);
