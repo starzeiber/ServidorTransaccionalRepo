@@ -72,13 +72,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferManager.cs" />
-    <Compile Include="ISecurity.cs" />
     <Compile Include="ProviderStateManager.cs" />
     <Compile Include="ClientStateManager.cs" />
     <Compile Include="Security.cs" />
     <Compile Include="ServerConfiguration.cs" />
     <Compile Include="ProviderStateBase.cs" />
-    <Compile Include="StatisticsAndCounters.cs" />
     <Compile Include="TransactionalServer.cs" />
     <Compile Include="ClientBlocker.cs" />
     <Compile Include="ServerStateBase.cs" />

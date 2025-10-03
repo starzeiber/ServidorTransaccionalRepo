@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management;
 using System.Text;
-using System.Threading.Tasks;
 using static ServerCore.Utilities;
 
 namespace ServerCore
@@ -20,7 +17,7 @@ namespace ServerCore
         /// <summary>
         /// Información de la licencia
         /// </summary>
-        internal enum Licence
+        internal enum eLicence
         {
             Program = 0,
             Validity = 2,
@@ -37,22 +34,22 @@ namespace ServerCore
         /// <summary>
         /// Id del procesador del equipo
         /// </summary>
-        internal string processorId { get; set; }
+        internal string ProcessorId { get; set; }
 
         /// <summary>
         /// Producto que se ejecuta
         /// </summary>
-        internal string product { get; set; }
+        internal string Product { get; set; }
 
         /// <summary>
         /// información del fabricante
         /// </summary>
-        internal string manufacturer { get; set; }
+        internal string Manufacturer { get; set; }
 
         /// <summary>
         /// Toda la licencia
         /// </summary>
-        internal string licence { get; set; }
+        internal string Licence { get; set; }
 
         /// <summary>
         /// Obtiene la información de la PC que se requiere para el funcionamiento del server
@@ -62,11 +59,11 @@ namespace ServerCore
         {
             try
             {
-                processorId = RunQuery("Processor", "ProcessorId").ToUpper();
+                ProcessorId = RunQuery("Processor", "ProcessorId").ToUpper();
 
-                product = RunQuery("BaseBoard", "Product").ToUpper();
+                Product = RunQuery("BaseBoard", "Product").ToUpper();
 
-                manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
+                Manufacturer = RunQuery("BaseBoard", "Manufacturer").ToUpper();
 
                 return true;
             }
@@ -75,7 +72,7 @@ namespace ServerCore
                 var sb = new StringBuilder();
                 sb.Append("No se pudo obtener la información de la PC, ");
                 sb.Append(ex.Message);
-                EscribirLog(sb.ToString(), tipoLog.ERROR);
+                Log(sb.ToString(), LogType.Error);
                 return false;
             }
         }

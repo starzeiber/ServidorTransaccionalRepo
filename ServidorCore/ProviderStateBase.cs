@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -317,7 +316,7 @@ namespace ServerCore
             catch (TaskCanceledException)
             {
                 TimeOutReset();
-                Utilities.EscribirLog("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utilities.tipoLog.INFORMACION);
+                Utilities.Log("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utilities.LogType.Info);
             }
         }
 

@@ -77,7 +77,7 @@ namespace ServerCore
                     sb.Append(args.Offset);
                     sb.Append(" cliente: ");
                     sb.Append(uniqueId);
-                    Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
+                    Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
                     return;
                 }
 
@@ -93,8 +93,8 @@ namespace ServerCore
                 sb.Append(ex.Message);
                 sb.Append(" cliente: ");
                 sb.Append(uniqueId);
-                Utilities.EscribirLog(sb.ToString(),Utilities.tipoLog.ALERTA);
-            }            
+                Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
+            }
         }
 
         /// <summary>

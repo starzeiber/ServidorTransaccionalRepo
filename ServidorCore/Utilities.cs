@@ -1,8 +1,15 @@
-﻿namespace ServerCore
+﻿using System.Reflection;
+
+namespace ServerCore
 {
     internal static class Utilities
     {
-
+        /// <summary>
+        /// Represents the response codes for various transaction outcomes and error states.
+        /// </summary>
+        /// <remarks>This enumeration defines a set of standardized response codes that indicate the
+        /// result of a transaction or the occurrence of specific errors. These codes can be used to interpret the
+        /// outcome of operations and handle errors appropriately in the application.</remarks>
         internal enum CodigosRespuesta
         {
             /// <summary>
@@ -90,32 +97,32 @@
         /// <summary>
         /// Tipo de log a escribir
         /// </summary>
-        internal enum tipoLog
+        internal enum LogType
         {
-            INFORMACION = 0,
-            ALERTA = 1,
-            ERROR = 2
+            Info = 0,
+            Warning = 1,
+            Error = 2
         }
 
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal static void EscribirLog(string mensaje, tipoLog tipoLog, bool porDepuracion = false)
-        {
-            if (porDepuracion) return;
+        [Obfuscation(Exclude = true)]
 
-            switch (tipoLog)
+        internal static void Log(string message, LogType logType)
+        {
+            switch (logType)
             {
-                case tipoLog.INFORMACION:
-                    logger.Info(mensaje);
+                case LogType.Info:
+                    logger.Info(message);
                     break;
-                case tipoLog.ALERTA:
-                    logger.Warn(mensaje);
+                case LogType.Warning:
+                    logger.Warn(message);
                     break;
-                case tipoLog.ERROR:
-                    logger.Error(mensaje);
+                case LogType.Error:
+                    logger.Error(message);
                     break;
                 default:
-                    logger.Debug(mensaje);
+                    logger.Debug(message);
                     break;
             }
         }

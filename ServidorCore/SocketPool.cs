@@ -2,10 +2,8 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Policy;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServerCore
 {
@@ -88,7 +86,7 @@ namespace ServerCore
                 sb.Append(ex.Message);
                 sb.Append(", cliente: ");
                 sb.Append(uniqueId);
-                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Error);
             }
 
             if (socket != null && IsSocketConnected(socket))
@@ -107,13 +105,13 @@ namespace ServerCore
                 }
                 catch (Exception ex)
                 {
-                    Interlocked.Decrement(ref currentCount);                    
+                    Interlocked.Decrement(ref currentCount);
                     var sb = new StringBuilder();
                     sb.Append("Error al obtener un nuevo socket del pool: ");
                     sb.Append(ex.Message);
                     sb.Append(", cliente: ");
                     sb.Append(uniqueId);
-                    Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ERROR);
+                    Utilities.Log(sb.ToString(), Utilities.LogType.Error);
                     return null;
                 }
             }
@@ -131,7 +129,7 @@ namespace ServerCore
         public void ReturnSocket(Socket socket, string clientId)
         {
             try
-            {                
+            {
                 if (IsSocketConnected(socket))
                 {
                     pool.Add(socket);
@@ -173,7 +171,7 @@ namespace ServerCore
                 }
                 sb.Append("verificando conectividad del socket.");
                 sb.Append(socket.RemoteEndPoint.ToString());
-                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Info);
                 return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
             }
             catch (SocketException sex)
@@ -181,7 +179,7 @@ namespace ServerCore
 
                 sb.Append("SocketException al verificar la conectividad del socket. ");
                 sb.Append(sex.Message);
-                Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
                 return false;
             }
         }

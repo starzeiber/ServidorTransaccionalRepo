@@ -40,7 +40,7 @@ namespace ServerCore
             var sb = new StringBuilder();
             sb.Append(DateTime.Now);
             sb.Append(" - Iniciando servidor");
-            Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
+            Utilities.Log(sb.ToString(), Utilities.LogType.Info);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace ServerCore
             sb.Append((args as ClientStateBase).UniqueClientId.ToString());
             sb.Append(", desde la IP: ");
             sb.Append((args as ClientStateBase).IpClient);
-            Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
+            Utilities.Log(sb.ToString(), Utilities.LogType.Info);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace ServerCore
             sb.Append((args as ClientStateBase).UniqueClientId.ToString());
             sb.Append(", desde la IP: ");
             sb.Append((args as ClientStateBase).IpClient);
-            Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.INFORMACION);
+            Utilities.Log(sb.ToString(), Utilities.LogType.Info);
         }
 
         /// <summary>

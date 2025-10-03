@@ -155,6 +155,59 @@
             </summary>
             <param name="estadoDelClienteBase">Objeto de EstadoDelClienteBase a ingresar</param>
         </member>
+        <member name="T:ServerCore.Security">
+            <summary>
+            Provides functionality for retrieving and managing system information required for the server's operation.
+            </summary>
+            <remarks>The <see cref="T:ServerCore.Security"/> class is responsible for gathering hardware and system details,
+            such as processor ID, product information, and manufacturer details, which are necessary for the server to
+            function correctly. This class includes methods for querying system information and handling license-related
+            data.</remarks>
+        </member>
+        <member name="T:ServerCore.Security.eLicence">
+            <summary>
+            Información de la licencia
+            </summary>
+        </member>
+        <member name="F:ServerCore.Security.PROGRAM">
+            <summary>
+            Nombre del programa
+            </summary>
+        </member>
+        <member name="P:ServerCore.Security.ProcessorId">
+            <summary>
+            Id del procesador del equipo
+            </summary>
+        </member>
+        <member name="P:ServerCore.Security.Product">
+            <summary>
+            Producto que se ejecuta
+            </summary>
+        </member>
+        <member name="P:ServerCore.Security.Manufacturer">
+            <summary>
+            información del fabricante
+            </summary>
+        </member>
+        <member name="P:ServerCore.Security.Licence">
+            <summary>
+            Toda la licencia
+            </summary>
+        </member>
+        <member name="M:ServerCore.Security.GetInfoPc">
+            <summary>
+            Obtiene la información de la PC que se requiere para el funcionamiento del server
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ServerCore.Security.RunQuery(System.String,System.String)">
+            <summary>
+            Ejecuta una consulta al sistema
+            </summary>
+            <param name="TableName"></param>
+            <param name="MethodName"></param>
+            <returns></returns>
+        </member>
         <member name="T:ServerCore.ServerConfiguration">
             <summary>
             Provides configuration settings for the server, including operational modes and timeout values.
@@ -425,16 +478,6 @@
             <remarks>This method uses an atomic operation to ensure thread safety when updating the
             resource's state.</remarks>
         </member>
-        <member name="F:ServerCore.StatisticsAndCounters.totalBytesRead">
-            <summary>
-            Número total de bytes recibido en el servidor, para uso estadístico
-            </summary>
-        </member>
-        <member name="P:ServerCore.StatisticsAndCounters.totalBytesTransferred">
-            <summary>
-            Bytes que se han transmitido desde el inicio de la aplicación
-            </summary>
-        </member>
         <member name="T:ServerCore.TransactionalServer`3">
             <summary>
             Clase principal sobre el core del servidor transaccional, contiene todas las propiedades 
@@ -664,36 +707,6 @@
             Numero que muestra cuantas conexiones puede aún soportar el servidor del lado del proveedor
             </summary>
         </member>
-        <member name="T:ServerCore.TransactionalServer`3.Licence">
-            <summary>
-            Información de la licencia
-            </summary>
-        </member>
-        <member name="F:ServerCore.TransactionalServer`3.PROGRAM">
-            <summary>
-            Nombre del programa
-            </summary>
-        </member>
-        <member name="F:ServerCore.TransactionalServer`3.processorId">
-            <summary>
-            Id del procesador del equipo
-            </summary>
-        </member>
-        <member name="F:ServerCore.TransactionalServer`3.product">
-            <summary>
-            Producto que se ejecuta
-            </summary>
-        </member>
-        <member name="F:ServerCore.TransactionalServer`3.manufacturer">
-            <summary>
-            información del fabricante
-            </summary>
-        </member>
-        <member name="F:ServerCore.TransactionalServer`3.licence">
-            <summary>
-            Toda la licencia
-            </summary>
-        </member>
         <member name="F:ServerCore.TransactionalServer`3.NOTPERMISSION">
             <summary>
             Mensaje de aviso
@@ -864,6 +877,13 @@
             cierra la conexión el socket también se cierra y se libera
             </summary>
             <param name="clientState">Objeto que tiene la información y socket de trabajo del cliente</param>
+        </member>
+        <member name="M:ServerCore.TransactionalServer`3.MessagePerSecond">
+            <summary>
+            Updates the count of messages received per second.
+            </summary>
+            <remarks>This method calculates the number of messages received in the current second and
+            updates the  corresponding count. It ensures thread safety by locking access to the shared state.</remarks>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.ValidateTotalBytesCounter(System.Int32)">
             <summary>
@@ -1118,24 +1138,10 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:ServerCore.TransactionalServer`3.GetParametersFile">
+        <member name="M:ServerCore.TransactionalServer`3.GetParametersFile(ServerCore.Security)">
             <summary>
             Obtiene el archivo de licencia de la ubicación de la aplicación
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:ServerCore.TransactionalServer`3.GetInfoPc">
-            <summary>
-            Obtiene la información de la PC que se requiere para el funcionamiento del server
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:ServerCore.TransactionalServer`3.RunQuery(System.String,System.String)">
-            <summary>
-            Ejecuta una consulta al sistema
-            </summary>
-            <param name="TableName"></param>
-            <param name="MethodName"></param>
             <returns></returns>
         </member>
         <member name="T:ServerCore.ClientBlocker">
@@ -1510,6 +1516,14 @@
             <remarks>This method iterates through the internal socket pool and disposes of each socket. 
             After calling this method, the object should no longer be used.</remarks>
         </member>
+        <member name="T:ServerCore.Utilities.CodigosRespuesta">
+            <summary>
+            Represents the response codes for various transaction outcomes and error states.
+            </summary>
+            <remarks>This enumeration defines a set of standardized response codes that indicate the
+            result of a transaction or the occurrence of specific errors. These codes can be used to interpret the
+            outcome of operations and handle errors appropriately in the application.</remarks>
+        </member>
         <member name="F:ServerCore.Utilities.CodigosRespuesta.TransaccionExitosa">
             <summary>
             
@@ -1610,7 +1624,7 @@
             
             </summary>
         </member>
-        <member name="T:ServerCore.Utilities.tipoLog">
+        <member name="T:ServerCore.Utilities.LogType">
             <summary>
             Tipo de log a escribir
             </summary>
