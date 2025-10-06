@@ -740,7 +740,6 @@
             <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
             <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
             <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
-            <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.SetBuffer(System.Int32)">
             <summary>
@@ -1100,6 +1099,8 @@
             <summary>
             valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
             </summary>
+            <param name="providerState"></param>
+            <param name="timeRemaining"></param>
             <param name="estadoDelProveedor"></param>
             <param name="state"></param>
             <returns></returns>
@@ -1487,6 +1488,7 @@
             returned.  Disconnected sockets are closed and removed from the pool. If a new socket is created, it is 
             immediately connected to the specified <paramref name="endPoint"/>.</remarks>
             <param name="endPoint">The <see cref="T:System.Net.IPEndPoint"/> to which the socket will connect if a new socket is created.</param>
+            <param name="uniqueId"></param>
             <returns>A connected <see cref="T:System.Net.Sockets.Socket"/> instance. Returns <see langword="null"/> if an error
             occurs during socket creation or retrieval.</returns>
         </member>
@@ -1498,6 +1500,7 @@
             not connected, it is closed,  and the total count of active sockets in the pool is decremented. Regardless
             of the socket's state, the semaphore  is released to signal that a slot in the pool is available.</remarks>
             <param name="socket">The <see cref="T:System.Net.Sockets.Socket"/> instance to return to the pool. Must not be <see langword="null"/>.</param>
+            <param name="clientId">unique id client</param>
         </member>
         <member name="M:ServerCore.SocketPool.IsSocketConnected(System.Net.Sockets.Socket)">
             <summary>

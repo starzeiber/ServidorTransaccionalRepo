@@ -63,6 +63,7 @@ namespace ServerCore
         /// returned.  Disconnected sockets are closed and removed from the pool. If a new socket is created, it is 
         /// immediately connected to the specified <paramref name="endPoint"/>.</remarks>
         /// <param name="endPoint">The <see cref="System.Net.IPEndPoint"/> to which the socket will connect if a new socket is created.</param>
+        /// <param name="uniqueId"></param>
         /// <returns>A connected <see cref="System.Net.Sockets.Socket"/> instance. Returns <see langword="null"/> if an error
         /// occurs during socket creation or retrieval.</returns>
         public Socket GetSocket(IPEndPoint endPoint, string uniqueId)
@@ -126,6 +127,7 @@ namespace ServerCore
         /// not connected, it is closed,  and the total count of active sockets in the pool is decremented. Regardless
         /// of the socket's state, the semaphore  is released to signal that a slot in the pool is available.</remarks>
         /// <param name="socket">The <see cref="Socket"/> instance to return to the pool. Must not be <see langword="null"/>.</param>
+        /// <param name="clientId">unique id client</param>
         public void ReturnSocket(Socket socket, string clientId)
         {
             try
@@ -140,7 +142,7 @@ namespace ServerCore
                     Interlocked.Decrement(ref currentCount);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //var sb = new StringBuilder();
                 //sb.Append("Error al devolver un socket al pool:");

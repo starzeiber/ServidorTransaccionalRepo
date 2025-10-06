@@ -352,7 +352,6 @@ namespace ServerCore
         /// <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
         /// <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
         /// <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
-        /// <param name="conLogsParaDepuracion">Se habilita para escribir más a logs y tener un mejor rastreo</param>
         public TransactionalServer(Func<T> clienteFactory, Func<S> servidorFactory, Func<X> proveedorFactory, Int32 numeroConexSimultaneas, Int32 tamanoBuffer = 1024, int backlog = 100)
         {
             SetStatesFactories(clienteFactory, servidorFactory, proveedorFactory);
@@ -636,15 +635,9 @@ namespace ServerCore
         {
             IPAddress iPAddress = IPAddress.Parse(ProviderIp);
             IPEndPoint endPointProveedor;
-#if DEBUG
-            iPAddress = IPAddress.Parse("192.168.100.25");
-            endPointProveedor = new IPEndPoint(iPAddress, 9540);
-#else
             bool seSincronzo = Monitor.TryEnter(ProviderPortsList, 1000);
             if (seSincronzo)
             {
-
-
                 try
                 {
                     //192.168.69.91
@@ -680,7 +673,6 @@ namespace ServerCore
             {
                 Interlocked.Increment(ref portCounter);
             }
-#endif
             return endPointProveedor;
         }
 
@@ -2576,6 +2568,8 @@ namespace ServerCore
         /// <summary>
         /// valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
         /// </summary>
+        /// <param name="providerState"></param>
+        /// <param name="timeRemaining"></param>
         /// <param name="estadoDelProveedor"></param>
         /// <param name="state"></param>
         /// <returns></returns>
@@ -2906,8 +2900,11 @@ namespace ServerCore
         /// <returns></returns>
         private bool ValidateParametersServer()
         {
+            var sb = new StringBuilder();
             try
             {
+                sb.Append("Validando parámetros del servidor"); 
+                Log(sb.ToString(), Utilities.LogType.Info);
                 Encrypter.Encrypter encrypter = new Encrypter.Encrypter("AdmindeServicios");
                 Security security = new Security();
 
@@ -2925,7 +2922,7 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
-                var sb = new StringBuilder();
+                sb.Clear();
                 sb.Append("Error en ");
                 sb.Append(nameof(ValidateParametersServer));
                 sb.Append(", ");

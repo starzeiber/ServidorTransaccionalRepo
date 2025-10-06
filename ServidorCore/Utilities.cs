@@ -2,6 +2,7 @@
 
 namespace ServerCore
 {
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     internal static class Utilities
     {
         /// <summary>
