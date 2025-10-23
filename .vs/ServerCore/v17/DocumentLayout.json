@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\utilities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\utilities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\transactionalserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\servidorcore\\transactionalserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\transactionalserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\servidorcore\\security.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\security.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\clientstatebase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\clientstatebase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\socketpool.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\socketpool.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,70 +22,47 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 3,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ClientStateBase.cs",
+              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\ClientStateBase.cs",
+              "RelativeDocumentMoniker": "ServidorCore\\ClientStateBase.cs",
+              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\ClientStateBase.cs",
+              "RelativeToolTip": "ServidorCore\\ClientStateBase.cs",
+              "ViewState": "AgIAAFUAAAAAAAAAAAAAAHYAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T22:11:30.692Z",
+              "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:130:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SocketPool.cs",
+              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\SocketPool.cs",
+              "RelativeDocumentMoniker": "ServidorCore\\SocketPool.cs",
+              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\SocketPool.cs",
+              "RelativeToolTip": "ServidorCore\\SocketPool.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAAAIIAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T21:32:28.546Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{dcc4ea97-1c0c-482b-b205-e541c0df9728}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:1:0:{dcc4ea97-1c0c-482b-b205-e541c0df9728}"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Utilities.cs",
-              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Utilities.cs",
-              "RelativeDocumentMoniker": "ServidorCore\\Utilities.cs",
-              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Utilities.cs",
-              "RelativeToolTip": "ServidorCore\\Utilities.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-06T17:30:49.3Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Security.cs",
-              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Security.cs",
-              "RelativeDocumentMoniker": "ServidorCore\\Security.cs",
-              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Security.cs",
-              "RelativeToolTip": "ServidorCore\\Security.cs",
-              "ViewState": "AgIAACsAAAAAAAAAAAAAAEEAAABPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-06T17:10:17.186Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "TransactionalServer.cs",
               "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\TransactionalServer.cs",
               "RelativeDocumentMoniker": "ServidorCore\\TransactionalServer.cs",
               "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\TransactionalServer.cs",
               "RelativeToolTip": "ServidorCore\\TransactionalServer.cs",
-              "ViewState": "AgIAAJUJAAAAAAAAAAAYwFQLAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAPQIAAAAAAAAAAAAwPkIAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:07:37.3Z",
               "EditorCaption": ""

@@ -50,10 +50,9 @@ namespace ServerCore
         /// excessive socket creation.</remarks>
         /// <param name="maxSize">The maximum number of sockets that can be held in the pool. Must be a positive integer.  The default value
         /// is 10.</param>
-        public SocketPool(int maxSize = 10)
+        public SocketPool(int maxSize = 100)
         {
             maxPoolSize = maxSize;
-            //semaphore = new SemaphoreSlim(maxSize, maxSize);
         }
 
         /// <summary>
@@ -69,25 +68,37 @@ namespace ServerCore
         public Socket GetSocket(IPEndPoint endPoint, string uniqueId)
         {
             Socket socket = null;
+            bool isLock = false;
             try
             {
-                if (pool.TryTake(out socket))
+                isLock = Monitor.TryEnter(pool, Utilities.milisecondsTimeOutLock);
+                if (isLock)
                 {
-                    Interlocked.Decrement(ref currentCount);
-                    if (socket == null)
+                    if (pool.TryTake(out socket))
                     {
-                        throw new InvalidOperationException("El socket obtenido del pool es nulo.");
+                        Interlocked.Decrement(ref currentCount);
+                        if (socket == null)
+                        {
+                            throw new InvalidOperationException("El socket obtenido del pool es nulo.");
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 var sb = new StringBuilder();
-                sb.Append("Error al obtener un socket del pool: ");
+                sb.Append("Error al obtener un socket del pool, se creará uno: ");
                 sb.Append(ex.Message);
                 sb.Append(", cliente: ");
                 sb.Append(uniqueId);
                 Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+            }
+            finally
+            {
+                if (isLock && Monitor.IsEntered(pool))
+                {
+                    Monitor.Exit(pool);
+                }
             }
 
             if (socket != null && IsSocketConnected(socket))
@@ -108,7 +119,7 @@ namespace ServerCore
                 {
                     Interlocked.Decrement(ref currentCount);
                     var sb = new StringBuilder();
-                    sb.Append("Error al obtener un nuevo socket del pool: ");
+                    sb.Append("Error al obtener un nuevo socket, la operación se anula: ");
                     sb.Append(ex.Message);
                     sb.Append(", cliente: ");
                     sb.Append(uniqueId);
@@ -134,7 +145,55 @@ namespace ServerCore
             {
                 if (IsSocketConnected(socket))
                 {
-                    pool.Add(socket);
+                    // Limpiar cualquier información residual en el buffer de recepción
+                    try
+                    {
+                        while (socket.Available > 0)
+                        {                            
+                            // Lee y descarta los datos pendientes
+                            byte[] tempBuffer = new byte[socket.Available];
+                            socket.Receive(tempBuffer, 0, tempBuffer.Length, SocketFlags.None);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("Error limpiando buffer residual del socket al devolverlo al pool, no se reciclará: ");
+                        sb.Append(ex.Message);
+                        sb.Append(", cliente: ");
+                        sb.Append(clientId);
+                        Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
+                        socket?.Close();
+                        Interlocked.Decrement(ref currentCount);
+                        return;
+                    }
+                    bool isLock = false;
+                    try
+                    {
+                        isLock = Monitor.TryEnter(pool, Utilities.milisecondsTimeOutLock);
+                        if (isLock)
+                        {
+                            pool.Add(socket);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append("Error al devolver un socket al pool, no se reciclará: ");
+                        sb.Append(ex.Message);
+                        sb.Append(", cliente: ");
+                        sb.Append(clientId);
+                        Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+                        socket?.Close();
+                        Interlocked.Decrement(ref currentCount);
+                    }
+                    finally
+                    {
+                        if (isLock && Monitor.IsEntered(pool))
+                        {
+                            Monitor.Exit(pool);
+                        }
+                    }
                 }
                 else
                 {
@@ -144,12 +203,6 @@ namespace ServerCore
             }
             catch (Exception)
             {
-                //var sb = new StringBuilder();
-                //sb.Append("Error al devolver un socket al pool:");
-                //sb.Append(ex.Message);
-                //sb.Append(", cliente: ");
-                //sb.Append(clientId);
-                //Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
                 Interlocked.Decrement(ref currentCount);
             }
         }
@@ -171,14 +224,14 @@ namespace ServerCore
                 {
                     return false;
                 }
-                sb.Append("verificando conectividad del socket.");
-                sb.Append(socket.RemoteEndPoint.ToString());
-                Utilities.Log(sb.ToString(), Utilities.LogType.Info);
+                //sb.Append("verificando conectividad del socket.");
+                //sb.Append(socket.RemoteEndPoint.ToString());
+                //sb.Append(" para poder reutilizarlo.");
+                //Utilities.Log(sb.ToString(), Utilities.LogType.Info);
                 return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
             }
             catch (SocketException sex)
             {
-
                 sb.Append("SocketException al verificar la conectividad del socket. ");
                 sb.Append(sex.Message);
                 Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
@@ -193,10 +246,32 @@ namespace ServerCore
         /// After calling this method, the object should no longer be used.</remarks>
         public void Dispose()
         {
-            while (pool.TryTake(out Socket socket))
+            bool isLock = false;
+            try
             {
-                socket.Dispose();
+                isLock = Monitor.TryEnter(pool, Utilities.milisecondsTimeOutLock);
+                if (isLock)
+                {
+                    while (pool.TryTake(out Socket socket))
+                    {
+                        socket.Dispose();
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                var sb = new StringBuilder();
+                sb.Append("Error al liberar los recursos del SocketPool: ");
+                sb.Append(ex.Message);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+            }
+            finally
+            {
+                if (isLock && Monitor.IsEntered(pool))
+                {
+                    Monitor.Exit(pool);
+                }
+            }            
         }
     }
 }

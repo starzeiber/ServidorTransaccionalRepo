@@ -14,7 +14,7 @@ namespace ServerCore
         /// <summary>
         /// Identificador único para un cliente
         /// </summary>
-        public string UniqueClientId { get; set; }
+        public string UniqueClientId { get; set; } = "";
 
         /// <summary>
         /// Referencia al servidor de socket principal
@@ -123,13 +123,21 @@ namespace ServerCore
         /// </summary>
         public string msg230 = "";
 
-        //private readonly object objetoDeBloqueo = new object();
+        /// <summary>
+        /// Indicates whether the object has been disposed.
+        /// </summary>
+        /// <remarks>This field is used internally to track the disposal state of the object.  It should
+        /// not be accessed directly by external code.</remarks>
         private bool disposed = false;
 
 
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="ClientStateBase"/> class.
         /// </summary>
+        /// <remarks>The constructor initializes the internal state of the <see cref="ClientStateBase"/>
+        /// instance and prepares it for use. The initialization logic is separated into the  <see
+        /// cref="InitializeClientStateBase"/> method to allow reinitialization without creating a new
+        /// instance.</remarks>
         public ClientStateBase()
         {
             waitSendingEvent = new ManualResetEvent(true);
@@ -156,13 +164,10 @@ namespace ServerCore
             if (saeaOfSendReceive != null)
             {
                 saeaOfSendReceive.AcceptSocket = null;
-                //No puedo liberar el buffer porque lo administra el core
-                //saeaDeEnvioRecepcion.UserToken = null;
-                // El buffer se libera en el core con AdminBuffer.LiberarBuffer
             }
 
-            // Limpiar otros datos de sesión
-            UniqueClientId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
+            // Limpiar o inicializar otros datos de sesión
+            SetClientId();
             waitSendingEvent.Set();
             messageResponse = "";
             objRequest = null;
@@ -184,12 +189,48 @@ namespace ServerCore
             SetFree();
         }
 
+        public bool SetClientId()
+        {
+            bool isLock = false;
+            try
+            {
+                isLock = Monitor.TryEnter(UniqueClientId, Utilities.milisecondsTimeOutLock);
+                if (isLock)
+                {
+                    UniqueClientId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
+                }
+                else
+                {
+                    throw new TimeoutException("Timeout al intentar obtener el lock para generar el UniqueClientId");
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.Append("Error en ");
+                sb.Append(nameof(SetClientId));
+                sb.Append(", ");
+                sb.Append(ex.Message);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+                return false;
+            }
+            finally
+            {
+                if (isLock && Monitor.IsEntered(UniqueClientId))
+                {
+                    Monitor.Exit(UniqueClientId);
+                }
+            }
+        }
+
+
         /// <summary>
         /// Función virtual para poder sobre escribirla, en esta se controla
         /// toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
         /// </summary>
-        /// <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
-        public virtual void ProcessMessage(string mensajeCliente)
+        /// <param name="clientMessage">Mensaje que se recibe de un cliente</param>
+        public virtual void ProcessMessage(string clientMessage)
         {
         }
 
@@ -200,7 +241,7 @@ namespace ServerCore
         /// <param name="mainSocket"> proceso donde se encuentra el socket principal del cuál se desprende el socket de trabajo por cliente</param>
         public void SetMainSocketReference(object mainSocket)
         {
-            this.mainSocketReference = mainSocket;
+            mainSocketReference = mainSocket;
         }
 
         /// <summary>
@@ -299,7 +340,7 @@ namespace ServerCore
         /// <param name="code">The HTTP status code to set. Must be a valid HTTP status code (e.g., 200, 404, 500).</param>
         public void SetResponseCode(int code)
         {
-            this.responseCode = code;
+            responseCode = code;
         }
 
         /// <summary>
@@ -308,7 +349,7 @@ namespace ServerCore
         /// <param name="code">The authorization code to set. Must be a valid integer representing the required authorization.</param>
         public void SetAuthorizationCode(int code)
         {
-            this.authorizationCode = code;
+            authorizationCode = code;
         }
     }
 }

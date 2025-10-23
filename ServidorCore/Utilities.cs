@@ -90,6 +90,10 @@ namespace ServerCore
             /// </summary>
             CarrierAbajo = 73,
             /// <summary>
+            /// Indica un tiempo de espera excedido en el proceso
+            /// </summary>
+            ErrorEnElProceso = 74,
+            /// <summary>
             /// 
             /// </summary>
             MontoInvalido = 88
@@ -110,7 +114,7 @@ namespace ServerCore
         [Obfuscation(Exclude = true)]
 
         internal static void Log(string message, LogType logType)
-        {
+        {            
             switch (logType)
             {
                 case LogType.Info:
@@ -127,5 +131,7 @@ namespace ServerCore
                     break;
             }
         }
+
+        internal const int milisecondsTimeOutLock = 500;
     }
 }

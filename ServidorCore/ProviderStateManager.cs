@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ServerCore
 {
@@ -14,7 +15,7 @@ namespace ServerCore
         /// <summary>
         /// El conjunto de estados se almacena como una pila
         /// </summary>
-        private readonly Stack<X> providerStateStack;
+        private Stack<X> providerStateStack;
 
         /// <summary>
         /// Constructor que inicializa el objeto pilaEstadosSocket con una dimensión máxima
@@ -30,7 +31,34 @@ namespace ServerCore
         /// </summary>
         internal Int32 ProviderStateCounter
         {
-            get { return this.providerStateStack.Count; }
+            get
+            {
+                bool isLock = Monitor.TryEnter(providerStateStack);
+                try
+                {
+                    if (isLock)
+                        return providerStateStack.Count;
+                    else
+                        throw new InvalidOperationException("No se pudo obtener el lock para acceder al contador de la pila de estados del proveedor.");
+                }
+                catch (Exception ex)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append("Error en ");
+                    sb.Append(nameof(ProviderStateCounter));
+                    sb.Append(": ");
+                    sb.Append(ex.Message);
+                    Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+                    return -1;
+                }
+                finally
+                {
+                    if (isLock && Monitor.IsEntered(providerStateStack))
+                    {
+                        Monitor.Exit(providerStateStack);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -40,13 +68,40 @@ namespace ServerCore
         internal X GetProviderState()
         {
             // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
-            lock (this.providerStateStack)
+
+            bool isLock = false;
+            try
             {
-                // obtengo un estado de la pila
-                X estadoDelProveedorBase = providerStateStack.Pop();
-                //  con el estado obtenido, se inicializa sin una nueva instancia ya que la pila ya estaba creada
-                estadoDelProveedorBase.InitializeProviderStateBase();
-                return estadoDelProveedorBase;
+                isLock = Monitor.TryEnter(this.providerStateStack, Utilities.milisecondsTimeOutLock);
+                if (isLock)
+                {
+                    // obtengo un estado de la pila
+                    X estadoDelProveedorBase = providerStateStack.Pop();
+                    //  con el estado obtenido, se inicializa sin una nueva instancia ya que la pila ya estaba creada
+                    estadoDelProveedorBase.InitializeProviderStateBase();
+                    return estadoDelProveedorBase;
+                }
+                else
+                {
+                    throw new InvalidOperationException("No se pudo obtener el lock para acceder a la pila de estados del proveedor.");
+                }
+            }
+            catch (Exception ex)
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.Append("Error en ");
+                sb.Append(nameof(GetProviderState));
+                sb.Append(": ");
+                sb.Append(ex.Message);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+                return null;
+            }
+            finally
+            {
+                if (isLock && Monitor.IsEntered(this.providerStateStack))
+                {
+                    Monitor.Exit(this.providerStateStack);
+                }
             }
         }
 
@@ -56,15 +111,38 @@ namespace ServerCore
         /// <param name="estadoDelProveedorBase">Objeto de EstadoDelClienteBase a ingresar</param>
         internal void AddProviderState(X estadoDelProveedorBase)
         {
-            if (estadoDelProveedorBase == null)
+            bool isLock = false;
+            try
             {
-                throw new ArgumentNullException("El objeto no puede ser nulo");
+                if (estadoDelProveedorBase == null)
+                {
+                    Utilities.Log($"El objeto {nameof(estadoDelProveedorBase)} no puede ser nulo", Utilities.LogType.Warning);
+                }
+                // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
+                isLock = Monitor.TryEnter(providerStateStack, Utilities.milisecondsTimeOutLock);
+                if (isLock)
+                {
+                    if (!providerStateStack.Contains(estadoDelProveedorBase))
+                        this.providerStateStack.Push(estadoDelProveedorBase);
+                }
             }
-            // como la pila de estados se utiliza en todo el proyecto comunmente, se debe sincronizar su acceso
-            lock (this.providerStateStack)
+            catch (Exception ex)
             {
-                if (!providerStateStack.Contains(estadoDelProveedorBase))
-                    this.providerStateStack.Push(estadoDelProveedorBase);
+                var sb = new System.Text.StringBuilder();
+                sb.Append("Error en ");
+                sb.Append(nameof(AddProviderState));
+                sb.Append(": ");
+                sb.Append(ex.Message);
+                sb.Append(". ClienteId: ");
+                sb.Append(estadoDelProveedorBase?.clientStateSource?.UniqueClientId.ToString() ?? "N/A");
+                Utilities.Log(sb.ToString(), Utilities.LogType.Error);
+            }
+            finally
+            {
+                if (isLock && Monitor.IsEntered(providerStateStack))
+                {
+                    Monitor.Exit(providerStateStack);
+                }
             }
         }
     }

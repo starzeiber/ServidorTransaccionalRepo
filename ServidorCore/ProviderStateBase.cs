@@ -99,11 +99,16 @@ namespace ServerCore
         /// to be in UTC format.</remarks>
         public DateTime lastActivityTime;
 
+        internal EventWaitHandle waitSendingEvent;
+
+
+
         /// <summary>
         /// Constructor
         /// </summary>
         public ProviderStateBase()
         {
+            waitSendingEvent = new ManualResetEvent(true);
             // se separa del constructor debido a  que  la inicialización de puede usar nuevamente sin hacer una nueva instancia
             InitializeProviderStateBase();
         }
@@ -113,16 +118,7 @@ namespace ServerCore
         /// todas las variables del info y socket de trabajo
         /// </summary>
         public virtual void InitializeProviderStateBase()
-        {
-            // Liberar y limpiar el socket si existe
-            //TODO se quitó para utilizar el socket pool
-            //if (socketDeTrabajo != null)
-            //{
-            //    try { socketDeTrabajo.Shutdown(SocketShutdown.Both); } catch { }
-            //    try { socketDeTrabajo.Close(); } catch { }
-            //    try { socketDeTrabajo.Dispose(); } catch { }
-            //    socketDeTrabajo = null;
-            //}
+        {            
 
             // Limpiar el buffer del SAEA si aplica
             if (saeaSendReceive != null)
@@ -133,6 +129,7 @@ namespace ServerCore
                 // El buffer se libera en el core con AdminBuffer.LiberarBuffer
             }
 
+            waitSendingEvent.Set();
             mainSocketReference = null;
             responseCode = 0;
             authorizacionCode = 0;
@@ -300,23 +297,22 @@ namespace ServerCore
             try
             {
                 await Task.Delay(timeOut * 1000, _timeoutCts.Token);
+                var sb= new System.Text.StringBuilder();
+                sb.Append("Timeout expirado después de ");
+                sb.Append(timeOut);
+                sb.Append(" segundos. ");
+                sb.Append("ProveedorId: ");
+                sb.Append(this.UniqueProviderId);
+                sb.Append(". cliente: ");
+                sb.Append(this.clientStateSource?.UniqueClientId.ToString() ?? "N/A");
+                Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
                 SetTimeOutExpired();
-                //var sb = new StringBuilder();
-                //sb.Append("Se venció el timeout a proveedor ");
-                //sb.Append(endPoint.Address);
-                //sb.Append(":");
-                //sb.Append(endPoint.Port);
-                //sb.Append(". cliente ");
-                //sb.Append(clientStateSource.UniqueClientId);
-                //Utilities.EscribirLog(sb.ToString(), Utilities.tipoLog.ALERTA);
-
                 // Disparar el evento para notificar a ServidorTransaccional
                 TimeOutExpired?.Invoke(this, EventArgs.Empty);
             }
             catch (TaskCanceledException)
             {
                 TimeOutReset();
-                Utilities.Log("Timeout cancelado a proveedor porque llegó la respuesta a tiempo.", Utilities.LogType.Info);
             }
         }
 
@@ -325,7 +321,14 @@ namespace ServerCore
         /// </summary>
         public void CancelTimeoutCounter()
         {
-            _timeoutCts?.Cancel();
+            try
+            {
+                _timeoutCts?.Cancel();
+            }
+            catch (Exception ex)
+            {
+                Utilities.Log($"Error al cancelar el contador de timeout: {ex.Message}", Utilities.LogType.Error);
+            }            
         }
 
         /// <summary>
@@ -374,6 +377,12 @@ namespace ServerCore
         {
             Interlocked.CompareExchange(ref InUse, 0, 1);
         }
+
+        public virtual void CompareResponseVsRequest(string message)
+        {
+            
+        }
+
 
     }
 }

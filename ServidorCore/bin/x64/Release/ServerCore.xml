@@ -53,7 +53,7 @@
             Remueve el buffer de un objeto SocketAsyncEventArg. Al liberarlo
             lo regresar a la pila de bufferes disponibles para volver a usarlo
             </summary>
-            <param name="args">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
+            <param name="saea">SocketAsyncEventArgs en donde está el buffer que se quiere remover</param>
         </member>
         <member name="M:ServerCore.BufferManager.InitializeFullBuffer">
             <summary>
