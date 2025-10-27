@@ -95,7 +95,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(pool))
+                if (isLock)
                 {
                     Monitor.Exit(pool);
                 }
@@ -189,7 +189,7 @@ namespace ServerCore
                     }
                     finally
                     {
-                        if (isLock && Monitor.IsEntered(pool))
+                        if (isLock)
                         {
                             Monitor.Exit(pool);
                         }
@@ -267,7 +267,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(pool))
+                if (isLock)
                 {
                     Monitor.Exit(pool);
                 }

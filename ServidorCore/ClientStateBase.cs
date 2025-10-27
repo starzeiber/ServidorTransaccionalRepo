@@ -194,7 +194,7 @@ namespace ServerCore
             bool isLock = false;
             try
             {
-                isLock = Monitor.TryEnter(UniqueClientId, Utilities.milisecondsTimeOutLock);
+                isLock = Monitor.TryEnter(this, Utilities.milisecondsTimeOutLock);
                 if (isLock)
                 {
                     UniqueClientId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
@@ -217,9 +217,9 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(UniqueClientId))
+                if (isLock)
                 {
-                    Monitor.Exit(UniqueClientId);
+                    Monitor.Exit(this);
                 }
             }
         }

@@ -53,7 +53,7 @@ namespace ServerCore
                 }
                 finally
                 {
-                    if (isLock && Monitor.IsEntered(providerStateStack))
+                    if (isLock)
                     {
                         Monitor.Exit(providerStateStack);
                     }
@@ -98,7 +98,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(this.providerStateStack))
+                if (isLock)
                 {
                     Monitor.Exit(this.providerStateStack);
                 }
@@ -139,7 +139,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(providerStateStack))
+                if (isLock)
                 {
                     Monitor.Exit(providerStateStack);
                 }

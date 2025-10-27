@@ -88,7 +88,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(clientStateStack))
+                if (isLock)
                 {
                     Monitor.Exit(clientStateStack);
                 }
@@ -130,7 +130,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(clientStateStack))
+                if (isLock)
                 {
                     Monitor.Exit(clientStateStack);
                 }

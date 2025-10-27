@@ -111,7 +111,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(bufferStackOffsetsIndex))
+                if (isLock)
                     Monitor.Exit(bufferStackOffsetsIndex);
             }
         }
@@ -184,7 +184,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(bufferStackOffsetsIndex))
+                if (isLock)
                 {
                     Monitor.Exit(this.bufferStackOffsetsIndex);
                 }
@@ -216,7 +216,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(fullBuffer))
+                if (isLock)
                 {
                     Monitor.Exit(fullBuffer);
                 }
@@ -246,7 +246,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(bufferStackOffsetsIndex))
+                if (isLock)
                     Monitor.Exit(bufferStackOffsetsIndex);
             }
         }
@@ -283,7 +283,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(bufferStackOffsetsIndex))
+                if (isLock)
                     Monitor.Exit(bufferStackOffsetsIndex);
             }
         }

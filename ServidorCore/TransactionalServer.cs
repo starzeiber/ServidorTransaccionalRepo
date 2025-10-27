@@ -657,7 +657,7 @@ namespace ServerCore
                 }
                 finally
                 {
-                    if (isLock && Monitor.IsEntered(ProviderPortsList))
+                    if (isLock)
                         Monitor.Exit(ProviderPortsList);
                 }
             }
@@ -680,26 +680,26 @@ namespace ServerCore
         /// <summary>
         /// Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
         /// </summary>
-        /// <param name="puertoLocal">Puerto de escucha del servidor</param>
-        /// <param name="ipProveedor">Ip del servidor del proveedor</param>
-        /// <param name="listaPuertosProveedor">Puertos del proveedor</param>
-        /// <param name="modoTest">Modo pruebas</param>
-        /// <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
-        public void Start(Int32 puertoLocal, string ipProveedor, List<int> listaPuertosProveedor, bool modoTest, bool modoRouter)
+        /// <param name="localPort">Puerto de escucha del servidor</param>
+        /// <param name="providerIp">Ip del servidor del proveedor</param>
+        /// <param name="providerPortsList">Puertos del proveedor</param>
+        /// <param name="testMode">Modo pruebas</param>
+        /// <param name="routerMode">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
+        public void Start(Int32 localPort, string providerIp, List<int> providerPortsList, bool testMode, bool routerMode)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
             disconnecting = false;
-            ServerCore.ServerConfiguration.testMode = modoTest;
-            ServerCore.ServerConfiguration.routerMode = modoRouter;
+            ServerCore.ServerConfiguration.testMode = testMode;
+            ServerCore.ServerConfiguration.routerMode = routerMode;
             //De acuerdo a las buenas practicas de manejo de operaciones asincronas, se debe ANUNCIAR el inicio
             //de un trabajo asincrono para ir controlando su avance por eventos si fuera necesario
             ServerStateBase.OnStart();
 
-            this.ProviderIp = ipProveedor;
-            this.ProviderPortsList = listaPuertosProveedor;
+            this.ProviderIp = providerIp;
+            this.ProviderPortsList = providerPortsList;
             SetSocketPool();
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, puertoLocal);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, localPort);
 
             // se crea el socket que se utilizará de escucha para las conexiones entrantes
             mainListenSocket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -712,7 +712,7 @@ namespace ServerCore
             // se inicia la escucha de conexiones con un backlog de 100 conexiones
             this.mainListenSocket.Listen(backLog);
 
-            portCounter = listaPuertosProveedor.Count;
+            portCounter = providerPortsList.Count;
 
             // Se indica al sistema que se empiezan a aceptar conexiones, se envía una referencia a null para que se indique que es la primera vez
             this.StartAccepting(null);
@@ -778,11 +778,11 @@ namespace ServerCore
         /// considered critical.</remarks>
         private void IncrementPerformanceCounterIn()
         {
-            bool isSync = false;
+            bool isLock = false;
             try
             {
-                isSync = Monitor.TryEnter(incommigConnectionsPerformanceCounter, milisecondsTimeOutLock);
-                if (isSync)
+                isLock = Monitor.TryEnter(incommigConnectionsPerformanceCounter, milisecondsTimeOutLock);
+                if (isLock)
                 {
                     incommigConnectionsPerformanceCounter.IncrementBy(1);
                 }
@@ -793,7 +793,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isSync && Monitor.IsEntered(incommigConnectionsPerformanceCounter))
+                if (isLock)
                     Monitor.Exit(incommigConnectionsPerformanceCounter);
             }
         }
@@ -960,7 +960,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(clientsList))
+                if (isLock)
                     Monitor.Exit(clientsList);
             }
         }
@@ -1332,7 +1332,7 @@ namespace ServerCore
             try
             {
                 //Para ir midiendo el TO por cada recepción
-                isLock = Monitor.TryEnter(clientState.StartDateTrx, milisecondsTimeOutLock);
+                isLock = Monitor.TryEnter(clientState, milisecondsTimeOutLock);
                 if (isLock)
                 {
                     clientState.StartDateTrx = DateTime.Now;
@@ -1357,8 +1357,8 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(clientState.StartDateTrx))
-                    Monitor.Exit(clientState.StartDateTrx);
+                if (isLock)
+                    Monitor.Exit(clientState);
             }
         }
 
@@ -1724,7 +1724,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(ClientsPendingDisconnectionList))
+                if (isLock)
                     Monitor.Exit(ClientsPendingDisconnectionList);
             }
         }
@@ -1824,13 +1824,14 @@ namespace ServerCore
         /// langword="false"/> if an error occurred during the removal process.</returns>
         public bool RemoveClientToClientList(T clientState)
         {
+            bool isLock=false;
             try
             {
                 // proporciona un mecanismo de sincronización de acceso a datos donde un hilo solo puede tener acceso a un
                 // bloque de código a la vez, en este caso en ingresar al listado de clientes, de lo contrario habría 
                 // cross threading y provocaría error
-                bool bloqueo = Monitor.TryEnter(clientsList, milisecondsTimeOutLock);
-                if (bloqueo)
+                isLock = Monitor.TryEnter(clientsList, milisecondsTimeOutLock);
+                if (isLock)
                 {
                     // se busca en la lista el cliente y se remueve porque se va a desconectar
                     if (clientsList.ContainsKey(clientState.UniqueClientId))
@@ -1864,7 +1865,7 @@ namespace ServerCore
             }
             finally
             {
-                if (Monitor.IsEntered(clientsList))
+                if (isLock)
                     Monitor.Exit(clientsList);
             }
         }
@@ -2217,9 +2218,10 @@ namespace ServerCore
         private bool AddProviderToProvidersList(X providerState)
         {
             StringBuilder sb = new StringBuilder();
+            bool isLock = false;
             try
             {
-                bool isLock = Monitor.TryEnter(providersList, milisecondsTimeOutLock);
+                 isLock = Monitor.TryEnter(providersList, milisecondsTimeOutLock);
                 if (isLock)
                 {
                     if (!providersList.ContainsKey(providerState.UniqueProviderId))
@@ -2247,7 +2249,7 @@ namespace ServerCore
             }
             finally
             {
-                if (Monitor.IsEntered(providersList))
+                if (isLock )
                     Monitor.Exit(providersList);
             }
         }
@@ -2676,7 +2678,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(ProvidersPendingDisconnectionList))
+                if (isLock)
                     Monitor.Exit(ProvidersPendingDisconnectionList);
             }
 
@@ -2787,7 +2789,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(providersList))
+                if (isLock)
                     Monitor.Exit(providersList);
             }
         }
@@ -2845,7 +2847,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(ProvidersPendingDisconnectionList))
+                if (isLock)
                     Monitor.Exit(ProvidersPendingDisconnectionList);
             }
         }
@@ -2915,7 +2917,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(providerState))
+                if (isLock)
                     Monitor.Exit(providerState);
             }
         }
@@ -3263,7 +3265,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock && Monitor.IsEntered(clientState))
+                if (isLock)
                     Monitor.Exit(clientState);
             }
 
