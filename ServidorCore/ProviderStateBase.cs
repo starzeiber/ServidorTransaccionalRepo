@@ -101,6 +101,11 @@ namespace ServerCore
 
         internal EventWaitHandle waitSendingEvent;
 
+        /// <summary>
+        /// Tiempo de espera general del lado del cliente
+        /// </summary>
+        public int timeOut;
+
 
 
         /// <summary>
@@ -118,7 +123,7 @@ namespace ServerCore
         /// todas las variables del info y socket de trabajo
         /// </summary>
         public virtual void InitializeProviderStateBase()
-        {            
+        {
 
             // Limpiar el buffer del SAEA si aplica
             if (saeaSendReceive != null)
@@ -139,6 +144,7 @@ namespace ServerCore
             objRequest = null;
             objResponse = null;
             endPoint = null;
+            timeOut = ServerConfiguration.providerTimeout;
             UniqueProviderId = $"{Guid.NewGuid()}-{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}";
             TimeOutReset();
             InUse = 0;
@@ -297,10 +303,10 @@ namespace ServerCore
             try
             {
                 await Task.Delay(timeOut * 1000, _timeoutCts.Token);
-                var sb= new System.Text.StringBuilder();
+                var sb = new System.Text.StringBuilder();
                 sb.Append("Timeout expirado después de ");
                 sb.Append(timeOut);
-                sb.Append(" segundos. ");
+                sb.Append(" segundos, que es el tiempo restante para que la operación sea exitosa. ");
                 sb.Append("ProveedorId: ");
                 sb.Append(this.UniqueProviderId);
                 sb.Append(". cliente: ");
@@ -328,7 +334,7 @@ namespace ServerCore
             catch (Exception ex)
             {
                 Utilities.Log($"Error al cancelar el contador de timeout: {ex.Message}", Utilities.LogType.Error);
-            }            
+            }
         }
 
         /// <summary>
@@ -380,7 +386,7 @@ namespace ServerCore
 
         public virtual void CompareResponseVsRequest(string message)
         {
-            
+
         }
 
 

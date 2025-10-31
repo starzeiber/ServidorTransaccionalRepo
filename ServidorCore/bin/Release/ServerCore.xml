@@ -60,7 +60,7 @@
              Asigna el espacio de buffer usado por la pila de buffer
             </summary>
         </member>
-        <member name="M:ServerCore.BufferManager.SetBuffer(System.Net.Sockets.SocketAsyncEventArgs)">
+        <member name="M:ServerCore.BufferManager.SetBuffer(System.Net.Sockets.SocketAsyncEventArgs,System.String)">
             <summary>
             Asigna un buffer desde la pila de bufferes para el objeto SocketAsyncEventArgs específico
             </summary>
@@ -145,9 +145,15 @@
         </member>
         <member name="M:ServerCore.ClientStateManager`1.GetClientState">
             <summary>
-            Obtiene un estadoDelClienteBase de la pila de estados del cliente
+            Retrieves and initializes the current client state from the state stack.
             </summary>
-            <returns>Objeto de la pila que es también removido mientras se usa</returns>
+            <remarks>This method attempts to acquire a lock on the client state stack to ensure
+            thread-safe access.  If the lock is successfully acquired, it retrieves the top state from the stack,
+            initializes it,  and returns it. If the lock cannot be acquired, an <see cref="T:System.InvalidOperationException"/>
+            is thrown.  In the event of an error, the method logs the exception and returns <see
+            langword="null"/>.</remarks>
+            <returns>The initialized client state object of type <typeparamref name="T"/> if successful; otherwise, <see
+            langword="null"/> if an error occurs.</returns>
         </member>
         <member name="M:ServerCore.ClientStateManager`1.AddClientState(`0)">
             <summary>
@@ -336,6 +342,11 @@
             </summary>
             <remarks>This field represents the date and time of the most recent activity.  It is expected
             to be in UTC format.</remarks>
+        </member>
+        <member name="F:ServerCore.ProviderStateBase.timeOut">
+            <summary>
+            Tiempo de espera general del lado del cliente
+            </summary>
         </member>
         <member name="M:ServerCore.ProviderStateBase.#ctor">
             <summary>
@@ -556,12 +567,12 @@
             Obtiene o ingresa el número máximo de conexiones simultaneas de una misma IP del cliente (0=ilimitadas)
             </summary>
         </member>
-        <member name="P:ServerCore.TransactionalServer`3.inExecution">
+        <member name="P:ServerCore.TransactionalServer`3.InExecution">
             <summary>
             Obtiene o ingresa el valor de que si el servidor está o no ejecutandose
             </summary>
         </member>
-        <member name="P:ServerCore.TransactionalServer`3.serverStateBase">
+        <member name="P:ServerCore.TransactionalServer`3.ServerStateBase">
             <summary>
             Obtiene o ingresa el estado del socket del servidor
             </summary>
@@ -626,6 +637,36 @@
         <member name="P:ServerCore.TransactionalServer`3.ProviderPortsList">
             <summary>
             Gets or sets the list of port numbers associated with the provider.
+            </summary>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.messagesReceivedPerSecond">
+            <summary>
+            Gets or sets the number of messages received per second.
+            </summary>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.messagesPerSecond">
+            <summary>
+            Gets or sets the number of messages processed per second.
+            </summary>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.lastSecond">
+            <summary>
+            Represents the timestamp of the most recent second, initialized to the current UTC time.
+            </summary>
+            <remarks>This field is intended for internal use to track or compare time intervals.  The
+            value is set to the current UTC time when the object is created.</remarks>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.lockMessages">
+            <summary>
+            A synchronization object used to ensure thread-safe access to shared resources.
+            </summary>
+            <remarks>This object is intended to be used as a lock for critical sections where multiple
+            threads may attempt to access or modify shared data concurrently. Use the <c>lock</c> statement with this
+            object to enforce mutual exclusion.</remarks>
+        </member>
+        <member name="P:ServerCore.TransactionalServer`3.MessagesPerSecond">
+            <summary>
+            Gets the number of messages processed per second.
             </summary>
         </member>
         <member name="F:ServerCore.TransactionalServer`3.localIp">
@@ -735,13 +776,13 @@
             ConfigInicioServidor para iniciar el proceso de asignacion de recursos        
             </summary>
             <param name="clienteFactory">Función que crea una instancia de la clase EstadoDelClienteBase</param>
-            <param name="proveedorFactory">Función que crea una instancia de la clase EstadoDelProveedorBase</param>
+            <param name="providerFactory">Función que crea una instancia de la clase EstadoDelProveedorBase</param>
             <param name="servidorFactory">Función que crea una instancia de la clase EstadoDelServidorBase</param>
-            <param name="numeroConexSimultaneas">Maximo número de conexiones simultaneas a manejar en el servidor</param>
-            <param name="tamanoBuffer">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
+            <param name="concurrentConexionNumber">Maximo número de conexiones simultaneas a manejar en el servidor</param>
+            <param name="bufferSizePerMessage">Tamaño del buffer por conexión, un parámetro standart es 1024</param>
             <param name="backlog">Parámetro TCP/IP backlog, el recomendable es 100</param>
         </member>
-        <member name="M:ServerCore.TransactionalServer`3.SetBuffer(System.Int32)">
+        <member name="M:ServerCore.TransactionalServer`3.SetBufferSizePerMessage(System.Int32)">
             <summary>
             Sets the buffer size for processing requests.
             </summary>
@@ -762,7 +803,7 @@
             <summary>
             Configures the maximum number of concurrent connections and the connection backlog.
             </summary>
-            <param name="numeroConexSimultaneas">The maximum number of simultaneous connections allowed for both clients and providers.  A value of 0
+            <param name="concurrentConexionNumber">The maximum number of simultaneous connections allowed for both clients and providers.  A value of 0
             indicates no limit.</param>
             <param name="backlog">The maximum number of pending connections that can be queued before being accepted.</param>
         </member>
@@ -771,13 +812,13 @@
             Configures the factories used to create instances of the client, server, and provider states.
             </summary>
             <remarks>This method initializes the server state using the provided <paramref
-            name="servidorFactory"/>.  If an error occurs during the creation of the server state, an error message is
+            name="serverFactory"/>.  If an error occurs during the creation of the server state, an error message is
             logged. Ensure that the class used for the server state has a parameterless constructor.</remarks>
-            <param name="clienteFactory">A factory method that creates an instance of the client state. Cannot be <see langword="null"/>.</param>
-            <param name="servidorFactory">A factory method that creates an instance of the server state. Cannot be <see langword="null"/>.</param>
-            <param name="proveedorFactory">A factory method that creates an instance of the provider state. Cannot be <see langword="null"/>.</param>
-            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="clienteFactory"/>, <paramref name="servidorFactory"/>, or <paramref
-            name="proveedorFactory"/> is <see langword="null"/>.</exception>
+            <param name="clientFactory">A factory method that creates an instance of the client state. Cannot be <see langword="null"/>.</param>
+            <param name="serverFactory">A factory method that creates an instance of the server state. Cannot be <see langword="null"/>.</param>
+            <param name="providerFactory">A factory method that creates an instance of the provider state. Cannot be <see langword="null"/>.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="clientFactory"/>, <paramref name="serverFactory"/>, or <paramref
+            name="providerFactory"/> is <see langword="null"/>.</exception>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.ServerConfiguration(System.Int32,System.Int32)">
             <summary>
@@ -834,17 +875,27 @@
             <summary>
             Se inicia el servidor de manera que esté escuchando solicitudes de conexión entrantes.
             </summary>
-            <param name="puertoLocal">Puerto de escucha del servidor</param>
-            <param name="ipProveedor">Ip del servidor del proveedor</param>
-            <param name="listaPuertosProveedor">Puertos del proveedor</param>
-            <param name="modoTest">Modo pruebas</param>
-            <param name="modoRouter">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
+            <param name="localPort">Puerto de escucha del servidor</param>
+            <param name="providerIp">Ip del servidor del proveedor</param>
+            <param name="providerPortsList">Puertos del proveedor</param>
+            <param name="testMode">Modo pruebas, no guarda las transacciones y solo responde con el eco de los datos de entrada en forma exitosa,, si está activo
+             se omite el parámetro routerMode</param>
+            <param name="routerMode">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor, de lo contrario solo se usuaria como servidor de procesamiento local</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.StartAccepting(System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
             Se inicia la operación de aceptar solicitudes por parte de un cliente
             </summary>
             <param name="saeaConnectionAccept">Objeto que se utilizará en cada aceptación de una solicitud</param>
+        </member>
+        <member name="M:ServerCore.TransactionalServer`3.IncrementPerformanceCounterIn">
+            <summary>
+            Safely increments the performance counter for incoming connections.
+            </summary>
+            <remarks>This method attempts to increment the performance counter in a thread-safe manner by
+            using a synchronization mechanism. If the lock cannot be acquired within the  specified timeout, the
+            increment operation is skipped. Exceptions during the operation  are caught and suppressed, as they are not
+            considered critical.</remarks>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.StartAcceptingCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
             <summary>
@@ -884,7 +935,7 @@
             <remarks>This method calculates the number of messages received in the current second and
             updates the  corresponding count. It ensures thread safety by locking access to the shared state.</remarks>
         </member>
-        <member name="M:ServerCore.TransactionalServer`3.ValidateTotalBytesCounter(System.Int32)">
+        <member name="M:ServerCore.TransactionalServer`3.SetTotalBytesCounter(System.Int32)">
             <summary>
             Updates the total bytes counter with the specified number of bytes transferred.
             </summary>
@@ -956,6 +1007,15 @@
             </summary>
             <param name="clientState">Instancia del cliente a cerrar</param>
         </member>
+        <member name="M:ServerCore.TransactionalServer`3.AddClientToPendientDesconnetionList(`0)">
+            <summary>
+            Adds a client to the list of clients pending disconnection if it is not already present.
+            </summary>
+            <remarks>This method attempts to acquire a lock on the pending disconnection list to ensure
+            thread safety. If the lock cannot be acquired within the configured timeout, an exception is
+            thrown.</remarks>
+            <param name="clientState">The client state to be added to the pending disconnection list.</param>
+        </member>
         <member name="M:ServerCore.TransactionalServer`3.RemoveForcedClient(`0)">
             <summary>
             Cierra el socket asociado a un cliente y retira al cliente de la lista de clientes conectados
@@ -1010,7 +1070,7 @@
             <remarks>If the size of the message exceeds the allocated buffer size, the method logs a
             warning and the message is considered invalid. In the event of an error during the conversion process, the
             method logs the exception details along with the message and client information.</remarks>
-            <param name="estadoDelProveedor">The state object representing the provider, which contains the buffer and offset for writing the message
+            <param name="providerState">The state object representing the provider, which contains the buffer and offset for writing the message
             bytes.</param>
             <param name="messageToProvider">The message to be converted to bytes and written to the provider's buffer.</param>
             <returns>The number of bytes written to the buffer.</returns>
@@ -1022,7 +1082,7 @@
             <remarks>This method constructs a log message based on the provider's request data and the
             unique identifier of the originating client. If an exception occurs during the process, the exception
             message is included in the log.</remarks>
-            <param name="estadoDelProveedor">An object representing the state of the provider, including the request data and the originating client's
+            <param name="providerState">An object representing the state of the provider, including the request data and the originating client's
             state.</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.ReleaseResourceWithOutCloseSocket(`2)">
@@ -1032,7 +1092,7 @@
             <remarks>This method ensures that the buffer associated with the provider's socket is
             released, the socket is reset, and the provider state is returned to the pool for reuse. If an error occurs
             during the release process, the error is logged.</remarks>
-            <param name="estadoDelProveedor">The state of the provider whose resources are to be released. This includes the associated socket and client
+            <param name="providerState">The state of the provider whose resources are to be released. This includes the associated socket and client
             state information.</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.ReceiveSendOutgoingCallBack(System.Object,System.Net.Sockets.SocketAsyncEventArgs)">
@@ -1058,6 +1118,16 @@
             <summary>
             Cierra el socket asociado a un proveedor y retira al proveedor de la lista de conectados
             </summary>
+        </member>
+        <member name="M:ServerCore.TransactionalServer`3.AddProvidersPendingDisconnectionList(`2)">
+            <summary>
+            Adds the specified provider state to the list of providers pending disconnection,  ensuring thread-safe
+            access to the list.
+            </summary>
+            <remarks>This method attempts to acquire a lock on the pending disconnection list to ensure 
+            thread safety. If the provider state is already in the list, it will not be added again.  Any errors
+            encountered during the operation are logged.</remarks>
+            <param name="providerState">The provider state to add to the pending disconnection list.  This parameter must not be null.</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.RemoveForcedProvider(`2)">
             <summary>
@@ -1095,7 +1165,7 @@
             <returns><see langword="true"/> if the provider was successfully removed from the list;  otherwise, <see
             langword="false"/> if an error occurred during the removal process.</returns>
         </member>
-        <member name="M:ServerCore.TransactionalServer`3.ValidateTimeRemaining(`2,System.Int32@)">
+        <member name="M:ServerCore.TransactionalServer`3.ValidateTimeRemainingToProvider(`2,System.Int32@)">
             <summary>
             valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea, el tiempo por defecto es 25 seg
             </summary>
@@ -1113,13 +1183,6 @@
             authorization codes,  sends a response to the client, and closes the provider's socket connection.</remarks>
             <param name="sender">The source of the event, representing the provider's state.</param>
             <param name="e">The event data associated with the timeout expiration.</param>
-        </member>
-        <member name="M:ServerCore.TransactionalServer`3.EnvioInfoSincro(System.String,System.Net.Sockets.SocketAsyncEventArgs)">
-            <summary>
-            Envía un mensaje sincronamente (Discontinuado porque ya se puede hacer asincrono)
-            </summary>
-            <param name="mensaje">mensaje a enviar</param>
-            <param name="e">A client's SocketAsyncEventArgs</param>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.Stop">
             <summary>
@@ -1362,10 +1425,21 @@
             Represents a message string. This field is intended to store a textual message.
             </summary>
         </member>
+        <member name="F:ServerCore.ClientStateBase.disposed">
+            <summary>
+            Indicates whether the object has been disposed.
+            </summary>
+            <remarks>This field is used internally to track the disposal state of the object.  It should
+            not be accessed directly by external code.</remarks>
+        </member>
         <member name="M:ServerCore.ClientStateBase.#ctor">
             <summary>
-            Constructor
+            Initializes a new instance of the <see cref="T:ServerCore.ClientStateBase"/> class.
             </summary>
+            <remarks>The constructor initializes the internal state of the <see cref="T:ServerCore.ClientStateBase"/>
+            instance and prepares it for use. The initialization logic is separated into the  <see
+            cref="M:ServerCore.ClientStateBase.InitializeClientStateBase"/> method to allow reinitialization without creating a new
+            instance.</remarks>
         </member>
         <member name="M:ServerCore.ClientStateBase.InitializeClientStateBase">
             <summary>
@@ -1378,7 +1452,7 @@
             Función virtual para poder sobre escribirla, en esta se controla
             toda la operación sobre el mensaje del cliente así como su mensaje de respuesta
             </summary>
-            <param name="mensajeCliente">Mensaje que se recibe de un cliente</param>
+            <param name="clientMessage">Mensaje que se recibe de un cliente</param>
         </member>
         <member name="M:ServerCore.ClientStateBase.SetMainSocketReference(System.Object)">
             <summary>
@@ -1620,6 +1694,11 @@
         <member name="F:ServerCore.Utilities.CodigosRespuesta.CarrierAbajo">
             <summary>
             
+            </summary>
+        </member>
+        <member name="F:ServerCore.Utilities.CodigosRespuesta.ErrorEnElProceso">
+            <summary>
+            Indica un tiempo de espera excedido en el proceso
             </summary>
         </member>
         <member name="F:ServerCore.Utilities.CodigosRespuesta.MontoInvalido">

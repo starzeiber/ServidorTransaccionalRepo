@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using static ServerCore.Utilities;
@@ -216,12 +215,34 @@ namespace ServerCore
         /// </summary>
         public List<int> ProviderPortsList { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the number of messages received per second.
+        /// </summary>
         private int messagesReceivedPerSecond = 0;
+
+        /// <summary>
+        /// Gets or sets the number of messages processed per second.
+        /// </summary>
         private int messagesPerSecond = 0;
+
+        /// <summary>
+        /// Represents the timestamp of the most recent second, initialized to the current UTC time.
+        /// </summary>
+        /// <remarks>This field is intended for internal use to track or compare time intervals.  The
+        /// value is set to the current UTC time when the object is created.</remarks>
         private DateTime lastSecond = DateTime.UtcNow;
+
+        /// <summary>
+        /// A synchronization object used to ensure thread-safe access to shared resources.
+        /// </summary>
+        /// <remarks>This object is intended to be used as a lock for critical sections where multiple
+        /// threads may attempt to access or modify shared data concurrently. Use the <c>lock</c> statement with this
+        /// object to enforce mutual exclusion.</remarks>
         private readonly object lockMessages = new object();
 
+        /// <summary>
+        /// Gets the number of messages processed per second.
+        /// </summary>
         public int MessagesPerSecond => messagesPerSecond;
 
 
@@ -683,8 +704,9 @@ namespace ServerCore
         /// <param name="localPort">Puerto de escucha del servidor</param>
         /// <param name="providerIp">Ip del servidor del proveedor</param>
         /// <param name="providerPortsList">Puertos del proveedor</param>
-        /// <param name="testMode">Modo pruebas</param>
-        /// <param name="routerMode">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor</param>
+        /// <param name="testMode">Modo pruebas, no guarda las transacciones y solo responde con el eco de los datos de entrada en forma exitosa,, si está activo
+        ///  se omite el parámetro routerMode</param>
+        /// <param name="routerMode">Indicador de que el servidor tendrá la función de enviar mensajes a otro proveedor, de lo contrario solo se usuaria como servidor de procesamiento local</param>
         public void Start(Int32 localPort, string providerIp, List<int> providerPortsList, bool testMode, bool routerMode)
         {
             //Se inicializa la bandera de que no hay ningún cliente pendiente por desconectar
@@ -1824,7 +1846,7 @@ namespace ServerCore
         /// langword="false"/> if an error occurred during the removal process.</returns>
         public bool RemoveClientToClientList(T clientState)
         {
-            bool isLock=false;
+            bool isLock = false;
             try
             {
                 // proporciona un mecanismo de sincronización de acceso a datos donde un hilo solo puede tener acceso a un
@@ -1836,7 +1858,7 @@ namespace ServerCore
                     // se busca en la lista el cliente y se remueve porque se va a desconectar
                     if (clientsList.ContainsKey(clientState.UniqueClientId))
                     {
-                        clientsList.TryRemove(clientState.UniqueClientId,out _);
+                        clientsList.TryRemove(clientState.UniqueClientId, out _);
                     }
                     else
                     {
@@ -1956,7 +1978,7 @@ namespace ServerCore
         /// <param name="saea"></param>
         private void ConnectionAcceptProviderCallBack(object sender, SocketAsyncEventArgs saea)
         {
-            var sb = new StringBuilder();             
+            var sb = new StringBuilder();
             if (saea == null)
             {
                 sb.Append("SocketAsyncEventArgs es nulo en ");
@@ -1967,7 +1989,7 @@ namespace ServerCore
 
             T clientState = saea.UserToken as T;
             X providerState = providerStateManager.GetProviderState();
-            if(providerState==null)
+            if (providerState == null)
             {
                 sb.Append("No se pudo obtener el estado del proveedor en ");
                 sb.Append(nameof(ConnectionAcceptProviderCallBack));
@@ -1991,7 +2013,7 @@ namespace ServerCore
             //Se establece el buffer que se utilizará en la operación de lectura del cliente en el eventArgDeRecepcion
             if (providerState.saeaSendReceive.Buffer == null)
                 if (!bufferManager.SetBuffer(providerState.saeaSendReceive, providerState.clientStateSource.UniqueClientId))
-                {                    
+                {
                     providerState.SetResponseCode((int)CodigosRespuesta.ErrorProcesoSockets);
                     providerState.SetAuthorizationCode(0);
                     providerState.clientStateSource.SetResponseCode(providerState.responseCode);
@@ -2088,7 +2110,7 @@ namespace ServerCore
             providerState.SetResponseCode(0);
             providerState.SetAuthorizationCode(0);
 
-            if(ValidateTimeOutExpired((T)providerState.clientStateSource))
+            if (ValidateTimeOutExpired((T)providerState.clientStateSource))
             {
                 sb.Clear();
                 sb.Append("Se venció el TimeOut para el cliente ");
@@ -2109,7 +2131,7 @@ namespace ServerCore
                 return;
             }
 
-            
+
 
             try
             {
@@ -2151,7 +2173,7 @@ namespace ServerCore
                     providerState.saeaSendReceive.SetBuffer(providerState.saeaSendReceive.Offset, bytesCounter);
 
                     //140824 se valida que exista tiempo suficiente para que el proveedor (procesa) realice la tarea
-                    if (!ValidateTimeRemaining(providerState, out int timeremaining))
+                    if (!ValidateTimeRemainingToProvider(providerState, out int timeremaining))
                     {
                         providerState.SetResponseCode((int)CodigosRespuesta.ErrorEnElProceso);
                         providerState.SetAuthorizationCode(0);
@@ -2221,7 +2243,7 @@ namespace ServerCore
             bool isLock = false;
             try
             {
-                 isLock = Monitor.TryEnter(providersList, milisecondsTimeOutLock);
+                isLock = Monitor.TryEnter(providersList, milisecondsTimeOutLock);
                 if (isLock)
                 {
                     if (!providersList.ContainsKey(providerState.UniqueProviderId))
@@ -2249,7 +2271,7 @@ namespace ServerCore
             }
             finally
             {
-                if (isLock )
+                if (isLock)
                     Monitor.Exit(providersList);
             }
         }
@@ -2306,7 +2328,7 @@ namespace ServerCore
             var sb = new StringBuilder();
             try
             {
-                sb.Append("Mensaje enviado al proveedor: ");
+                sb.Append("Mensaje que se envia al proveedor: ");
                 sb.Append(providerState.messageRequest.Trim().Substring(2));
                 sb.Append(" para el cliente: ");
                 sb.Append(providerState.clientStateSource.UniqueClientId);
@@ -2315,7 +2337,7 @@ namespace ServerCore
             catch (Exception ex)
             {
                 sb.Append(ex.Message);
-                sb.Append(" Mensaje enviado al proveedor: ");
+                sb.Append("Mensaje que se envia al proveedor: ");
                 sb.Append(providerState.messageRequest);
                 sb.Append(" para el cliente: ");
                 sb.Append(providerState.clientStateSource.UniqueClientId);
@@ -2378,7 +2400,7 @@ namespace ServerCore
             switch (e.LastOperation)
             {
                 case SocketAsyncOperation.Send:
-                    
+
                     // se comprueba que no hay errores con el socket
                     if (e.SocketError == SocketError.Success)
                     {
@@ -2514,7 +2536,7 @@ namespace ServerCore
             SocketAsyncEventArgs saeaReceive = providerState.saeaSendReceive;
             // se obtienen los bytes que han sido recibidos
             int bytesTransferred = saeaReceive.BytesTransferred;
-            
+
             //si aún no expira el timeout
             if (providerState.wasTimeOutExpired == 0)
             {
@@ -2654,11 +2676,11 @@ namespace ServerCore
         /// <param name="providerState">The provider state to add to the pending disconnection list.  This parameter must not be null.</param>
         private void AddProvidersPendingDisconnectionList(X providerState)
         {
-            bool isLock=false;
+            bool isLock = false;
             try
             {
                 isLock = Monitor.TryEnter(ProvidersPendingDisconnectionList, Utilities.milisecondsTimeOutLock);
-                if(isLock)
+                if (isLock)
                 {
                     if (!ProvidersPendingDisconnectionList.Contains(providerState))
                         ProvidersPendingDisconnectionList.Add(providerState);
@@ -2666,7 +2688,7 @@ namespace ServerCore
             }
             catch (Exception)
             {
-                var sb= new StringBuilder();
+                var sb = new StringBuilder();
                 sb.Append("Error agregando el proveedor a la lista de desconexiones pendientes, ");
                 sb.Append(nameof(AddProvidersPendingDisconnectionList));
                 sb.Append(", cliente ");
@@ -2806,7 +2828,7 @@ namespace ServerCore
         /// langword="false"/> if an error occurred during the removal process.</returns>
         private bool RemoveProviderToProviderPendingList(X providerState)
         {
-            bool isLock = false;    
+            bool isLock = false;
             try
             {
                 // proporciona un mecanismo de sincronización de acceso a datos donde un hilo solo puede tener acceso a un
@@ -2860,7 +2882,7 @@ namespace ServerCore
         /// <param name="estadoDelProveedor"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        private bool ValidateTimeRemaining(X providerState, out int timeRemaining)
+        private bool ValidateTimeRemainingToProvider(X providerState, out int timeRemaining)
         {
             bool isLock = false;
             try
@@ -2871,42 +2893,51 @@ namespace ServerCore
                 {
                     TimeSpan timeSpan = DateTime.Now - providerState.clientStateSource.StartDateTrx;
                     var sb = new StringBuilder();
-                    sb.Append(nameof(ValidateTimeRemaining));
-                    sb.Append(", fechaHoraDeComprobacion: ");
+                    sb.Append(nameof(ValidateTimeRemainingToProvider));
+                    sb.Append(", a la fechaHoraDeComprobacion: ");
                     sb.Append(DateTime.Now);
-                    sb.Append(" - fechaHoraInicioTrx: ");
+                    sb.Append(" se le resta la fechaHoraInicioTrx: ");
                     sb.Append(providerState.clientStateSource.StartDateTrx);
-                    sb.Append(", resultado: ");
+                    sb.Append(" el resultado es: ");
                     sb.Append(timeSpan.Seconds);
-                    sb.Append(" segundos transcurridos. El timeout establecido del proveedor es de: ");
+                    sb.Append(" segundos transcurridos desde que llegó la petición. El timeout establecido del proveedor es de: ");
+                    sb.Append(providerState.timeOut);
+                    sb.Append(" segundos.");
+                    sb.Append(" Por lo tanto si se le suma el tiempo transcurrido al timeout completo del proveedor, el resultado es: ");
+                    int expectedElapsedTime = providerState.timeOut + timeSpan.Seconds;
+                    sb.Append(expectedElapsedTime);
+                    sb.Append(" segundos que pudiera tomar la transacción y si el timeout del cliente es: ");
                     sb.Append(providerState.clientStateSource.timeOut);
-                    sb.Append(" - ");
-                    sb.Append(timeSpan.Seconds);
-                    sb.Append(" segundos transcurridos= ");
-                    sb.Append(providerState.clientStateSource.timeOut - timeSpan.Seconds);
-                    sb.Append(" segundos restantes. cliente: ");
+                    sb.Append(" segundos. ");
+
+
+                    if (expectedElapsedTime < providerState.clientStateSource.timeOut)
+                    {
+                        sb.Append("Hay tiempo suficiente para procesar la solicitud con el proveedor, ");
+                        hasEnoughTime = true;
+                    }
+                    else
+                    {
+                        sb.Append("No hay tiempo suficiente para procesar la solicitud con el proveedor, ");
+                        hasEnoughTime = false;
+                    }
+                    sb.Append("clienteId: ");
                     sb.Append(providerState.clientStateSource.UniqueClientId);
                     Log(sb.ToString(), LogType.Info);
-
-
                     timeRemaining = providerState.clientStateSource.timeOut - timeSpan.Seconds;
-                    if (timeRemaining > ServerCore.ServerConfiguration.providerTimeout)
-                        hasEnoughTime = true;
-                    else
-                        hasEnoughTime = false;
+                    return hasEnoughTime;
                 }
                 else
                 {
-                    timeRemaining = 0;
-                    hasEnoughTime = false;
+                    throw new Exception("No se pudo bloquear el proceso para validar el tiempo restante para el proveedor");
                 }
-                return hasEnoughTime;
+
             }
             catch (Exception ex)
             {
                 var sb = new StringBuilder();
                 sb.Append("Error en ");
-                sb.Append(nameof(ValidateTimeRemaining));
+                sb.Append(nameof(ValidateTimeRemainingToProvider));
                 sb.Append(": ");
                 sb.Append(ex.Message);
                 sb.Append(". cliente ");
@@ -2936,7 +2967,7 @@ namespace ServerCore
             providerState.SetAuthorizationCode(0);
             providerState.clientStateSource.SetResponseCode(providerState.responseCode);
             providerState.clientStateSource.SetAuthorizationCode(providerState.authorizacionCode);
-            
+
             var sb = new StringBuilder();
             sb.Append("Se venció el timeout para la solicitud al endpoint: ");
             sb.Append(providerState.endPoint);
@@ -3197,7 +3228,7 @@ namespace ServerCore
                         sb.Append(ex.Message);
                         Log(sb.ToString(), LogType.Error);
                     }
-                }                
+                }
             }
             ProvidersPendingDisconnectionList.Clear();
             Monitor.Exit(ProvidersPendingDisconnectionList);
@@ -3223,7 +3254,7 @@ namespace ServerCore
 
 
             InExecution = false;
-            disconnecting = false;            
+            disconnecting = false;
         }
 
         /// <summary>

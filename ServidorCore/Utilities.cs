@@ -114,7 +114,7 @@ namespace ServerCore
         [Obfuscation(Exclude = true)]
 
         internal static void Log(string message, LogType logType)
-        {            
+        {
             switch (logType)
             {
                 case LogType.Info:

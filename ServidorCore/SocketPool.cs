@@ -149,7 +149,7 @@ namespace ServerCore
                     try
                     {
                         while (socket.Available > 0)
-                        {                            
+                        {
                             // Lee y descarta los datos pendientes
                             byte[] tempBuffer = new byte[socket.Available];
                             socket.Receive(tempBuffer, 0, tempBuffer.Length, SocketFlags.None);
@@ -271,7 +271,7 @@ namespace ServerCore
                 {
                     Monitor.Exit(pool);
                 }
-            }            
+            }
         }
     }
 }
