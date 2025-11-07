@@ -67,7 +67,8 @@ using System.Runtime.InteropServices;
 //                                  También se implementa BufferManager para la gestión eficiente de buffers en operaciones asíncronas
 //                                  Se crea un nuevo validador de timeout para la clase proveedor
 //                                  por último se crea una rutina de devolución de saeas al pool de proveedores cuando se genera un timeout   
+//@UMB      06/11/25    13.0.0.0    Se implementan alertas sobre saturación, también comprobaciones de respuestas con el eco de los campos de solicitudes. Se confirma el mecanismo de hilo seguro y bloqueos. Se espera que sea la versión final
 
 
-[assembly: AssemblyVersion("12.0.0.0")]
-[assembly: AssemblyFileVersion("12.0.0.0")]
+[assembly: AssemblyVersion("13.0.0.0")]
+[assembly: AssemblyFileVersion("13.0.0.0")]
