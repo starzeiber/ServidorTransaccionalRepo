@@ -47,6 +47,8 @@ namespace ServerCore
             get { return this.bufferStackOffsetsIndex.Count; }
         }
 
+        private readonly HashSet<int> bufferOffsetsHashSet = new HashSet<int>();
+
         /// <summary>
         /// Constructor que inicializa los valores del administrador de buffer
         /// </summary>
@@ -87,10 +89,28 @@ namespace ServerCore
                         return;
                     }
 
-                    //Se inserta al principio de la pila un índice que muestra el desplazamiento en el buffer que utilizó SocketAsyncEventArgs
-                    //para que sea reutilizado, de esta forma secciones iguales se toman y se regresan
-                    this.bufferStackOffsetsIndex.Push(saea.Offset);
-                    saea.SetBuffer(null, 0, 0);
+                    // Antes de hacer push, valida que la pila no exceda el máximo
+                    if (this.bufferStackOffsetsIndex.Count < maxNumberStackBuffers)
+                    {
+                        // Valida que no se agregue un offset duplicado
+                        if (!bufferOffsetsHashSet.Contains(saea.Offset))
+                        {
+                            this.bufferStackOffsetsIndex.Push(saea.Offset);
+                            bufferOffsetsHashSet.Add(saea.Offset);
+                            saea.SetBuffer(null, 0, 0);
+                        }
+                        else
+                        {
+                            var sb = new System.Text.StringBuilder();
+                            sb.Append("Offset duplicado detectado en ");
+                            sb.Append(nameof(FreeBuffer));
+                            sb.Append(", offset ");
+                            sb.Append(saea.Offset);
+                            sb.Append(" cliente: ");
+                            sb.Append(uniqueClientId);
+                            Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
+                        }
+                    }
                 }
                 else
                 {
@@ -145,6 +165,7 @@ namespace ServerCore
                     {
                         // Se obtiene el offset y se limpia la sección antes de asignarla
                         offset = bufferStackOffsetsIndex.Pop();
+                        bufferOffsetsHashSet.Remove(offset);
                         Array.Clear(fullBuffer, offset, sizeBufferPerRequest);
                         socketAsyncEventArgs.SetBuffer(fullBuffer, offset, sizeBufferPerRequest);
                     }

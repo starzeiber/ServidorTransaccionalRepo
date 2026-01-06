@@ -26,6 +26,9 @@ namespace ServerCore
         where S : ServerStateBase
         where X : ProviderStateBase
     {
+        /// <summary>
+        /// Specifies the timeout duration, in milliseconds, to wait for acquiring a lock.
+        /// </summary>
         const int milisecondsTimeOutLock = 500;
 
         /// <summary>
@@ -288,7 +291,20 @@ namespace ServerCore
         /// </summary>
         private readonly SemaphoreSlim ProviderSemaphoreConnections;
 
+        /// <summary>
+        /// Indicates whether the response was triggered due to system saturation.
+        /// </summary>
+        private bool responseDueToSaturation = false;
 
+        /// <summary>
+        /// Sets the response code flag to indicate whether saturation has occurred.
+        /// </summary>
+        /// <param name="saturationExists">A value indicating whether saturation exists. Set to <see langword="true"/> if saturation is present;
+        /// otherwise, <see langword="false"/>.</param>
+        public void SetResponseCodeDueToSaturation(bool saturationExists)
+        {
+            responseDueToSaturation = saturationExists;
+        }
 
         /// <summary>
         /// Representa un conjunto enorme de buffer reutilizables entre todos los sockects de trabajo
@@ -1125,6 +1141,19 @@ namespace ServerCore
             }
 
             //Verifico si se venció el TO mientras procesaba la trama
+            if (responseDueToSaturation)
+            {
+                var sb = new StringBuilder();
+                sb.Append("Respuesta forzada por saturación de componentes para el cliente ");
+                sb.Append(clientState.UniqueClientId.ToString());
+                sb.Append(". No se enviará la solicitud al proveedor.");
+                Log(sb.ToString(), LogType.Warning);
+                clientState.responseCode = (int)CodigosRespuesta.ErrorProcesoSockets;
+                clientState.authorizationCode = 0;
+                ResponseToClient(clientState);
+                return;
+            }
+
             if (ValidateTimeOutExpired(clientState))
             {
                 var sb = new StringBuilder();
@@ -2007,6 +2036,7 @@ namespace ServerCore
             providerState.SetObjClientRequest(clientState.objRequest);
             providerState.SetClientState(clientState);
             providerState.endPoint = (IPEndPoint)saea.RemoteEndPoint;
+            providerState.TimeOutExpired -= ProviderTimeOutExpired;
             providerState.TimeOutExpired += ProviderTimeOutExpired;
 
 
@@ -2608,6 +2638,8 @@ namespace ServerCore
             var sb = new StringBuilder();
             try
             {
+                // se desuscribe del evento de timeout
+                providerState.TimeOutExpired -= ProviderTimeOutExpired;
                 // Se comprueba que la información del socket de trabajo sea null, ya que podría ser invocado como resultado 
                 // de una operación de E / S sin valores
                 if (providerState == null) return;
@@ -2989,19 +3021,57 @@ namespace ServerCore
 
             // Forzar cierre del socket si sigue abierto para desencadenar su callback
             try
-            {
+            {                
                 if (providerState.SocketOfWork != null)
                 {
-                    providerState.SocketOfWork.Shutdown(SocketShutdown.Both);
-                    providerState.SocketOfWork.Close();
+                    if(IsSocketConnected(providerState.SocketOfWork))
+                    {
+                        providerState.SocketOfWork.Shutdown(SocketShutdown.Both);
+                        providerState.SocketOfWork.Close();
+                    }                    
                 }
             }
             catch (Exception ex)
             {
-                sb.Append("Error forzando cierre de socket por timeout: " + ex.Message);
+                sb.Clear();
+                sb.Append(" Error forzando cierre de socket por timeout: " + ex.Message);
                 sb.Append(", cliente ");
                 sb.Append(providerState.clientStateSource.UniqueClientId);
                 Log(sb.ToString(), LogType.Error);
+                providerState.CancelTimeoutCounter();
+                
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Socket"/> is currently connected.
+        /// </summary>
+        /// <remarks>This method checks the connectivity of the socket by polling its state. A return
+        /// value of  <see langword="false"/> indicates that the socket is either closed or no longer
+        /// connected.</remarks>
+        /// <param name="socket">The <see cref="Socket"/> instance to check for connectivity.</param>
+        /// <returns><see langword="true"/> if the socket is connected; otherwise, <see langword="false"/>.</returns>
+        private bool IsSocketConnected(Socket socket)
+        {
+            var sb = new StringBuilder();
+            try
+            {
+                if (socket == null)
+                {
+                    return false;
+                }
+                //sb.Append("verificando conectividad del socket.");
+                //sb.Append(socket.RemoteEndPoint.ToString());
+                //sb.Append(" para poder reutilizarlo.");
+                //Utilities.Log(sb.ToString(), Utilities.LogType.Info);
+                return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (SocketException sex)
+            {
+                sb.Append("SocketException al verificar la conectividad del socket. ");
+                sb.Append(sex.Message);
+                Utilities.Log(sb.ToString(), Utilities.LogType.Warning);
+                return false;
             }
         }
 

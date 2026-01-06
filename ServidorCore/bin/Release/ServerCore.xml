@@ -500,6 +500,11 @@
             <typeparam name="X">Instancia sobre la clase que contiene la información de un cliente conectado y su
             socket de trabajo una vez asignado desde el pool</typeparam>
         </member>
+        <member name="F:ServerCore.TransactionalServer`3.milisecondsTimeOutLock">
+            <summary>
+            Specifies the timeout duration, in milliseconds, to wait for acquiring a lock.
+            </summary>
+        </member>
         <member name="F:ServerCore.TransactionalServer`3.clientFactory">
             <summary>
             A factory method used to create instances of type <typeparamref name="T"/>.
@@ -711,6 +716,18 @@
             <summary>
             semáforo sobre las peticiones a proveedores para controlar el número total que podrá soportar el servidor
             </summary>
+        </member>
+        <member name="F:ServerCore.TransactionalServer`3.responseDueToSaturation">
+            <summary>
+            Indicates whether the response was triggered due to system saturation.
+            </summary>
+        </member>
+        <member name="M:ServerCore.TransactionalServer`3.SetResponseCodeDueToSaturation(System.Boolean)">
+            <summary>
+            Sets the response code flag to indicate whether saturation has occurred.
+            </summary>
+            <param name="saturationExists">A value indicating whether saturation exists. Set to <see langword="true"/> if saturation is present;
+            otherwise, <see langword="false"/>.</param>
         </member>
         <member name="F:ServerCore.TransactionalServer`3.bufferManager">
             <summary>
@@ -1183,6 +1200,16 @@
             authorization codes,  sends a response to the client, and closes the provider's socket connection.</remarks>
             <param name="sender">The source of the event, representing the provider's state.</param>
             <param name="e">The event data associated with the timeout expiration.</param>
+        </member>
+        <member name="M:ServerCore.TransactionalServer`3.IsSocketConnected(System.Net.Sockets.Socket)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Net.Sockets.Socket"/> is currently connected.
+            </summary>
+            <remarks>This method checks the connectivity of the socket by polling its state. A return
+            value of  <see langword="false"/> indicates that the socket is either closed or no longer
+            connected.</remarks>
+            <param name="socket">The <see cref="T:System.Net.Sockets.Socket"/> instance to check for connectivity.</param>
+            <returns><see langword="true"/> if the socket is connected; otherwise, <see langword="false"/>.</returns>
         </member>
         <member name="M:ServerCore.TransactionalServer`3.Stop">
             <summary>

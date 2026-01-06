@@ -330,10 +330,17 @@ namespace ServerCore
             try
             {
                 _timeoutCts?.Cancel();
+                var sb= new System.Text.StringBuilder();
+                sb.Append("Timeout cancelado correctamente para la operación. ");
+                sb.Append("ProveedorId: ");
+                sb.Append(this.UniqueProviderId);
+                sb.Append(". cliente: ");
+                sb.Append(this.clientStateSource?.UniqueClientId.ToString() ?? "N/A");
+                Utilities.Log(sb.ToString(), Utilities.LogType.Info);
             }
             catch (Exception ex)
             {
-                Utilities.Log($"Error al cancelar el contador de timeout: {ex.Message}", Utilities.LogType.Error);
+                Utilities.Log($"Error al cancelar el contador de timeout: {ex.Message}, para el cliente {clientStateSource.UniqueClientId}", Utilities.LogType.Error);
             }
         }
 

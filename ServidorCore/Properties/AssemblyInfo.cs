@@ -68,7 +68,8 @@ using System.Runtime.InteropServices;
 //                                  Se crea un nuevo validador de timeout para la clase proveedor
 //                                  por último se crea una rutina de devolución de saeas al pool de proveedores cuando se genera un timeout   
 //@UMB      06/11/25    13.0.0.0    Se implementan alertas sobre saturación, también comprobaciones de respuestas con el eco de los campos de solicitudes. Se confirma el mecanismo de hilo seguro y bloqueos. Se espera que sea la versión final
+//@UMB      29/12/25    13.1.0.0    Se agrega un control más estricto sobre la reutilización de sockets en el SocketPool para evitar condiciones de carrera. Se optimizan los logs para incluir identificadores únicos de transacciones, facilitando el rastreo de operaciones específicas. Se implementa un mecanismo de limpieza automática para sockets inactivos en el pool, mejorando la gestión de recursos a largo plazo. Además de agregar un control de excepciones en evento de timeout para evitar fugas de recursos en escenarios de alta concurrencia. Por ultimo, un control de códigos de respuesta cuando ocurra alguna saturación
+//@UMB      06/01/26    13.1.1.0    Corrección menor en la comprobación y suscripción del evento de timeout para evitar fugas de recursos.
 
-
-[assembly: AssemblyVersion("13.0.0.0")]
-[assembly: AssemblyFileVersion("13.0.0.0")]
+[assembly: AssemblyVersion("13.1.1.0")]
+[assembly: AssemblyFileVersion("13.1.1.0")]
