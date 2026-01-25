@@ -2822,7 +2822,9 @@ namespace ServerCore
                         var sb = new StringBuilder();
                         sb.Append("No se encontró el proveedor ");
                         sb.Append(providerState.UniqueProviderId);
-                        sb.Append(" en lista de proveedores a desconectar, ya ha sido desconectado en otro proceso");
+                        sb.Append(" en lista de proveedores a desconectar, ya ha sido desconectado en otro proceso. ");
+                        sb.Append("cliente:");
+                        sb.Append(providerState.clientStateSource.UniqueClientId);
                         Log(sb.ToString(), LogType.Warning);
                     }
                 }
@@ -2837,7 +2839,7 @@ namespace ServerCore
                 var sb = new StringBuilder();
                 sb.Append(ex.Message);
                 sb.Append(" Error removiendo el proveedor de la lista de proveedores, cliente ");
-                sb.Append(providerState.clientStateSource.UniqueClientId);
+                sb.Append(providerState.clientStateSource?.UniqueClientId.ToString() ?? "N/A");
                 Log(sb.ToString(), LogType.Error);
                 return false;
             }

@@ -71,5 +71,5 @@ using System.Runtime.InteropServices;
 //@UMB      29/12/25    13.1.0.0    Se agrega un control más estricto sobre la reutilización de sockets en el SocketPool para evitar condiciones de carrera. Se optimizan los logs para incluir identificadores únicos de transacciones, facilitando el rastreo de operaciones específicas. Se implementa un mecanismo de limpieza automática para sockets inactivos en el pool, mejorando la gestión de recursos a largo plazo. Además de agregar un control de excepciones en evento de timeout para evitar fugas de recursos en escenarios de alta concurrencia. Por ultimo, un control de códigos de respuesta cuando ocurra alguna saturación
 //@UMB      06/01/26    13.1.1.0    Corrección menor en la comprobación y suscripción del evento de timeout para evitar fugas de recursos.
 
-[assembly: AssemblyVersion("13.1.1.0")]
-[assembly: AssemblyFileVersion("13.1.1.0")]
+[assembly: AssemblyVersion("13.1.1.1")]
+[assembly: AssemblyFileVersion("13.1.1.1")]

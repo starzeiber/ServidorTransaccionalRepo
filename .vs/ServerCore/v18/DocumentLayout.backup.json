@@ -9,6 +9,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\servidorcore\\transactionalserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\transactionalserver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|c:\\users\\uriel\\documents\\github\\servidortransaccionalrepo\\servidorcore\\clientstatemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1684CA50-C181-4396-B92C-9A6098798DCD}|ServidorCore\\ServerCore.csproj|solutionrelative:servidorcore\\clientstatemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -56,9 +60,22 @@
               "RelativeDocumentMoniker": "ServidorCore\\Properties\\AssemblyInfo.cs",
               "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\Properties\\AssemblyInfo.cs",
               "RelativeToolTip": "ServidorCore\\Properties\\AssemblyInfo.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAAEoAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAAAEoAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-06T18:50:10.294Z",
+              "WhenOpened": "2026-01-14T19:14:45.616Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ClientStateManager.cs",
+              "DocumentMoniker": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\ClientStateManager.cs",
+              "RelativeDocumentMoniker": "ServidorCore\\ClientStateManager.cs",
+              "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\ClientStateManager.cs",
+              "RelativeToolTip": "ServidorCore\\ClientStateManager.cs",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAAAH4AAABSAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-14T19:12:57.767Z",
               "EditorCaption": ""
             },
             {
@@ -69,7 +86,7 @@
               "RelativeDocumentMoniker": "ServidorCore\\TransactionalServer.cs",
               "ToolTip": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\ServidorCore\\TransactionalServer.cs",
               "RelativeToolTip": "ServidorCore\\TransactionalServer.cs",
-              "ViewState": "AgIAAIgHAAAAAAAAAAAUwPcHAABDAAAAAAAAAA==",
+              "ViewState": "AgIAAPIKAAAAAAAAAAAAABkLAABfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-23T16:50:58.632Z",
               "EditorCaption": ""
