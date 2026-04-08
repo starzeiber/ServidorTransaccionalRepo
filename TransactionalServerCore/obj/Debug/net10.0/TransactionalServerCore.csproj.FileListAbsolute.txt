@@ -1,0 +1,13 @@
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.csproj.AssemblyReference.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.AssemblyInfoInputs.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.AssemblyInfo.cs
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.csproj.CoreCompileInputs.cache
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.sourcelink.json
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\bin\Debug\net10.0\TransactionalServerCore.deps.json
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\bin\Debug\net10.0\TransactionalServerCore.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\bin\Debug\net10.0\TransactionalServerCore.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\refint\TransactionalServerCore.dll
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\TransactionalServerCore.pdb
+C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\obj\Debug\net10.0\ref\TransactionalServerCore.dll

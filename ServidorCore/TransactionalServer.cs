@@ -3023,14 +3023,14 @@ namespace ServerCore
 
             // Forzar cierre del socket si sigue abierto para desencadenar su callback
             try
-            {                
+            {
                 if (providerState.SocketOfWork != null)
                 {
-                    if(IsSocketConnected(providerState.SocketOfWork))
+                    if (IsSocketConnected(providerState.SocketOfWork))
                     {
                         providerState.SocketOfWork.Shutdown(SocketShutdown.Both);
                         providerState.SocketOfWork.Close();
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -3041,7 +3041,7 @@ namespace ServerCore
                 sb.Append(providerState.clientStateSource.UniqueClientId);
                 Log(sb.ToString(), LogType.Error);
                 providerState.CancelTimeoutCounter();
-                
+
             }
         }
 

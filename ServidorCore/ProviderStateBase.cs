@@ -330,7 +330,7 @@ namespace ServerCore
             try
             {
                 _timeoutCts?.Cancel();
-                var sb= new System.Text.StringBuilder();
+                var sb = new System.Text.StringBuilder();
                 sb.Append("Timeout cancelado correctamente para la operación. ");
                 sb.Append("ProveedorId: ");
                 sb.Append(this.UniqueProviderId);
