@@ -33,22 +33,22 @@ namespace TransactionalServerCore
         /// <summary>
         /// Id del procesador del equipo
         /// </summary>
-        internal string ProcessorId { get; set; }
+        internal string ProcessorId { get; set; }=string.Empty;
 
         /// <summary>
         /// Producto que se ejecuta
         /// </summary>
-        internal string Product { get; set; }
+        internal string Product { get; set; } = string.Empty;
 
         /// <summary>
         /// información del fabricante
         /// </summary>
-        internal string Manufacturer { get; set; }
+        internal string Manufacturer { get; set; } = string.Empty;
 
         /// <summary>
         /// Toda la licencia
         /// </summary>
-        internal string Licence { get; set; }
+        internal string Licence { get; set; } = string.Empty;
 
         /// <summary>
         /// Obtiene la información de la PC que se requiere para el funcionamiento del server

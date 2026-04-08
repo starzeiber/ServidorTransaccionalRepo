@@ -1,0 +1,6 @@
+<project outputDir="C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\bin\Release\net10.0\publish\win-x64\Confused" baseDir="C:\Users\uriel\Documents\GitHub\ServidorTransaccionalRepo\TransactionalServerCore\bin\Release\net10.0\publish\win-x64" xmlns="http://confuser.codeplex.com">
+  <rule pattern="true" preset="aggressive" inherit="false">
+    <protection id="anti debug" action="remove" />
+  </rule>
+  <module path="TransactionalServerCore.dll" />
+</project>

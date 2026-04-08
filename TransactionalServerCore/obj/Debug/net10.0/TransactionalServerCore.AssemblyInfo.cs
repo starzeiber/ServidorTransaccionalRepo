@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TransactionalServerCore")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c01d1886f3aad1e69bb8c4ed2f02d9b98088b81d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7dfcb4e7dbc9a1028e48d4e0bb69a759fa63414b")]
 [assembly: System.Reflection.AssemblyProductAttribute("TransactionalServerCore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TransactionalServerCore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -765,7 +765,7 @@
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
-    "version": "1.0.0",
+    "version": "14.0.0",
     "restore": {
       "projectUniqueName": "C:\\Users\\uriel\\Documents\\GitHub\\ServidorTransaccionalRepo\\TransactionalServerCore\\TransactionalServerCore.csproj",
       "projectName": "TransactionalServerCore",

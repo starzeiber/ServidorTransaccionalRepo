@@ -32,21 +32,21 @@ namespace TransactionalServerCore
         /// <remarks>This delegate is expected to return a new or existing instance of <typeparamref
         /// name="T"/>  when invoked. Ensure that the factory method is properly configured to provide valid instances 
         /// of the required type.</remarks>
-        private Func<T> clientFactory;
+        private Func<T>? clientFactory;
 
         /// <summary>
         /// A delegate that creates and returns an instance of type <typeparamref name="S"/>.
         /// </summary>
         /// <remarks>This factory function is used to generate instances of the specified type
         /// <typeparamref name="S"/>  on demand. Ensure that the delegate is properly initialized before use.</remarks>
-        private Func<S> serverFactory;
+        private Func<S>? serverFactory;
 
         /// <summary>
         /// A delegate that provides a factory method for creating instances of type <see cref="X"/>.
         /// </summary>
         /// <remarks>This delegate is used to encapsulate the logic for creating instances of <see
         /// cref="X"/>.  It allows for deferred or customized instantiation of the type.</remarks>
-        private Func<X> providerFactory;
+        private Func<X>? providerFactory;
 
         /// <summary>
         /// Represents a pool of reusable socket connections.
@@ -1619,7 +1619,7 @@ namespace TransactionalServerCore
                 // si regresa un false su operación asincrona no se realizó por lo tanto forzamos su recepción sincronamente
                 bool seHizoAsync = clientState.SocketOfWork.ReceiveAsync(clientState.saeaOfSendReceive);
                 if (!seHizoAsync)
-                    // si el evento indica que el proceso está pendiente, se completa el flujo,
+                    // si el evento indica que el proceso asincrono está pendiente, se completa el flujo,
                     // de manera forzada ya que se tiene asignado un manejador de eventos a esta función
                     // en su evento callback
                     ReceiveSendIncomingProcessCallBack(clientState.SocketOfWork, clientState.saeaOfSendReceive);
@@ -3390,7 +3390,6 @@ namespace TransactionalServerCore
                     return false;
 
                 return string.Compare(Security.PROGRAM, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Program])) == 0
-                        //&& DateTime.Compare(localValidity, DateTime.Parse(encrypter.DesEncrypterText(licence.Split('|')[(int)Licence.Validity]))) <= 0
                         && (string.Compare(security.ProcessorId, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.ProcessorId])) == 0)
                         && (string.Compare(security.Product, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Product])) == 0)
                         && (string.Compare(security.Manufacturer, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Manufacturer])) == 0);

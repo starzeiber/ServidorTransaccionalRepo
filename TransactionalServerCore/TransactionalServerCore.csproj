@@ -4,6 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>14.0.0</Version>
+    <Authors>UMB</Authors>
+    <Company>UMB</Company>
+    <AssemblyVersion>14.0.0</AssemblyVersion>
+    <FileVersion>14.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

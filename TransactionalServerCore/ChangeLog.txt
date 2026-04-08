@@ -1,0 +1,2 @@
+﻿//Autor     Fecha       Versión     Descripción
+//@UMB      02/06/21    14.0.0.0     Se actualiza a la versión net core 10
