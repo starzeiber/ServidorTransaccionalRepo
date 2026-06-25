@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "TransactionalServerCore/14.0.0": {
+      "TransactionalServerCore/1.0.0": {
         "dependencies": {
           "NLog": "6.1.2",
           "System.Diagnostics.PerformanceCounter": "10.0.5",
@@ -233,7 +233,7 @@
     }
   },
   "libraries": {
-    "TransactionalServerCore/14.0.0": {
+    "TransactionalServerCore/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
