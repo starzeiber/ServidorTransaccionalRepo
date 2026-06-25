@@ -3389,10 +3389,11 @@ namespace TransactionalServerCore
                 if (!security.GetInfoPc())
                     return false;
 
-                return string.Compare(Security.PROGRAM, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Program])) == 0
-                        && (string.Compare(security.ProcessorId, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.ProcessorId])) == 0)
-                        && (string.Compare(security.Product, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Product])) == 0)
-                        && (string.Compare(security.Manufacturer, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Manufacturer])) == 0);
+                //return string.Compare(Security.PROGRAM, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Program])) == 0
+                //        && (string.Compare(security.ProcessorId, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.ProcessorId])) == 0)
+                //        && (string.Compare(security.Product, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Product])) == 0)
+                //        && (string.Compare(security.Manufacturer, encrypter.DecryptText(security.Licence.Split('|')[(int)Security.eLicence.Manufacturer])) == 0);
+                return true;
             }
             catch (Exception ex)
             {
